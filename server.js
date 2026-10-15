@@ -45,6 +45,11 @@ function lerConfig() {
     c = padrao;
     // Arquivo existe mas está com defeito: não sobrescreve, para não perder o que estava lá.
     if (e.code !== 'ENOENT') { arquivoOk = false; console.error('config.json com defeito:', e.message); }
+    // Primeira vez: o zip traz config-inicial.json (e não config.json, para que extrair
+    // o zip por cima de uma pasta já em uso não apague a configuração de quem já usa).
+    else {
+      try { c = { ...padrao, ...JSON.parse(fs.readFileSync(path.join(RAIZ, 'config-inicial.json'), 'utf8')) }; } catch {}
+    }
   }
   // Versões antigas gravavam o 3.8-flash como modelo; ele estoura o limite grátis em ~20 notas por dia.
   if (c.modeloGemini === 'gemini-3.8-flash') c.modeloGemini = padrao.modeloGemini;

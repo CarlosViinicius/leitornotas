@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.0",
+  "versao": "1.1.1",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Chave de acesso mais certeira (corrige sozinha quando um número vem lido errado)",
@@ -10,7 +10,7 @@
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "486d881a272232dae1a75175fd4351ad316dafc8d23ee943134161a2f23b5ee5"
+      "sha256": "89ed0ff17a9b4b0aa4168b7fcb7b5938d690b7d38c53fe1d6ff8ae9a73c9476c"
     },
     {
       "arquivo": "package.json",
