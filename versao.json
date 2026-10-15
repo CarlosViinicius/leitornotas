@@ -1,0 +1,60 @@
+{
+  "versao": "1.1.0",
+  "repo": "CarlosViinicius/leitornotas",
+  "novidades": [
+    "Chave de acesso mais certeira (corrige sozinha quando um número vem lido errado)",
+    "Abre o navegador sozinho também no Windows 10",
+    "Atualização automática"
+  ],
+  "precisaZip": false,
+  "arquivos": [
+    {
+      "arquivo": "server.js",
+      "sha256": "486d881a272232dae1a75175fd4351ad316dafc8d23ee943134161a2f23b5ee5"
+    },
+    {
+      "arquivo": "package.json",
+      "sha256": "9b3fb7464ed1e5919883bbe7f5c96889aa7918260e6f76320fbab8426e8e61b9"
+    },
+    {
+      "arquivo": "LEIA-ME.txt",
+      "sha256": "9a4ffda47133daa1c77b6d3d69657ce867984f37886e9c295907f8115de8e9f5"
+    },
+    {
+      "arquivo": "lib/atualizar.js",
+      "sha256": "849203d0cd1af2ced219e3038f6db1c3e5b1c322035ff30ca3938bf16fadf233"
+    },
+    {
+      "arquivo": "lib/chave.js",
+      "sha256": "775d8969a56aef171a7d08c3201306b4701bb88bd6c5672037ae0a4bc7bae2f6"
+    },
+    {
+      "arquivo": "lib/excel-aberto.ps1",
+      "sha256": "1c62f0e0c423917f718a641c6d4dd6bd9b5e94389a5653ddbdcb0d1768d0163e"
+    },
+    {
+      "arquivo": "lib/extrair.js",
+      "sha256": "a1f31d276d5aaddd97f0426576ba49cbd27f2df4585f93553dfcd440799d373f"
+    },
+    {
+      "arquivo": "lib/google.js",
+      "sha256": "93333e44bf4d86fefdba0b06fc04e570f368969479ff3077d3c338bc6d645274"
+    },
+    {
+      "arquivo": "lib/montar.js",
+      "sha256": "311747b7e01f4292587a976ed5ca4226324b73a0c247fff30b22739ef0dba512"
+    },
+    {
+      "arquivo": "lib/planilha.js",
+      "sha256": "4ab01a2bff534d9019301775df09f8ad32250483b6ded446f628da93ff896e8d"
+    },
+    {
+      "arquivo": "lib/referencia.js",
+      "sha256": "9f5d64d92a2355786cd59da710814fd6eb71c712dc17f34c97cf60493e1c95c7"
+    },
+    {
+      "arquivo": "public/index.html",
+      "sha256": "48f00af9f64fefe57dd217b65282acbf478a5b5343d1d416b5793bd5fe1632b6"
+    }
+  ]
+}

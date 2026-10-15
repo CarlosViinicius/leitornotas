@@ -1,0 +1,22 @@
+{
+  "name": "leitornf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.134.0",
+    "exceljs": "^4.4.0",
+    "jszip": "^3.10.1",
+    "sharp": "^0.35.5"
+  }
+}

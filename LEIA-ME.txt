@@ -1,0 +1,63 @@
+LEITOR DE NOTAS - como usar
+===========================
+
+PRIMEIRA VEZ (uns 5 minutos)
+1. Descompacte o arquivo .zip numa pasta fixa, por exemplo em Documentos.
+   (Clique com o botão direito no zip > "Extrair tudo...")
+2. Crie a chave grátis da IA (Google Gemini):
+   - Entre em https://aistudio.google.com/apikey com sua conta Google
+   - Clique em "Criar chave de API", escolha "Default Gemini Project"
+   - Copie a chave (é uma sequência grande de letras e números)
+3. Dê dois cliques em "Abrir Leitor de Notas.bat".
+   Abre uma janela preta (deixe ela aberta) e o programa no navegador.
+   Se o Windows mostrar "O Windows protegeu o computador", clique em
+   "Mais informações" > "Executar assim mesmo".
+4. A tela de Configurações abre sozinha. Preencha:
+   - Nome do auditor
+   - Chave do Gemini: cole a chave do passo 2
+   Clique em Salvar.
+
+PLANILHA DE TESTE
+O programa já vem ligado numa PLANILHA DE TESTE (pasta "Planilha de teste"),
+que é a planilha oficial sem as notas. Teste à vontade nela.
+Quando quiser usar a planilha de verdade: Configurações > Planilha >
+"Procurar..." > escolha o Excel oficial > Salvar.
+
+NO DIA A DIA
+1. Abra o "Abrir Leitor de Notas.bat".
+2. Arraste as fotos ou PDFs das notas para a tela (ou "Adicionar notas",
+   ou cole uma foto com Ctrl+V). Ele começa a ler sozinho.
+3. Para cada nota, confira os dados ao lado da imagem. Campos em amarelo
+   são os que a IA ficou em dúvida. Corrija se precisar.
+4. Clique em "Confirmar e inserir" (ou Ctrl+Enter).
+   Para lançar várias de uma vez: marque as notas na lista e clique em
+   "Inserir as N selecionadas".
+
+IMPORTANTE
+- Pode deixar a planilha ABERTA no Excel: as notas aparecem nela na hora
+  e o programa salva sozinho. Só não deixe uma célula em edição (piscando)
+  nem uma janela de aviso aberta no Excel na hora de inserir.
+- Antes de cada gravação é feita uma cópia da planilha na pasta "Backups"
+  (ficam as 30 últimas).
+- Nota já lançada fica vermelha e o programa não deixa inserir de novo.
+  Se você mandar o MESMO arquivo de novo (mesmo com outro nome), ele avisa
+  e nem lê, para não gastar a IA.
+- Inseriu errado? Em "Lançadas agora", clique em "desfazer" na última nota
+  (clique duas vezes para confirmar). As linhas são apagadas da planilha e a
+  nota volta para a fila, já lida. Desfaz uma de cada vez, da mais recente
+  para a mais antiga. Se alguém mexeu na linha depois, ele não apaga nada.
+  No Google Planilhas, o desfazer precisa do código novo do Apps Script
+  (Configurações > Copiar código > colar e fazer nova implantação).
+- Os dados adicionais não trazem tudo e veio uma CARTA DE CORREÇÃO? Abra a
+  nota e, no quadro "Nota fiscal", clique em "Anexar carta de correção" e
+  escolha o PDF/foto da carta. A IA lê a nota de novo junto com a carta. No
+  visor aparecem as abas "Nota" e "Carta de correção". Não arraste a carta
+  para a lista de notas (ela seria lida como se fosse outra nota).
+- Se a IA estiver ocupada (acontece na versão grátis), ele tenta de novo
+  sozinho até 5 vezes.
+- Na versão grátis do Gemini, o Google pode usar o conteúdo enviado para
+  melhorar os serviços dele.
+- ATUALIZAÇÕES: quando aparecer uma faixa verde no topo ("Versão nova
+  disponível"), clique em "Atualizar agora". Leva poucos segundos e não
+  mexe nas suas configurações, notas nem planilha. A versão anterior fica
+  guardada em Backups\Programa versão ...

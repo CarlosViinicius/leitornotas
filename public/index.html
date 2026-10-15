@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leitor de Notas</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23166534'/%3E%3Cpath d='M10 8h9l5 5v11a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z' fill='%23fff'/%3E%3Cpath d='M12 17h8M12 21h6' stroke='%23166534' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --fundo: #edf1ee; --painel: #ffffff; --borda: #d9e0dc; --borda-forte: #c3cdc7;
+    --texto: #17201b; --suave: #66736b; --fraco: #93a099;
+    --verde: #166534; --verde-2: #15803d; --verde-claro: #e8f5ec; --verde-borda: #b7dfc3;
+    --amarelo: #fff7d6; --amarelo-borda: #f0c94a; --amarelo-texto: #7a5b00;
+    --vermelho: #b42318; --vermelho-fundo: #fdeceb; --vermelho-borda: #f5c2bd;
+    --azul: #1e5bb8; --azul-fundo: #edf3fd; --azul-borda: #c9dbf7;
+    --sombra: 0 1px 2px rgba(16, 24, 20, .07), 0 2px 6px rgba(16, 24, 20, .07);
+    --sombra-alta: 0 12px 32px rgba(16, 24, 20, .18);
+    --verde-texto: #166534; --vermelho-texto: #b42318; --campo: #ffffff; --sutil: #f6f8f7; --hover: #f1f4f2; --chip: #f1f4f2; --item-nota: #fbfcfb;
+    --azul-texto: #1d3b6e; --conferir: #8f6100; --anel: #9fd3ad; --visor: #d3dad6; --pdf: #c7cfca;
+    --spinner: #d7e3db; --icone-vazio: #c3cdc7; --fundo-modal: rgba(16, 24, 20, .45);
+    color-scheme: light;
+    --raio: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) {
+    --fundo: #0f1412; --painel: #171d1a; --borda: #26302b; --borda-forte: #36423c;
+    --texto: #e6ece8; --suave: #9eaba4; --fraco: #6f7c75;
+    --verde: #1f8a4a; --verde-2: #34b36a; --verde-claro: #12291c; --verde-borda: #1f4a31;
+    --amarelo: #2c2510; --amarelo-borda: #6b5514; --amarelo-texto: #f0cf6b;
+    --vermelho: #f2837a; --vermelho-fundo: #2d1513; --vermelho-borda: #5c2621;
+    --azul: #7aa9f0; --azul-fundo: #121d2e; --azul-borda: #22385a; --azul-texto: #b9d0f5;
+    --sombra: 0 1px 2px rgba(0, 0, 0, .4); --sombra-alta: 0 12px 32px rgba(0, 0, 0, .55);
+    --verde-texto: #7ee2a8; --vermelho-texto: #ff9b92; --campo: #111714; --sutil: #131916; --hover: #1e2622; --chip: #1c2420; --item-nota: #141a17;
+    --conferir: #f0c34a; --anel: #2f6b45; --visor: #0b0f0d; --pdf: #2a2e2c;
+    --spinner: #2a3530; --icone-vazio: #3a4640; --fundo-modal: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+    }
+  }
+  :root[data-tema="escuro"] {
+    --fundo: #0f1412; --painel: #171d1a; --borda: #26302b; --borda-forte: #36423c;
+    --texto: #e6ece8; --suave: #9eaba4; --fraco: #6f7c75;
+    --verde: #1f8a4a; --verde-2: #34b36a; --verde-claro: #12291c; --verde-borda: #1f4a31;
+    --amarelo: #2c2510; --amarelo-borda: #6b5514; --amarelo-texto: #f0cf6b;
+    --vermelho: #f2837a; --vermelho-fundo: #2d1513; --vermelho-borda: #5c2621;
+    --azul: #7aa9f0; --azul-fundo: #121d2e; --azul-borda: #22385a; --azul-texto: #b9d0f5;
+    --sombra: 0 1px 2px rgba(0, 0, 0, .4); --sombra-alta: 0 12px 32px rgba(0, 0, 0, .55);
+    --verde-texto: #7ee2a8; --vermelho-texto: #ff9b92; --campo: #111714; --sutil: #131916; --hover: #1e2622; --chip: #1c2420; --item-nota: #141a17;
+    --conferir: #f0c34a; --anel: #2f6b45; --visor: #0b0f0d; --pdf: #2a2e2c;
+    --spinner: #2a3530; --icone-vazio: #3a4640; --fundo-modal: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; font: 14px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--texto); background: var(--fundo); display: flex; flex-direction: column; overflow: hidden; }
+  svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Topo */
+  header { display: flex; align-items: center; gap: 14px; padding: 10px 18px; background: var(--painel); border-bottom: 1px solid var(--borda); }
+  .marca { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 34px; height: 34px; border-radius: 9px; background: var(--verde); display: grid; place-items: center; color: #fff; }
+  .logo svg { width: 20px; height: 20px; }
+  .marca h1 { font-size: 16px; margin: 0; line-height: 1.1; }
+  .marca small { color: var(--suave); font-size: 12px; }
+  #faixaAtualizacao { display: flex; align-items: center; gap: 12px; padding: 9px 18px; background: var(--verde-claro); border-bottom: 1px solid var(--verde-borda); color: var(--texto); font-size: 13px; }
+  #faixaAtualizacao[hidden] { display: none; }
+  #faixaAtualizacao > svg { width: 18px; height: 18px; color: var(--verde-2); flex: none; }
+  #faixaAtualizacao .texto { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  #faixaAtualizacao .texto span { color: var(--suave); }
+  .chips { display: flex; gap: 8px; margin-left: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--suave); background: var(--chip); border: 1px solid var(--borda); border-radius: 999px; padding: 4px 10px; white-space: nowrap; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+  .chip svg { width: 14px; height: 14px; }
+  .chip.ok { color: var(--verde-texto); background: var(--verde-claro); border-color: var(--verde-borda); }
+  .espaco { flex: 1; }
+  .contador-hoje { font-size: 13px; color: var(--suave); }
+  .contador-hoje b { color: var(--verde-texto); }
+
+  button { font: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--borda-forte); background: var(--painel); color: var(--texto); border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: background .12s, border-color .12s, box-shadow .12s; }
+  button:hover { background: var(--hover); }
+  button:focus-visible { outline: 3px solid var(--anel); outline-offset: 1px; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primario { background: var(--verde); border-color: var(--verde); color: #fff; font-weight: 600; }
+  button.primario:hover { background: var(--verde-2); }
+  button.grande { padding: 10px 20px; font-size: 15px; }
+  button.fantasma { border-color: transparent; background: transparent; color: var(--suave); }
+  button.fantasma:hover { background: var(--hover); color: var(--texto); }
+  button.link { border: none; background: none; color: var(--verde-texto); padding: 2px 4px; font-size: 12px; font-weight: 600; }
+  button.link:hover { text-decoration: underline; background: none; }
+  button.icone { padding: 7px; }
+
+  main { --largura-fila: 250px; --largura-painel: 540px; position: relative; flex: 1; display: grid; grid-template-columns: var(--largura-fila) 1fr var(--largura-painel); min-height: 0; }
+  /* Notebook / tela pequena: a fila e o painel ficam mais estreitos para sobrar espaço para a nota. */
+  @media (max-width: 1400px) { main { --largura-fila: 205px; --largura-painel: 450px; } }
+  main.fila-recolhida { grid-template-columns: 46px 1fr var(--largura-painel); }
+  .fila-trilho { display: none; }
+  main.fila-recolhida #fila > :not(.fila-trilho) { display: none; }
+  main.fila-recolhida .fila-trilho { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 0; }
+  .fila-trilho button { padding: 6px; width: 34px; justify-content: center; }
+  .fila-trilho .qtd { font-size: 12px; font-weight: 700; color: var(--suave); }
+  .bt-recolher { border: none; background: none; padding: 0 2px; color: var(--suave); line-height: 1; }
+  .bt-recolher:hover { color: var(--texto); background: none; }
+  .bt-recolher svg { width: 15px; height: 15px; }
+  /* Divisória entre a nota e o painel: arrasta para mudar o tamanho. */
+  #divisoria { position: absolute; top: 0; bottom: 0; right: calc(var(--largura-painel) - 4px); width: 8px; cursor: col-resize; z-index: 3; }
+  #divisoria:hover, body.arrastando #divisoria { background: var(--anel); }
+  body.arrastando { cursor: col-resize; user-select: none; }
+  body.arrastando iframe { pointer-events: none; }
+
+  /* Fila */
+  #fila { display: flex; flex-direction: column; min-height: 0; background: var(--painel); border-right: 1px solid var(--borda); }
+  .fila-topo { padding: 14px 14px 10px; }
+  .fila-topo h2 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); display: flex; justify-content: space-between; }
+  .soltar-mini { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 1.5px dashed var(--borda-forte); border-radius: var(--raio); padding: 12px; color: var(--verde-texto); font-weight: 600; background: var(--sutil); }
+  .soltar-mini:hover { border-color: var(--verde); background: var(--verde-claro); }
+  #lista { flex: 1; overflow: auto; padding: 4px 8px 12px; }
+  .item { display: flex; gap: 10px; align-items: center; padding: 9px 10px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; margin-bottom: 2px; }
+  .item:hover { background: var(--hover); }
+  .item.atual { background: var(--verde-claro); border-color: var(--verde-borda); }
+  .item .tipo { width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; flex: none; font-size: 10px; font-weight: 700; color: #fff; }
+  .item .tipo.pdf { background: #d64535; } .item .tipo.img { background: #2f7bd8; }
+  .item .info { min-width: 0; flex: 1; }
+  .item .nome { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item.atual .nome { font-weight: 600; }
+  .status { font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--fraco); }
+  .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .status.pronta { color: var(--verde-2); } .status.lendo { color: var(--azul); } .status.erro { color: var(--vermelho); } .status.enviando { color: var(--azul); }
+  .status.lendo::before, .status.enviando::before { animation: pisca 1s infinite; }
+  @keyframes pisca { 50% { opacity: .25; } }
+  .fila-vazia { text-align: center; color: var(--fraco); font-size: 13px; padding: 24px 12px; }
+  .fila-rodape { border-top: 1px solid var(--borda); padding: 8px 10px; }
+  .fila-rodape button { width: 100%; justify-content: flex-start; font-size: 12px; }
+  .status.conferir { color: var(--conferir); } .status.lancada-ja { color: var(--vermelho); } .status.inserindo { color: var(--verde-2); }
+  .status.inserindo::before { animation: pisca 1s infinite; }
+  /* Progresso da leitura (estimado pelo tempo: a IA não informa o andamento). */
+  .barra { height: 4px; border-radius: 2px; background: var(--sutil); overflow: hidden; margin-top: 5px; }
+  .barra i { display: block; height: 100%; width: 0; border-radius: 2px; background-color: var(--azul); transition: width .35s ease-out;
+    background-image: linear-gradient(90deg, transparent 0, rgba(255,255,255,.45) 50%, transparent 100%); background-size: 200% 100%; animation: brilho 1.3s linear infinite; }
+  @keyframes brilho { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .resumo-leitura { margin: 2px 2px 8px; padding: 10px 11px; border: 1px solid var(--azul-borda); background: var(--azul-fundo); color: var(--azul-texto); border-radius: 8px; font-size: 12px; }
+  .resumo-leitura .linha-r { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .resumo-leitura b { font-size: 13px; }
+  .resumo-leitura .barra { height: 6px; margin-top: 8px; }
+  .marcar { width: 17px; height: 17px; margin: 0; flex: none; accent-color: var(--verde); cursor: pointer; }
+  .marcar:disabled { cursor: default; opacity: .35; }
+  .lote { display: none; flex-direction: column; gap: 8px; margin-top: 10px; padding: 10px; border-radius: 9px; background: var(--verde-claro); border: 1px solid var(--verde-borda); font-size: 12.5px; }
+  .lote.ativo { display: flex; }
+  .lote .linha-lote { display: flex; align-items: center; justify-content: space-between; }
+  .lote b { color: var(--verde-texto); }
+  .lote button.primario { width: 100%; padding: 7px 10px; font-size: 13px; }
+  .opcoes-lista { display: flex; justify-content: flex-end; padding: 2px 10px 0; }
+  .secao-lancadas { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--borda); }
+  .secao-lancadas h4 { margin: 0 4px 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--verde-texto); }
+  .lancada { display: flex; align-items: center; gap: 9px; padding: 7px 10px; margin-bottom: 4px; border-radius: 8px; background: var(--verde-claro); border: 1px solid var(--verde-borda); font-size: 12.5px; animation: entra .3s ease; transition: opacity .6s, transform .6s; }
+  .lancada .ok { width: 22px; height: 22px; border-radius: 50%; background: var(--verde-2); color: #fff; display: grid; place-items: center; flex: none; }
+  .lancada .ok svg { width: 13px; height: 13px; stroke-width: 3; }
+  .lancada .txt { min-width: 0; flex: 1; }
+  .lancada .txt div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lancada small { color: var(--verde-texto); }
+  .lancada.saindo { opacity: 0; transform: translateX(-12px); }
+  .lancada .linha-lancada { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .lancada .desfazer { display: inline-flex; align-items: center; gap: 4px; flex: none; color: var(--suave); font-weight: 600; white-space: nowrap; padding: 0 2px; font-size: 11.5px; }
+  .lancada .desfazer svg { width: 12px; height: 12px; }
+  .lancada .desfazer:hover { color: var(--vermelho); }
+  .lancada .desfazer.confirmar { color: var(--vermelho); background: var(--vermelho-fundo); border-radius: 6px; padding: 3px 7px; text-decoration: none; }
+  @keyframes entra { from { opacity: 0; transform: translateY(-6px); } }
+  .grade-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+  .grade-colunas label { display: flex; align-items: center; gap: 8px; font-weight: 400; color: var(--texto); font-size: 12.5px; padding: 3px 0; cursor: pointer; }
+  .grade-colunas input { width: 15px; height: 15px; margin: 0; accent-color: var(--verde); }
+  .grade-colunas .letra { display: inline-block; width: 18px; color: var(--fraco); font: 600 11px Consolas, monospace; }
+
+  /* Visualização */
+  #visor { position: relative; min-height: 0; background: var(--visor); display: flex; }
+  #visor iframe { border: 0; width: 100%; height: 100%; background: var(--pdf); }
+  #visor .imagem { overflow: auto; width: 100%; height: 100%; display: flex; justify-content: center; align-items: flex-start; padding: 16px; }
+  #visor img { max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.35); cursor: zoom-in; background: #fff; }
+  #visor img.zoom { max-width: none; width: 190%; cursor: zoom-out; }
+  .abas-visor { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; align-items: center; gap: 2px; padding: 3px; background: var(--painel); border: 1px solid var(--borda); border-radius: 8px; box-shadow: var(--sombra); }
+  .abas-visor button { border: none; background: none; padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--suave); border-radius: 6px; }
+  .abas-visor button.ativa { background: var(--verde-claro); color: var(--verde-texto); }
+  .abas-visor .separa { width: 1px; align-self: stretch; margin: 3px 2px; background: var(--borda); }
+  .abas-visor a { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--suave); text-decoration: none; border-radius: 6px; white-space: nowrap; }
+  .abas-visor a:hover { background: var(--hover); color: var(--texto); }
+  .abas-visor a svg { width: 13px; height: 13px; }
+  .carta { margin-top: 12px; background: var(--sutil); border: 1px solid var(--borda); border-left: 3px solid var(--amarelo-borda); border-radius: 7px; padding: 8px 11px; font-size: 12px; color: var(--suave); }
+  .carta .topo-carta { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .carta .tem-carta { display: inline-flex; align-items: center; gap: 5px; color: var(--texto); font-weight: 600; font-size: 13px; }
+  .carta .acoes-carta { display: flex; gap: 2px; }
+  .tag-cc { display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 4px; font-size: 10px; font-weight: 700; background: var(--amarelo); color: var(--amarelo-texto); border: 1px solid var(--amarelo-borda); vertical-align: 1px; }
+  .dica { position: absolute; left: 12px; bottom: 12px; color: #fff; background: rgba(0,0,0,.55); padding: 4px 10px; border-radius: 6px; font-size: 12px; pointer-events: none; }
+
+  /* Tela inicial (sem notas) */
+  .boas-vindas { margin: auto; text-align: center; color: #e7ecea; max-width: 440px; padding: 24px; }
+  .area-soltar { border: 2px dashed rgba(255,255,255,.35); border-radius: 16px; padding: 42px 28px; cursor: pointer; transition: border-color .15s, background .15s; }
+  .area-soltar:hover { border-color: #8fd6a3; background: rgba(255,255,255,.04); }
+  .area-soltar .grande-icone { width: 58px; height: 58px; border-radius: 16px; margin: 0 auto 14px; background: rgba(143, 214, 163, .16); display: grid; place-items: center; color: #8fd6a3; }
+  .area-soltar .grande-icone svg { width: 30px; height: 30px; }
+  .area-soltar h3 { margin: 0 0 6px; font-size: 18px; color: #fff; }
+  .area-soltar p { margin: 0; font-size: 13px; color: #b9c3bf; }
+  .atalhos { margin-top: 16px; font-size: 12px; color: #9aa5a1; }
+  kbd { font: 11px Consolas, monospace; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; color: #fff; }
+
+  /* Formulário */
+  #painel { display: flex; flex-direction: column; min-height: 0; background: var(--fundo); border-left: 1px solid var(--borda); }
+  #campos { flex: 1; overflow: auto; padding: 16px; }
+  #acoes { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--borda); background: var(--painel); }
+  .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: var(--raio); box-shadow: var(--sombra); padding: 14px; margin-bottom: 12px; }
+  .cartao-titulo { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--texto); }
+  .cartao-titulo svg { width: 16px; height: 16px; color: var(--verde-texto); }
+  .cartao-titulo .direita { margin-left: auto; }
+  .grade { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px 12px; }
+  .c1 { grid-column: span 1; } .c2 { grid-column: span 2; } .c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c6 { grid-column: span 6; }
+  label { display: block; font-size: 11.5px; font-weight: 600; color: var(--suave); }
+  input, textarea, select { display: block; width: 100%; font: 13.5px/1.35 "Segoe UI", system-ui, sans-serif; color: var(--texto); padding: 7px 9px; border: 1px solid var(--borda-forte); border-radius: 7px; margin-top: 4px; background: var(--campo); transition: border-color .12s, box-shadow .12s; }
+  textarea { resize: vertical; min-height: 58px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--verde-2); box-shadow: 0 0 0 3px rgba(21, 128, 61, .15); }
+  .incerto input, .incerto textarea { background: var(--amarelo); border-color: var(--amarelo-borda); }
+  .incerto label::after { content: " · confira"; color: var(--amarelo-texto); font-weight: 600; }
+  .grade-nota { grid-template-columns: 1.1fr 1.3fr 1.2fr .7fr; }
+  .rotulo-mini { display: block; font: 600 11px "Segoe UI", system-ui, sans-serif; color: var(--suave); margin-bottom: 3px; }
+  .chave { margin-top: 12px; color: var(--texto); background: var(--sutil); border: 1px solid var(--borda); border-left: 3px solid var(--verde-2); border-radius: 7px; padding: 8px 11px; }
+  .linha-chave { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font: 600 13px Consolas, monospace; letter-spacing: .02em; }
+  .selo { font: 600 11px "Segoe UI", sans-serif; padding: 2px 8px; border-radius: 999px; }
+  .chave .topo-chave { display: flex; justify-content: space-between; align-items: center; }
+  .chave .topo-chave .rotulo-mini { margin-bottom: 3px; }
+  .editar-chave { display: flex; flex-direction: column; gap: 8px; }
+  .editar-chave input { font: 600 13px Consolas, monospace; letter-spacing: .03em; margin-top: 0; }
+  .editar-chave .linha-bt { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .editar-chave .linha-bt .selo { margin-right: auto; }
+  .editar-chave button.mini { padding: 4px 12px; font-size: 12px; }
+  .selo { border: 1px solid transparent; }
+  .selo.ok { border-color: var(--verde-borda); background: var(--verde-claro); color: var(--verde-texto); }
+  .selo.ruim { background: var(--vermelho-fundo); color: var(--vermelho-texto); }
+  .natureza { font-size: 13px; font-weight: 600; color: var(--texto); margin-top: 8px; background: var(--sutil); border: 1px solid var(--borda); border-left: 3px solid var(--azul); border-radius: 7px; padding: 8px 11px; }
+  .item-nota { border: 1px solid var(--borda); border-radius: 9px; padding: 12px; margin-bottom: 10px; background: var(--item-nota); }
+  .item-nota .topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: var(--suave); }
+
+  .avisos { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .aviso { display: flex; gap: 9px; align-items: flex-start; padding: 9px 11px; border-radius: 8px; font-size: 13px; border: 1px solid var(--azul-borda); background: var(--azul-fundo); color: var(--azul-texto); }
+  .aviso svg { width: 16px; height: 16px; margin-top: 1px; }
+  .aviso.alerta { background: var(--amarelo); border-color: var(--amarelo-borda); color: var(--amarelo-texto); }
+  .aviso.erro { background: var(--vermelho-fundo); border-color: var(--vermelho-borda); color: var(--vermelho); font-weight: 600; }
+  .aviso .titulo-aviso { display: block; font-weight: 700; margin-bottom: 2px; }
+  .aviso.conferida { background: var(--verde-claro); border-color: var(--verde-borda); color: var(--verde-texto); align-items: center; }
+  .aviso.conferida .link { margin-left: 4px; }
+  .bt-conferi { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 5px 12px; border-radius: 7px; font: 600 12.5px "Segoe UI", system-ui, sans-serif;
+    border: 1px solid var(--amarelo-borda); background: var(--painel); color: var(--amarelo-texto); cursor: pointer; }
+  .bt-conferi:hover { border-color: var(--verde); color: var(--verde-texto); }
+  .bt-conferi svg { width: 14px; height: 14px; }
+  .aviso ul { margin: 0; padding-left: 18px; }
+  .aviso li + li { margin-top: 3px; }
+  /* Observação pequena dentro do quadro a que se refere (não é erro). */
+  .obs-campo { display: flex; gap: 6px; align-items: flex-start; margin: -4px 0 10px; font-size: 12px; color: var(--suave); }
+  .obs-campo svg { width: 13px; height: 13px; margin-top: 2px; flex: none; }
+  .cartao-titulo .explica { font-weight: 400; color: var(--suave); font-size: 12px; }
+
+  .carregando { margin: auto; text-align: center; color: var(--suave); padding: 40px 20px; }
+  .girando { width: 34px; height: 34px; border: 3px solid var(--spinner); border-top-color: var(--verde); border-radius: 50%; animation: gira .8s linear infinite; margin: 0 auto 12px; }
+  @keyframes gira { to { transform: rotate(360deg); } }
+  .vazio-painel { color: var(--fraco); text-align: center; padding: 60px 24px; }
+  .vazio-painel svg { width: 40px; height: 40px; color: var(--icone-vazio); margin-bottom: 8px; }
+
+  /* Arrastar arquivo sobre a página */
+  #sobrepor { position: fixed; inset: 0; background: rgba(22, 101, 52, .88); display: none; place-items: center; z-index: 30; color: #fff; text-align: center; }
+  #sobrepor.ativo { display: grid; }
+  #sobrepor .caixa { border: 3px dashed rgba(255,255,255,.7); border-radius: 22px; padding: 56px 72px; }
+  #sobrepor svg { width: 54px; height: 54px; margin-bottom: 10px; }
+  #sobrepor h3 { margin: 0; font-size: 24px; }
+
+  #toast { position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 20px); opacity: 0; display: flex; align-items: center; gap: 9px; padding: 11px 18px; border-radius: 10px; color: #fff; background: var(--verde); font-weight: 600; z-index: 40; box-shadow: var(--sombra-alta); transition: opacity .2s, transform .2s; pointer-events: none; max-width: 80vw; }
+  #toast.visivel { opacity: 1; transform: translate(-50%, 0); }
+  #toast.erro { background: var(--vermelho); }
+
+  dialog { border: none; border-radius: 14px; padding: 0; width: min(600px, 94vw); box-shadow: var(--sombra-alta); color: var(--texto); background: var(--painel); }
+  dialog::backdrop { background: var(--fundo-modal); }
+  dialog form { display: flex; flex-direction: column; max-height: 88vh; }
+  dialog .cabeca { padding: 18px 22px 6px; }
+  dialog h3 { margin: 0; font-size: 18px; }
+  dialog .corpo { padding: 10px 22px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
+  dialog .secao { border: 1px solid var(--borda); border-radius: var(--raio); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  dialog .secao > b { font-size: 13px; }
+  dialog .botoes { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 22px; border-top: 1px solid var(--borda); }
+  .ajuda { font-size: 12px; color: var(--suave); line-height: 1.5; }
+  .ajuda ol { margin: 4px 0 0; padding-left: 18px; }
+  input[type=file] { display: none; }
+  .com-botao { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+  .com-botao input { margin-top: 0; flex: 1; min-width: 0; }
+  .com-botao button { flex: none; }
+</style>
+<script>
+  try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
+</script>
+</head>
+<body>
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-tabela" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+  <symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
+  <symbol id="i-nota" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-fabrica" viewBox="0 0 24 24"><path d="M3 21V10l6 4V10l6 4V6l6 3v12z"/></symbol>
+  <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-caixa" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></symbol>
+  <symbol id="i-lapis" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+  <symbol id="i-trocar" viewBox="0 0 24 24"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></symbol>
+  <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
+  <symbol id="i-pasta" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-recarregar" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-lua" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
+  <symbol id="i-fora" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-recolher" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 5l10 7-10 7zM19 5v14"/></symbol>
+</svg>
+
+<header>
+  <div class="marca">
+    <div class="logo"><svg class="i"><use href="#i-doc"/></svg></div>
+    <div><h1>Leitor de Notas</h1><small>DANFE → planilha</small></div>
+  </div>
+  <div class="chips">
+    <span class="chip" id="chipPlanilha" title="Para onde as notas vão"><svg class="i"><use href="#i-tabela"/></svg><span></span></span>
+    <span class="chip" id="chipIA" title="IA que lê as notas"><svg class="i"><use href="#i-ia"/></svg><span></span></span>
+  </div>
+  <span class="espaco"></span>
+  <span class="contador-hoje" id="contadorHoje"></span>
+  <button class="fantasma icone" id="btTema" title="Tema"><svg class="i"><use href="#i-auto"/></svg></button>
+  <button class="fantasma" id="btConfig"><svg class="i"><use href="#i-config"/></svg>Configurações</button>
+</header>
+<div id="faixaAtualizacao" hidden>
+  <svg class="i"><use href="#i-recarregar"/></svg>
+  <div class="texto"><b id="atuTitulo"></b><span id="atuNovidades"></span></div>
+  <button type="button" class="fantasma" id="btAtuDepois">Depois</button>
+  <button type="button" class="primario" id="btAtualizar">Atualizar agora</button>
+</div>
+
+<main>
+  <aside id="fila">
+    <div class="fila-trilho">
+      <button type="button" class="fantasma" id="btMostrarFila" title="Mostrar a lista de notas"><svg class="i"><use href="#i-expandir"/></svg></button>
+      <span class="qtd" id="contadorTrilho"></span>
+    </div>
+    <div class="fila-topo">
+      <h2><span>Notas para lançar</span><span><span id="contador"></span>
+        <button type="button" class="bt-recolher" id="btRecolher" title="Esconder a lista (mais espaço para a nota)"><svg class="i"><use href="#i-recolher"/></svg></button></span></h2>
+      <button class="soltar-mini" id="btEnviar"><svg class="i"><use href="#i-upload"/></svg>Adicionar notas</button>
+      <div class="lote" id="lote">
+        <div class="linha-lote"><span><b id="loteQtd">0</b> <span id="loteTxt">selecionadas</span></span>
+          <button class="link" id="btLimparSel" type="button">limpar seleção</button></div>
+        <button class="primario" id="btInserirLote" type="button"><svg class="i"><use href="#i-check"/></svg><span id="loteBt">Inserir selecionadas</span></button></div>
+    </div>
+    <div class="opcoes-lista"><button class="link" id="btSelTodas" type="button">Selecionar todas as prontas</button></div>
+    <div id="lista"></div>
+    <div class="fila-rodape">
+      <button class="fantasma" id="btAbrirPasta" title="Abre a pasta das notas no computador"><svg class="i"><use href="#i-pasta"/></svg>Abrir pasta das notas</button>
+    </div>
+  </aside>
+  <section id="visor"></section>
+  <div id="divisoria" title="Arraste para mudar o tamanho da nota e do painel (dois cliques volta ao normal)"></div>
+  <section id="painel">
+    <div id="campos"></div>
+    <div id="acoes">
+      <button class="fantasma" id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)" disabled><svg class="i"><use href="#i-lixo"/></svg></button>
+      <button id="btPular" disabled><svg class="i"><use href="#i-pular"/></svg>Pular</button>
+      <button id="btReler" disabled title="Pede para a IA ler a nota de novo"><svg class="i"><use href="#i-recarregar"/></svg>Ler de novo</button>
+      <span class="espaco"></span>
+      <button id="btInserir" class="primario grande" disabled><svg class="i"><use href="#i-check"/></svg>Confirmar e inserir</button>
+    </div>
+  </section>
+</main>
+
+<input type="file" id="arquivos" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
+<input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
+<div id="sobrepor"><div class="caixa"><svg class="i"><use href="#i-upload"/></svg><h3>Solte as notas aqui</h3></div></div>
+<div id="toast"></div>
+
+<dialog id="dlgConfig">
+  <form method="dialog" id="formConfig">
+    <div class="cabeca"><h3>Configurações</h3></div>
+    <div class="corpo">
+      <div class="secao">
+        <b>Planilha</b>
+        <label>Onde está a planilha?
+          <select name="destino">
+            <option value="excel">Arquivo Excel no computador</option>
+            <option value="google">Google Planilhas</option>
+          </select>
+        </label>
+        <div data-destino="excel">
+          <label>Planilha do Excel</label>
+          <div class="com-botao"><input name="planilha" placeholder="Clique em Procurar para escolher a planilha">
+            <button type="button" data-escolher="planilha"><svg class="i"><use href="#i-pasta"/></svg>Procurar...</button></div>
+        </div>
+        <div data-destino="google">
+          <div class="ajuda"><b>Ligar com o Google Planilhas (só uma vez):</b>
+            <ol>
+              <li>Na planilha do Google: menu <b>Extensões → Apps Script</b>.</li>
+              <li>Clique em <b>Copiar código</b> aqui, cole no lugar do que estiver lá e salve.</li>
+              <li><b>Implantar → Nova implantação → App da Web</b>, acesso <b>Qualquer pessoa</b> → Implantar → autorize.</li>
+              <li>Copie o <b>URL do app da Web</b> (termina em /exec) e cole abaixo.</li>
+            </ol>
+          </div>
+          <div style="margin-top:8px"><button type="button" id="btCopiarScript">Copiar código</button></div>
+          <label style="margin-top:8px">Link do Apps Script
+            <input name="googleUrl" placeholder="https://script.google.com/macros/s/.../exec">
+          </label>
+        </div>
+        <label>Aba onde as notas são lançadas <input name="aba"></label>
+        <label>Nome do auditor <input name="auditor"></label>
+      </div>
+      <div class="secao">
+        <b>Leitura das notas</b>
+        <label>IA que lê as notas
+          <select name="ia">
+            <option value="gemini">Google Gemini (grátis)</option>
+            <option value="claude">Claude (pago)</option>
+          </select>
+        </label>
+        <div data-ia="gemini">
+          <label>Chave do Gemini <input name="geminiKey" type="password" placeholder="Cole aqui a chave do Gemini" autocomplete="off"></label>
+          <div class="ajuda" id="ajudaGemini"></div>
+        </div>
+        <div data-ia="claude">
+          <label>Chave da API do Claude <input name="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off"></label>
+          <div class="ajuda" id="ajudaChave"></div>
+        </div>
+      </div>
+      <div class="secao">
+        <b>O que preencher na planilha</b>
+        <div class="ajuda">Desmarque as colunas que você prefere preencher na mão. Elas ficam em branco.</div>
+        <div class="grade-colunas" id="gradeColunas"></div>
+      </div>
+      <div class="secao">
+        <b>Pasta das notas</b>
+        <label>Pasta onde ficam as notas para lançar</label>
+        <div class="com-botao"><input name="pastaNotas">
+          <button type="button" data-escolher="pasta"><svg class="i"><use href="#i-pasta"/></svg>Procurar...</button></div>
+      </div>
+    </div>
+    <div class="botoes">
+      <button value="cancelar" formnovalidate>Cancelar</button>
+      <button value="salvar" class="primario">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<datalist id="dlClientes"></datalist>
+<datalist id="dlCultivares"></datalist>
+<datalist id="dlSafras"></datalist>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const icone = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
+const EXT_OK = /\.(pdf|jpe?g|png|webp)$/i;
+const LEITURAS_AO_MESMO_TEMPO = 2;
+const TEMPO_LANCADA_NA_TELA = 3 * 60 * 1000; // as lançadas somem da lista depois de 3 minutos
+const COLUNAS = [
+  ['A', 'Cliente'], ['C', 'Val. nº NF'], ['D', 'Cidade do deslintamento'], ['E', 'UF do deslintamento'],
+  ['F', 'Razão social do deslintamento'], ['G', 'CNPJ do deslintamento'], ['H', 'Data da NF'],
+  ['I', 'Cidade do licenciado'], ['J', 'UF do licenciado'], ['K', 'Horário da NF'], ['L', 'Razão social do licenciado'],
+  ['M', 'CNPJ do licenciado'], ['N', 'Tipo de carga'], ['O', 'Nº NF'], ['P', 'Safra'], ['Q', 'Cultivar'],
+  ['R', 'Volume de entrada'], ['S', 'Volume de saída'], ['T', 'Saída sem deslintar'], ['U', 'Quebra técnica/resíduo'],
+  ['V', 'Comentários da nota'], ['W', 'Observações do auditor'], ['X', 'Nome do auditor'], ['Y', 'Data de lançamento'],
+];
+
+const estado = {
+  pendentes: [], atual: null,
+  versaoCarta: {}, // nome -> muda a cada carta anexada (o visor recarrega)
+  leituras: {},   // nome -> resultado da leitura (ou 'em-disco' quando ainda não pedido nesta tela)
+  lendo: {},      // nome -> promessa em andamento
+  inicioLeitura: {}, // nome -> quando a IA começou a ler (para a barra de progresso)
+  conferidas: new Set(), // notas com aviso amarelo que a pessoa marcou como "já conferi"
+  erros: {},      // nome -> mensagem
+  forms: {},      // nome -> formulário com as correções feitas na tela
+  selecionadas: new Set(),
+  inserindo: new Set(),
+  enviando: [],
+  lancadas: [],   // { id, nf, linhas, nome }
+  desfazer: null, // a inserção mais recente que ainda dá para desfazer: { id, nf, nome, linhas }
+  tentativas: {}, // nome -> quantas vezes a leitura falhou por IA ocupada
+  proximaTentativa: {},
+};
+const MAX_TENTATIVAS = 5;
+
+// ---------- Tema (automático / claro / escuro) ----------
+const TEMAS = ['auto', 'claro', 'escuro'];
+const NOMES_TEMA = { auto: 'Tema: automático (igual ao Windows)', claro: 'Tema: claro', escuro: 'Tema: escuro' };
+function aplicarTema(t) {
+  if (t === 'auto') delete document.documentElement.dataset.tema; else document.documentElement.dataset.tema = t;
+  $('#btTema').innerHTML = icone({ auto: 'auto', claro: 'sol', escuro: 'lua' }[t]);
+  $('#btTema').title = NOMES_TEMA[t] + ' · clique para trocar';
+  try { localStorage.setItem('tema', t); } catch {}
+}
+let temaAtual = 'auto';
+try { temaAtual = localStorage.getItem('tema') || 'auto'; } catch {}
+aplicarTema(temaAtual);
+$('#btTema').onclick = () => {
+  temaAtual = TEMAS[(TEMAS.indexOf(temaAtual) + 1) % TEMAS.length];
+  aplicarTema(temaAtual);
+  toast(NOMES_TEMA[temaAtual]);
+};
+
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function toast(msg, erro) {
+  const t = $('#toast');
+  t.innerHTML = icone(erro ? 'alerta' : 'check') + `<span>${esc(msg)}</span>`;
+  t.className = 'visivel' + (erro ? ' erro' : '');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => (t.className = erro ? 'erro' : ''), erro ? 6000 : 3000);
+}
+
+async function api(url, corpo) {
+  const r = await fetch(url, corpo === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.erro || 'Erro');
+  return j;
+}
+
+const leitura = (nome) => (typeof estado.leituras[nome] === 'object' ? estado.leituras[nome] : null);
+const jaLancada = (nome) => !!leitura(nome)?.avisos.some((a) => a.duplicada);
+const pronta = (nome) => !!leitura(nome) && !jaLancada(nome) && !estado.inserindo.has(nome);
+
+// ---------- Estado geral ----------
+async function atualizar() {
+  const e = await api('/api/estado');
+  estado.config = e.config;
+  estado.pendentes = e.pendentes;
+  estado.desfazer = e.desfazer || null;
+  const nomes = new Set(e.pendentes.map((p) => p.nome));
+  for (const n of [...estado.selecionadas]) if (!nomes.has(n)) estado.selecionadas.delete(n);
+  for (const p of e.pendentes) if (p.lido && !estado.leituras[p.nome]) estado.leituras[p.nome] = 'em-disco';
+  const c = e.config;
+  $('#chipPlanilha span').textContent = e.destinoNome || 'Planilha não escolhida';
+  $('#chipPlanilha').classList.toggle('ok', !e.problema);
+  const temIA = c.ia === 'claude' ? c.temChave : c.temChaveGemini;
+  $('#chipIA span').textContent = (c.ia === 'claude' ? 'Claude' : 'Gemini') + (temIA ? '' : ' · sem chave');
+  $('#chipIA').classList.toggle('ok', temIA);
+  desenharLista();
+  if (e.problema) { toast(e.problema, true); abrirConfig(); }
+  else if (!temIA && !estado.avisouChave) {
+    estado.avisouChave = true;
+    toast('Falta colocar a chave da IA para ler as notas', true);
+    abrirConfig();
+  }
+  if (!estado.atual || !nomes.has(estado.atual)) {
+    if (e.pendentes.length) selecionar(e.pendentes[0].nome); else telaVazia();
+  }
+  lerEmSegundoPlano();
+}
+
+// Vai lendo as notas da fila sozinho, duas de cada vez, para estarem prontas quando forem abertas.
+function lerEmSegundoPlano() {
+  let vagas = LEITURAS_AO_MESMO_TEMPO - Object.keys(estado.lendo).length;
+  for (const p of estado.pendentes) {
+    if (vagas <= 0) break;
+    if (leitura(p.nome) || estado.lendo[p.nome] || estado.erros[p.nome]) continue;
+    vagas--;
+    ler(p.nome).catch(() => {}).finally(() => {
+      if (p.nome === estado.atual && leitura(p.nome) && !$('#campos .cartao')) selecionar(p.nome);
+      lerEmSegundoPlano();
+    });
+  }
+}
+
+function statusDe(nome) {
+  if (estado.inserindo.has(nome)) return ['inserindo', 'Inserindo na planilha...'];
+  if (estado.lendo[nome]) return ['lendo', estado.leituras[nome] ? 'Conferindo com a planilha...' : 'Lendo a nota com a IA...'];
+  if (estado.erros[nome]) {
+    const n = estado.tentativas[nome] || 0;
+    if (/ocupad|Limite|conexão/i.test(estado.erros[nome]) && n < MAX_TENTATIVAS) return ['conferir', `IA ocupada · nova tentativa (${n + 1}/${MAX_TENTATIVAS})`];
+    return ['erro', 'Erro na leitura'];
+  }
+  const r = leitura(nome);
+  if (r) {
+    if (jaLancada(nome)) return ['lancada-ja', 'Já lançada'];
+    if (precisaConferir(nome, r)) {
+      return estado.conferidas.has(nome) ? ['pronta', 'Pronta · conferida'] : ['conferir', 'Pronta · conferir'];
+    }
+    return ['pronta', 'Pronta'];
+  }
+  if (estado.leituras[nome] === 'em-disco') return ['pronta', 'Pronta'];
+  return ['nova', 'Na fila para ler'];
+}
+
+// ---- Progresso da leitura ----
+// A IA não diz quanto falta: o % é estimado pelo tempo (uma nota leva uns 5 segundos)
+// e fica parado em 95% até a resposta chegar.
+const lendoComIA = (nome) => !!estado.lendo[nome] && !estado.leituras[nome] && !!estado.inicioLeitura[nome];
+function progresso(nome) {
+  const s = (Date.now() - (estado.inicioLeitura[nome] || Date.now())) / 1000;
+  return Math.min(95, Math.round(100 * (1 - Math.exp(-s / 4))));
+}
+
+// Quadro no topo da lista enquanto houver notas lendo ou esperando: "3 de 10 prontas".
+function resumoLeitura() {
+  const nomes = estado.pendentes.map((p) => p.nome).filter((n) => !estado.erros[n]);
+  const faltam = nomes.filter((n) => lendoComIA(n) || statusDe(n)[0] === 'nova');
+  if (!faltam.length) return '';
+  const total = nomes.length;
+  const prontas = total - faltam.length;
+  const andamento = nomes.filter(lendoComIA).reduce((s, n) => s + progresso(n) / 100, 0);
+  const pct = Math.round((100 * (prontas + andamento)) / total);
+  return `<div class="resumo-leitura" id="resumoLeitura">
+    <div class="linha-r"><b>Lendo notas...</b><span><span data-prontas>${prontas}</span> de ${total} prontas</span></div>
+    <div class="barra"><i style="width:${pct}%"></i></div></div>`;
+}
+
+// Atualiza só as barras (sem redesenhar a lista, para não atrapalhar cliques).
+setInterval(() => {
+  if (!Object.keys(estado.lendo).length) return;
+  document.querySelectorAll('[data-progresso]').forEach((b) => {
+    const pct = progresso(b.dataset.progresso);
+    b.firstElementChild.style.width = pct + '%';
+    const txt = b.parentElement.querySelector('[data-pct]');
+    if (txt) txt.textContent = pct;
+  });
+  const r = $('#resumoLeitura');
+  if (r) {
+    const novo = document.createElement('div');
+    novo.innerHTML = resumoLeitura();
+    const barraNova = novo.querySelector('.barra i');
+    if (barraNova) r.querySelector('.barra i').style.width = barraNova.style.width;
+  }
+}, 250);
+
+function desenharLista() {
+  const l = $('#lista');
+  $('#contador').textContent = estado.pendentes.length || '';
+  $('#contadorTrilho').textContent = estado.pendentes.length || '';
+  const tipo = (n) => (/\.pdf$/i.test(n) ? ['pdf', 'PDF'] : ['img', 'IMG']);
+  let html = resumoLeitura();
+  html += estado.enviando.map((n) => `<div class="item"><span class="tipo ${tipo(n)[0]}">${tipo(n)[1]}</span>
+    <span class="info"><div class="nome">${esc(n)}</div><span class="status enviando">Enviando...</span></span></div>`).join('');
+  let posicaoFila = 0;
+  html += estado.pendentes.map((p) => {
+    let [cls, txt] = statusDe(p.nome);
+    const marcavel = pronta(p.nome);
+    const comBarra = lendoComIA(p.nome);
+    if (comBarra) txt = `<span>Lendo com a IA · <span data-pct>${progresso(p.nome)}</span>%</span>`;
+    if (cls === 'nova') txt = `Na fila · ${++posicaoFila}º`;
+    return `<div class="item ${p.nome === estado.atual ? 'atual' : ''}" data-nome="${esc(p.nome)}" title="${esc(p.nome)}">
+      <input type="checkbox" class="marcar" ${marcavel ? '' : 'disabled'} ${estado.selecionadas.has(p.nome) ? 'checked' : ''} title="${marcavel ? 'Selecionar para inserir junto' : 'Ainda não dá para selecionar'}">
+      <span class="tipo ${tipo(p.nome)[0]}">${tipo(p.nome)[1]}</span>
+      <span class="info"><div class="nome">${esc(p.nome)}${p.carta ? '<span class="tag-cc" title="Tem carta de correção">CC</span>' : ''}</div><span class="status ${cls}">${txt}</span>
+        ${comBarra ? `<div class="barra" data-progresso="${esc(p.nome)}"><i style="width:${progresso(p.nome)}%"></i></div>` : ''}</span></div>`;
+  }).join('');
+  if (!estado.pendentes.length && !estado.enviando.length) {
+    html = '<div class="fila-vazia">Nenhuma nota na fila.<br>Clique em <b>Adicionar notas</b> ou arraste os arquivos para a tela.</div>';
+  }
+  // Depois de reabrir o programa a lista "Lançadas agora" está vazia, mas a última inserção
+  // ainda pode ser desfeita: mostra ela.
+  const lancadas = [...estado.lancadas];
+  if (estado.desfazer && !lancadas.some(podeDesfazer)) lancadas.unshift({ id: 'ultima', ...estado.desfazer, anterior: true });
+  if (lancadas.length) {
+    html += `<div class="secao-lancadas"><h4>Lançadas agora</h4>${lancadas.map((x) => `
+      <div class="lancada" data-id="${x.id}" title="${esc(x.nome)}"><span class="ok">${icone('check')}</span>
+        <span class="txt"><div><b>NF ${esc(x.nf)}</b>${x.anterior ? ' <small>· última inserção</small>' : ''}</div>
+          <div class="linha-lancada"><small>${x.linhas.length > 1 ? 'linhas ' + x.linhas.join(', ') : 'linha ' + x.linhas[0]}</small>${podeDesfazer(x) ? botaoDesfazer() : ''}</div></span></div>`).join('')}</div>`;
+  }
+  l.innerHTML = html;
+  const btDesfazer = l.querySelector('[data-desfazer]');
+  if (btDesfazer) btDesfazer.onclick = () => desfazerUltima(btDesfazer);
+  l.querySelectorAll('.item[data-nome]').forEach((d) => {
+    d.onclick = (ev) => { if (!ev.target.classList.contains('marcar')) selecionar(d.dataset.nome); };
+    d.querySelector('.marcar').onchange = (ev) => {
+      if (ev.target.checked) estado.selecionadas.add(d.dataset.nome); else estado.selecionadas.delete(d.dataset.nome);
+      desenharLote();
+    };
+  });
+  desenharLote();
+}
+
+function desenharLote() {
+  for (const n of [...estado.selecionadas]) if (!pronta(n)) estado.selecionadas.delete(n);
+  $('#loteQtd').textContent = estado.selecionadas.size;
+  $('#loteTxt').textContent = estado.selecionadas.size === 1 ? 'selecionada' : 'selecionadas';
+  $('#loteBt').textContent = estado.selecionadas.size === 1 ? 'Inserir a selecionada' : `Inserir as ${estado.selecionadas.size} selecionadas`;
+  $('#lote').classList.toggle('ativo', estado.selecionadas.size > 0);
+  $('#btSelTodas').style.visibility = estado.pendentes.some((p) => pronta(p.nome)) ? '' : 'hidden';
+}
+
+function registrarLancada(nf, linhas, nome) {
+  const id = Date.now() + Math.random();
+  estado.lancadas.unshift({ id, nf, linhas, nome });
+  const sumir = () => {
+    const item = estado.lancadas.find((x) => x.id === id);
+    if (!item) return;
+    // A que ainda pode ser desfeita fica na tela até a próxima inserção.
+    if (podeDesfazer(item)) return setTimeout(sumir, 60000);
+    const el = document.querySelector(`.lancada[data-id="${id}"]`);
+    if (el) el.classList.add('saindo');
+    setTimeout(() => { estado.lancadas = estado.lancadas.filter((x) => x.id !== id); desenharLista(); }, 600);
+  };
+  setTimeout(sumir, TEMPO_LANCADA_NA_TELA);
+}
+
+// ---- Desfazer a última inserção ----
+const podeDesfazer = (item) => !!estado.desfazer && item.nome === estado.desfazer.nome
+  && item.linhas.join(',') === estado.desfazer.linhas.join(',');
+
+function botaoDesfazer() {
+  return `<button type="button" class="link desfazer" data-desfazer title="Apaga esta nota da planilha e devolve para a fila">${icone('recarregar')}desfazer</button>`;
+}
+
+async function desfazerUltima(bt) {
+  // Primeiro clique pede confirmação; o segundo (em até 5 s) desfaz.
+  if (!bt.classList.contains('confirmar')) {
+    bt.classList.add('confirmar');
+    bt.innerHTML = `${icone('alerta')}apagar da planilha?`;
+    clearTimeout(bt._t);
+    bt._t = setTimeout(() => { bt.classList.remove('confirmar'); bt.innerHTML = `${icone('recarregar')}desfazer`; }, 5000);
+    return;
+  }
+  clearTimeout(bt._t);
+  bt.disabled = true;
+  bt.innerHTML = '<span class="girando" style="width:12px;height:12px;border-width:2px;margin:0"></span>desfazendo...';
+  const alvo = estado.desfazer;
+  try {
+    const r = await api('/api/desfazer', { id: alvo.id });
+    estado.lancadas = estado.lancadas.filter((x) => !(x.nome === alvo.nome && x.linhas.join(',') === alvo.linhas.join(',')));
+    estado.desfazer = r.desfazer;
+    if (r.nome && r.formulario) estado.forms[r.nome] = r.formulario;
+    revalidarFila();
+    toast(`Desfeito: NF ${r.nf} apagada da planilha (${r.linhas.length > 1 ? 'linhas ' + r.linhas.join(', ') : 'linha ' + r.linhas[0]}). A nota voltou para a fila.`);
+    await atualizar();
+    if (r.nome) selecionar(r.nome);
+  } catch (e) {
+    toast(e.message, true);
+    desenharLista();
+  }
+}
+
+function botoes(ligados) {
+  ['#btPular', '#btReler', '#btInserir', '#btRemover'].forEach((b) => ($(b).disabled = !ligados.includes(b)));
+}
+
+function telaVazia() {
+  estado.atual = null;
+  $('#visor').innerHTML = `<div class="boas-vindas">
+    <div class="area-soltar" id="areaSoltar">
+      <div class="grande-icone">${icone('upload')}</div>
+      <h3>Arraste as notas para cá</h3>
+      <p>Fotos ou PDFs das DANFEs. Pode mandar várias de uma vez.<br>Ou clique aqui para escolher os arquivos.</p>
+    </div>
+    <div class="atalhos">Também dá para colar uma foto com <kbd>Ctrl</kbd> + <kbd>V</kbd></div>
+  </div>`;
+  $('#areaSoltar').onclick = () => $('#arquivos').click();
+  $('#campos').innerHTML = `<div class="vazio-painel">${icone('nota')}<div>Os dados lidos da nota aparecem aqui<br>para você conferir antes de inserir.</div></div>`;
+  botoes([]);
+  desenharLista();
+}
+
+// ---------- Espaço da tela ----------
+// Em tela pequena (notebook) a nota fica apertada: dá para esconder a fila e arrastar a divisória.
+// As duas escolhas ficam guardadas neste navegador.
+function recolherFila(sim) {
+  $('main').classList.toggle('fila-recolhida', sim);
+  try { localStorage.setItem('filaRecolhida', sim ? '1' : ''); } catch {}
+}
+$('#btRecolher').onclick = () => recolherFila(true);
+$('#btMostrarFila').onclick = () => recolherFila(false);
+try { if (localStorage.getItem('filaRecolhida')) $('main').classList.add('fila-recolhida'); } catch {}
+
+function larguraPainel(px) {
+  if (px) $('main').style.setProperty('--largura-painel', px + 'px');
+  else $('main').style.removeProperty('--largura-painel');
+  try { localStorage.setItem('larguraPainel', px ? String(px) : ''); } catch {}
+}
+try { const px = Number(localStorage.getItem('larguraPainel')); if (px >= 400) $('main').style.setProperty('--largura-painel', px + 'px'); } catch {}
+$('#divisoria').onpointerdown = (e) => {
+  e.preventDefault();
+  const div = $('#divisoria');
+  div.setPointerCapture(e.pointerId);
+  document.body.classList.add('arrastando');
+  const main = $('main').getBoundingClientRect();
+  const fila = $('#fila').getBoundingClientRect().width;
+  div.onpointermove = (ev) => {
+    // O painel fica entre 400 px e o que sobra deixando pelo menos 280 px para a nota.
+    const px = Math.round(Math.min(main.width - fila - 280, Math.max(400, main.right - ev.clientX)));
+    $('main').style.setProperty('--largura-painel', px + 'px');
+  };
+  div.onpointerup = () => {
+    div.onpointermove = div.onpointerup = null;
+    document.body.classList.remove('arrastando');
+    larguraPainel(parseInt($('main').style.getPropertyValue('--largura-painel'), 10) || 0);
+  };
+};
+$('#divisoria').ondblclick = () => larguraPainel(0);
+
+// ---------- Envio de arquivos ----------
+async function enviarArquivos(lista) {
+  const arquivos = [...lista].filter((f) => f && f.size);
+  const recusados = arquivos.filter((f) => !EXT_OK.test(f.name));
+  if (recusados.length) toast(`Ignorado (não é PDF nem foto): ${recusados.map((f) => f.name).join(', ')}`, true);
+  const validos = arquivos.filter((f) => EXT_OK.test(f.name));
+  if (!validos.length) return;
+  estado.enviando.push(...validos.map((f) => f.name));
+  desenharLista();
+  const enviados = [];
+  for (const f of validos) {
+    try {
+      const r = await fetch('/api/enviar', { method: 'POST', headers: { 'X-Nome': encodeURIComponent(f.name) }, body: f });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.erro);
+      enviados.push(j.nome);
+    } catch (e) {
+      toast(e.message, true);
+    }
+    estado.enviando.splice(estado.enviando.indexOf(f.name), 1);
+  }
+  if (enviados.length) toast(enviados.length === 1 ? 'Nota adicionada' : `${enviados.length} notas adicionadas`);
+  const tinhaAtual = estado.atual;
+  await atualizar();
+  if (!tinhaAtual && enviados[0]) selecionar(enviados[0]);
+}
+
+$('#btEnviar').onclick = () => $('#arquivos').click();
+$('#arquivos').onchange = (e) => { enviarArquivos(e.target.files); e.target.value = ''; };
+
+let profundidade = 0;
+window.addEventListener('dragenter', (e) => { if ([...e.dataTransfer.types].includes('Files')) { profundidade++; $('#sobrepor').classList.add('ativo'); } });
+window.addEventListener('dragleave', () => { if (--profundidade <= 0) { profundidade = 0; $('#sobrepor').classList.remove('ativo'); } });
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+  profundidade = 0;
+  $('#sobrepor').classList.remove('ativo');
+  if (e.dataTransfer.files.length) enviarArquivos(e.dataTransfer.files);
+});
+window.addEventListener('paste', (e) => {
+  if (e.target.closest('input, textarea')) return;
+  const imagens = [...e.clipboardData.files].filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf');
+  if (!imagens.length) return;
+  e.preventDefault();
+  const agora = new Date();
+  const p2 = (n) => String(n).padStart(2, '0');
+  const carimbo = `${agora.getFullYear()}-${p2(agora.getMonth() + 1)}-${p2(agora.getDate())} ${p2(agora.getHours())}h${p2(agora.getMinutes())}`;
+  enviarArquivos(imagens.map((f, i) => {
+    const ext = f.type === 'application/pdf' ? 'pdf' : (f.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+    return new File([f], `Colada ${carimbo}${imagens.length > 1 ? ' ' + (i + 1) : ''}.${ext}`, { type: f.type });
+  }));
+});
+
+// ---------- Leitura e conferência ----------
+const cartaDaNota = (nome) => estado.pendentes.find((p) => p.nome === nome)?.carta || null;
+
+// qual: 'nota' ou 'carta' (a carta de correção, quando a nota tem uma).
+function mostrarArquivo(nome, qual = 'nota') {
+  const carta = cartaDaNota(nome);
+  if (!carta) qual = 'nota';
+  const arquivo = qual === 'carta' ? carta : nome;
+  // ?v= muda quando a carta é trocada, para o navegador não mostrar a antiga.
+  const url = qual === 'carta' ? `/carta?nota=${encodeURIComponent(nome)}&v=${estado.versaoCarta[nome] || 0}` : '/arquivo?nome=' + encodeURIComponent(nome);
+  const abas = `<div class="abas-visor">${carta ? `
+      <button type="button" data-ver="nota" class="${qual === 'nota' ? 'ativa' : ''}">Nota</button>
+      <button type="button" data-ver="carta" class="${qual === 'carta' ? 'ativa' : ''}">Carta de correção</button><span class="separa"></span>` : ''}
+      <a href="${url}" target="_blank" title="Abre numa aba nova, em tela cheia">${icone('fora')}Abrir em outra aba</a></div>`;
+  const titulo = qual === 'carta' ? 'Carta de correção' : 'Nota';
+  if (/\.pdf$/i.test(arquivo)) {
+    // navpanes=0 esconde a coluna de miniaturas do Chrome; FitH ocupa a largura toda.
+    $('#visor').innerHTML = `${abas}<iframe src="${url}#navpanes=0&view=FitH" title="${titulo}"></iframe>`;
+  } else {
+    $('#visor').innerHTML = `${abas}<div class="imagem"><img src="${url}" alt="${titulo}"></div><span class="dica">Clique na foto para ampliar</span>`;
+    const img = $('#visor img');
+    img.onclick = () => img.classList.toggle('zoom');
+  }
+  $('#visor').querySelectorAll('[data-ver]').forEach((b) => (b.onclick = () => mostrarArquivo(nome, b.dataset.ver)));
+}
+
+// ---- Carta de correção ----
+// Quando os dados adicionais da nota não trazem tudo, a carta de correção completa.
+// Anexar ou tirar a carta faz a IA ler a nota de novo (agora com a carta junto).
+async function anexarCarta(nome, arquivo) {
+  if (!EXT_OK.test(arquivo.name)) { toast('A carta de correção tem que ser PDF ou foto (JPG, PNG, WEBP).', true); return; }
+  try {
+    const r = await fetch('/api/carta', { method: 'POST', headers: { 'X-Nota': encodeURIComponent(nome), 'X-Nome': encodeURIComponent(arquivo.name) }, body: arquivo });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.erro);
+    const p = estado.pendentes.find((x) => x.nome === nome);
+    if (p) p.carta = j.carta;
+    estado.versaoCarta[nome] = (estado.versaoCarta[nome] || 0) + 1;
+    toast('Carta anexada. Lendo a nota de novo junto com a carta...');
+    if (estado.atual === nome) { selecionar(nome, true); mostrarArquivo(nome, 'carta'); }
+  } catch (e) { toast(e.message, true); }
+}
+
+async function tirarCarta(nome) {
+  try {
+    await api('/api/carta-remover', { nota: nome });
+    const p = estado.pendentes.find((x) => x.nome === nome);
+    if (p) p.carta = null;
+    toast('Carta tirada (está na pasta "Removidas"). Lendo a nota de novo sem ela...');
+    if (estado.atual === nome) selecionar(nome, true);
+  } catch (e) { toast(e.message, true); }
+}
+
+$('#arquivoCarta').onchange = (e) => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (f && estado.atual) anexarCarta(estado.atual, f);
+};
+
+// forcar: pede para a IA ler de novo.
+// atualizar: busca de novo no servidor (usa a leitura salva, sem IA) para refazer os avisos
+// com a planilha como está agora (ex.: nota que acabou de ser lançada).
+function ler(nome, forcar, atualizar) {
+  if (!forcar && !atualizar && leitura(nome)) return Promise.resolve(leitura(nome));
+  if (estado.lendo[nome]) return estado.lendo[nome];
+  delete estado.erros[nome];
+  if (forcar) { delete estado.forms[nome]; delete estado.tentativas[nome]; estado.conferidas.delete(nome); }
+  // Só leitura nova pela IA ganha barra de progresso (rever uma nota já lida é instantâneo).
+  if (forcar || !estado.leituras[nome]) estado.inicioLeitura[nome] = Date.now();
+  const p = api('/api/ler', { nome, forcar: !!forcar })
+    .then((r) => { estado.leituras[nome] = r; return r; })
+    .then((r) => { delete estado.tentativas[nome]; return r; })
+    .catch((e) => {
+      estado.erros[nome] = e.message;
+      // IA ocupada ou limite momentâneo: tenta de novo sozinho, até 5 vezes, esperando cada vez mais.
+      if (/ocupad|Limite|conexão/i.test(e.message)) {
+        const n = (estado.tentativas[nome] || 0) + 1;
+        estado.tentativas[nome] = n;
+        if (n < MAX_TENTATIVAS) {
+          const espera = 30000 * n;
+          estado.proximaTentativa[nome] = Date.now() + espera;
+          setTimeout(() => {
+            if (!estado.pendentes.some((p) => p.nome === nome) || !estado.erros[nome]) return;
+            delete estado.erros[nome];
+            if (estado.atual === nome) selecionar(nome); else lerEmSegundoPlano();
+          }, espera);
+        }
+      }
+      throw e;
+    })
+    .finally(() => { delete estado.lendo[nome]; delete estado.inicioLeitura[nome]; desenharLista(); });
+  estado.lendo[nome] = p;
+  desenharLista();
+  return p;
+}
+
+async function selecionar(nome, forcar) {
+  estado.atual = nome;
+  desenharLista();
+  mostrarArquivo(nome);
+  botoes(['#btRemover', '#btPular']);
+  const jaTinha = leitura(nome);
+  // Já lida nesta tela: mostra na hora, sem pedir de novo ao servidor (isso redesenhava o formulário
+  // e apagava o que estava sendo digitado). Depois de cada inserção, revalidarFila() força a conferência.
+  if (jaTinha && !forcar) { desenharFormulario(nome, jaTinha); return; }
+  if (estado.leituras[nome] === 'em-disco' && !forcar) $('#campos').innerHTML = `<div class="carregando"><div class="girando"></div><b>Conferindo com a planilha...</b></div>`;
+  else $('#campos').innerHTML = `<div class="carregando"><div class="girando"></div><b>Lendo a nota com a IA...</b><br><span style="font-size:12px">costuma levar poucos segundos · pode abrir outra nota enquanto isso</span></div>`;
+  try {
+    const r = await ler(nome, forcar, !forcar);
+    if (estado.atual !== nome) return;
+    desenharFormulario(nome, r);
+  } catch (e) {
+    if (estado.atual !== nome) return;
+    const n = estado.tentativas[nome] || 0;
+    const vaiTentar = /ocupad|Limite|conexão/i.test(e.message) && n < MAX_TENTATIVAS;
+    const segundos = Math.max(1, Math.round(((estado.proximaTentativa[nome] || Date.now()) - Date.now()) / 1000));
+    const extra = vaiTentar
+      ? `<br><b>Vou tentar de novo sozinho em ${segundos >= 60 ? Math.round(segundos / 60) + ' min' : segundos + ' s'} (tentativa ${n + 1} de ${MAX_TENTATIVAS}).</b>`
+      : n >= MAX_TENTATIVAS ? `<br><b>Já tentei ${MAX_TENTATIVAS} vezes. Clique em "Ler de novo" mais tarde.</b>` : '';
+    $('#campos').innerHTML = `<div class="avisos"><div class="aviso ${vaiTentar ? 'alerta' : 'erro'}">${icone('alerta')}<span>Não consegui ler esta nota: ${esc(e.message)}${extra}</span></div></div>`;
+    botoes(['#btPular', '#btReler', '#btRemover']);
+  }
+}
+
+function campo(rotulo, chave, valor, classe, incerto, extra = '') {
+  return `<div class="${classe} ${incerto ? 'incerto' : ''}"><label>${rotulo}<input data-c="${chave}" value="${esc(valor)}" ${extra}></label></div>`;
+}
+
+// Avisos e campos em dúvida que ainda valem: se a pessoa corrigiu a chave e ela confere,
+// os avisos da chave e a dúvida no nº da NF deixam de valer.
+function avisosAtivos(nome, r) {
+  const f = estado.forms[nome];
+  const chaveCorrigida = f && f.chaveOk && !r.formulario.chaveOk;
+  return {
+    avisos: r.avisos.filter((a) => !(chaveCorrigida && a.sobre === 'chave')),
+    incertos: r.incertos.filter((c) => !(chaveCorrigida && (c === 'chave_acesso' || c === 'numero_nf'))),
+  };
+}
+const precisaConferir = (nome, r) => {
+  const { avisos, incertos } = avisosAtivos(nome, r);
+  return avisos.some((a) => a.nivel !== 'info') || incertos.length > 0;
+};
+
+// ---- Chave de acesso (44 dígitos) ----
+// Mesma conta do servidor (lib/chave.js): o último dígito confere os outros 43.
+function chaveConfere(ch) {
+  if (ch.length !== 44) return false;
+  let soma = 0, peso = 2;
+  for (let i = 42; i >= 0; i--) { soma += Number(ch[i]) * peso; peso = peso === 9 ? 2 : peso + 1; }
+  const resto = soma % 11;
+  return (resto < 2 ? 0 : 11 - resto) === Number(ch[43]);
+}
+
+// Troca a chave mostrada por um campo para digitar a certa. A chave não vai para a planilha:
+// ela confere a nota e, se bater, o nº da NF passa a ser o que está nela.
+function editarChave(nome, r) {
+  const f = estado.forms[nome];
+  const caixa = $('#caixaChave');
+  caixa.innerHTML = `<span class="rotulo-mini">Chave de acesso · digite os 44 números da nota</span>
+    <div class="editar-chave">
+      <input id="novaChave" inputmode="numeric" autocomplete="off" value="${esc((f.chave || '').replace(/(\d{4})/g, '$1 ').trim())}" placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000">
+      <div class="linha-bt"><span class="selo" id="seloChave"></span>
+        <button type="button" class="mini" id="btCancelarChave">Cancelar</button>
+        <button type="button" class="mini primario" id="btSalvarChave">${icone('check')}Usar esta chave</button></div>
+    </div>`;
+  const campoChave = $('#novaChave');
+  const conferir = () => {
+    const d = campoChave.value.replace(/\D/g, '');
+    const selo = $('#seloChave');
+    if (d.length !== 44) { selo.className = 'selo ruim'; selo.textContent = `${d.length} de 44 números`; }
+    else if (chaveConfere(d)) { selo.className = 'selo ok'; selo.textContent = `✓ chave confere · NF ${Number(d.slice(25, 34))}`; }
+    else { selo.className = 'selo ruim'; selo.textContent = '✗ não confere, algum número está errado'; }
+  };
+  campoChave.oninput = conferir;
+  campoChave.onkeydown = (e) => { if (e.key === 'Enter') $('#btSalvarChave').click(); if (e.key === 'Escape') $('#btCancelarChave').click(); };
+  conferir();
+  campoChave.focus();
+  campoChave.select();
+  $('#btCancelarChave').onclick = () => desenharFormulario(nome, r);
+  $('#btSalvarChave').onclick = () => {
+    const d = campoChave.value.replace(/\D/g, '');
+    if (d.length !== 44) { toast('A chave de acesso tem 44 números.', true); campoChave.focus(); return; }
+    f.chave = d;
+    f.chaveOk = chaveConfere(d);
+    if (f.chaveOk) {
+      const nf = String(Number(d.slice(25, 34)));
+      if (String(f.nf) !== nf) { f.nf = nf; toast(`Chave confere. Nº da NF atualizado para ${nf}`); }
+      else toast('Chave confere');
+    } else toast('Chave salva, mas ainda não confere. Confira os números.', true);
+    desenharLista(); // o status da nota pode deixar de ser "conferir"
+    desenharFormulario(nome, r);
+  };
+}
+
+function desenharFormulario(nome, r) {
+  if (!estado.forms[nome]) estado.forms[nome] = JSON.parse(JSON.stringify(r.formulario));
+  const f = estado.forms[nome];
+  estado.form = f;
+  const conferida = estado.conferidas.has(nome);
+  const ativos = avisosAtivos(nome, r);
+  // Marcada como conferida: tira o amarelo dos campos também.
+  const inc = new Set(conferida ? [] : ativos.incertos);
+  const duplicada = r.avisos.some((a) => a.duplicada);
+  $('#dlClientes').innerHTML = r.listas.clientes.map((c) => `<option value="${esc(c)}">`).join('');
+  $('#dlCultivares').innerHTML = r.listas.cultivares.map((c) => `<option value="${esc(c)}">`).join('');
+  $('#dlSafras').innerHTML = r.listas.safras.map((c) => `<option value="${esc(c)}">`).join('');
+  const partes = inc.has('emitente') || inc.has('destinatario');
+  const parte = (k, p) => `<div class="grade">
+      ${campo('Razão social', k + '.razao', p.razao, 'c6', partes)}
+      ${campo('CNPJ', k + '.cnpj', p.cnpj, 'c2', partes)}
+      ${campo('Cidade', k + '.cidade', p.cidade, 'c3', partes)}
+      ${campo('UF', k + '.uf', p.uf, 'c1', partes)}
+    </div>`;
+  // No topo: só o que precisa de atenção, num quadro só. Observações de um quadro aparecem dentro dele.
+  const erros = r.avisos.filter((a) => a.nivel === 'erro');
+  const conferir = ativos.avisos.filter((a) => a.nivel === 'alerta' || (a.nivel === 'info' && !a.campo));
+  const obs = (campo) => r.avisos.filter((a) => a.campo === campo && a.nivel === 'info')
+    .map((a) => `<div class="obs-campo">${icone('info')}<span>${esc(a.texto)}</span></div>`).join('');
+  if (!conferir.length && ativos.incertos.length) conferir.push({ texto: 'A IA não teve certeza dos campos em amarelo.' });
+  const quadroConferir = !conferir.length || duplicada ? ''
+    : conferida
+      ? `<div class="aviso conferida">${icone('check')}<span>Você marcou esta nota como conferida. <button type="button" class="link" id="btDesconferir">Mostrar os avisos de novo</button></span></div>`
+      : `<div class="aviso alerta">${icone('alerta')}<span><span class="titulo-aviso">Confira antes de inserir</span>${
+        conferir.length === 1 ? esc(conferir[0].texto) : `<ul>${conferir.map((a) => `<li>${esc(a.texto)}</li>`).join('')}</ul>`}
+        <button type="button" class="bt-conferi" id="btConferi">${icone('check')}Já conferi, está certa</button></span></div>`;
+  const topo = [
+    ...erros.map((a) => `<div class="aviso erro">${icone('alerta')}<span>${esc(a.texto)}</span></div>`),
+    quadroConferir,
+  ].join('');
+  const chave = f.chave
+    ? `<span>${f.chave.replace(/(\d{4})/g, '$1 ').trim()}</span>${f.chaveOk ? '<span class="selo ok">✓ chave confere</span>' : '<span class="selo ruim">✗ chave não confere</span>'}`
+    : '<span>Chave de acesso não lida</span><span class="selo ruim">confira o nº</span>';
+  $('#campos').innerHTML = `
+    ${topo ? `<div class="avisos">${topo}</div>` : ''}
+    <div class="cartao">
+      <div class="cartao-titulo">${icone('nota')}Nota fiscal</div>
+      ${obs('nota')}
+      <div class="grade grade-nota">
+        ${campo('Nº da NF', 'nf', f.nf, '', inc.has('numero_nf') || inc.has('chave_acesso'))}
+        ${campo('Data da NF', 'data', f.data, '', inc.has('data_emissao'), 'placeholder="DD/MM/AAAA"')}
+        ${campo('Horário', 'hora', f.hora, '', inc.has('hora'), 'placeholder="HH:MM:SS"')}
+        ${campo('Carga', 'tipoCarga', f.tipoCarga, '', false)}
+      </div>
+      <div class="chave" id="caixaChave"><div class="topo-chave"><span class="rotulo-mini">Chave de acesso</span>
+        <button type="button" class="link" id="btAlterarChave" title="Digite a chave certa, olhando a nota">${icone('lapis')} alterar</button></div>
+        <div class="linha-chave">${chave}</div></div>
+      ${f.natureza ? `<div class="natureza"><span class="rotulo-mini">Natureza da operação</span>${esc(f.natureza)}</div>` : ''}
+      <div class="carta">${r.carta
+        ? `<div class="topo-carta"><span class="tem-carta">${icone('doc')}Lida junto com a carta de correção</span>
+            <span class="acoes-carta"><button type="button" class="link" id="btVerCarta">ver</button>
+            <button type="button" class="link" id="btTrocarCarta">trocar</button>
+            <button type="button" class="link" id="btTirarCarta">tirar</button></span></div>
+          <div>O que a carta corrige já está nos campos abaixo. Confira na aba "Carta de correção" do visor.</div>`
+        : `<div class="topo-carta"><span>Os dados adicionais não trazem tudo e veio carta de correção?</span>
+            <button type="button" class="link" id="btAnexarCarta">${icone('upload')} Anexar carta de correção</button></div>`}</div>
+    </div>
+    <div class="cartao">
+      <div class="cartao-titulo">${icone('fabrica')}Deslintamento <span class="explica">· empresa que deslinta o caroço</span>
+        <button type="button" class="link direita" id="btInverter" title="Use se a IA colocou as empresas trocadas: o que está em Deslintamento vai para Licenciado e vice-versa">${icone('trocar')} Trocar com licenciado</button></div>
+      ${obs('deslint')}
+      ${parte('deslint', f.deslint)}
+    </div>
+    <div class="cartao">
+      <div class="cartao-titulo">${icone('pessoa')}Licenciado <span class="explica">· produtor da semente</span></div>
+      ${obs('licenc')}
+      ${parte('licenc', f.licenc)}
+    </div>
+    <div class="cartao">
+      <div class="cartao-titulo">${icone('caixa')}Itens
+        <button type="button" class="link direita" id="btMaisItem">+ adicionar item</button></div>
+      ${obs('itens')}
+      <div id="itens"></div>
+    </div>
+    <div class="cartao">
+      <div class="cartao-titulo">${icone('lapis')}Observações do auditor</div>
+      <div class="${inc.has('informacoes_complementares') ? 'incerto' : ''}"><textarea data-c="obsAuditor" placeholder="Ex.: NÃO INFORMA SAFRA.">${esc(f.obsAuditor)}</textarea></div>
+    </div>`;
+  desenharItens(inc);
+  ligarCampos($('#campos'));
+  const marcarConferida = (sim) => {
+    if (sim) estado.conferidas.add(nome); else estado.conferidas.delete(nome);
+    desenharLista();
+    desenharFormulario(nome, r);
+    if (sim) toast('Nota marcada como conferida');
+  };
+  $('#btAlterarChave').onclick = () => editarChave(nome, r);
+  const escolherCarta = () => $('#arquivoCarta').click();
+  if ($('#btAnexarCarta')) $('#btAnexarCarta').onclick = escolherCarta;
+  if ($('#btTrocarCarta')) $('#btTrocarCarta').onclick = escolherCarta;
+  if ($('#btVerCarta')) $('#btVerCarta').onclick = () => mostrarArquivo(nome, 'carta');
+  if ($('#btTirarCarta')) $('#btTirarCarta').onclick = () => tirarCarta(nome);
+  if ($('#btConferi')) $('#btConferi').onclick = () => marcarConferida(true);
+  if ($('#btDesconferir')) $('#btDesconferir').onclick = () => marcarConferida(false);
+  $('#btInverter').onclick = () => {
+    const d = f.deslint; f.deslint = f.licenc; f.licenc = d;
+    for (const k of ['razao', 'cnpj', 'cidade', 'uf']) {
+      $(`[data-c="deslint.${k}"]`).value = f.deslint[k];
+      $(`[data-c="licenc.${k}"]`).value = f.licenc[k];
+    }
+    toast('Deslintamento e licenciado trocados');
+  };
+  $('#btMaisItem').onclick = () => {
+    const ult = f.itens[f.itens.length - 1] || {};
+    f.itens.push({ cliente: ult.cliente || '', cultivar: ult.cultivar || '', safra: ult.safra || '', entrada: '', saida: '', semDeslintar: '', quebra: '', comentario: '' });
+    desenharItens(new Set());
+  };
+  botoes(duplicada ? ['#btPular', '#btReler', '#btRemover'] : ['#btPular', '#btReler', '#btInserir', '#btRemover']);
+  $('#btInserir').innerHTML = duplicada ? `${icone('alerta')}Já lançada` : `${icone('check')}Confirmar e inserir`;
+}
+
+function desenharItens(inc) {
+  const it = estado.form.itens;
+  const vol = inc.has('quantidade_kg');
+  $('#itens').innerHTML = it.map((i, n) => `
+    <div class="item-nota">
+      <div class="topo"><span>ITEM ${n + 1}${it.length > 1 ? ' · vira uma linha na planilha' : ''}</span>${it.length > 1 ? `<button type="button" class="link" data-remover="${n}">remover</button>` : ''}</div>
+      <div class="grade">
+        ${campo('Cliente', `itens.${n}.cliente`, i.cliente, 'c2', inc.has('cliente'), 'list="dlClientes"')}
+        ${campo('Cultivar', `itens.${n}.cultivar`, i.cultivar, 'c2', inc.has('cultivar'), 'list="dlCultivares"')}
+        ${campo('Safra', `itens.${n}.safra`, i.safra, 'c2', inc.has('safra'), 'list="dlSafras" placeholder="ex.: 26/26"')}
+        ${campo('Entrada (kg)', `itens.${n}.entrada`, i.entrada, 'c3', vol, 'inputmode="decimal"')}
+        ${campo('Saída (kg)', `itens.${n}.saida`, i.saida, 'c3', vol, 'inputmode="decimal"')}
+        ${campo('Saída sem deslintar (kg)', `itens.${n}.semDeslintar`, i.semDeslintar, 'c3', vol, 'inputmode="decimal"')}
+        ${campo('Quebra técnica / resíduo', `itens.${n}.quebra`, i.quebra, 'c3', vol, 'inputmode="decimal"')}
+        <div class="c6 ${inc.has('informacoes_complementares') ? 'incerto' : ''}"><label>Comentários da nota<textarea data-c="itens.${n}.comentario" rows="3">${esc(i.comentario)}</textarea></label></div>
+      </div>
+    </div>`).join('');
+  ligarCampos($('#itens'));
+  $('#itens').querySelectorAll('[data-remover]').forEach((b) => (b.onclick = () => {
+    estado.form.itens.splice(Number(b.dataset.remover), 1);
+    desenharItens(new Set());
+  }));
+}
+
+function ligarCampos(raiz) {
+  raiz.querySelectorAll('[data-c]').forEach((el) => {
+    el.oninput = () => {
+      const partes = el.dataset.c.split('.');
+      let o = estado.form;
+      while (partes.length > 1) o = o[partes.shift()];
+      o[partes[0]] = el.value;
+      el.closest('.incerto')?.classList.remove('incerto');
+    };
+  });
+}
+
+// ---------- Inserir ----------
+function problemaDoFormulario(f) {
+  if (!String(f.nf ?? '').trim()) return 'falta o nº da NF';
+  if (!f.itens.some((i) => [i.entrada, i.saida, i.semDeslintar, i.quebra].some((v) => String(v ?? '').trim()))) return 'falta o volume (entrada, saída...)';
+  return null;
+}
+
+async function inserirUma(nome) {
+  const r = leitura(nome);
+  const f = estado.forms[nome] || JSON.parse(JSON.stringify(r.formulario));
+  const problema = problemaDoFormulario(f);
+  if (problema) throw new Error(`NF ${f.nf || '?'}: ${problema}.`);
+  estado.inserindo.add(nome);
+  desenharLista();
+  try {
+    const resp = await api('/api/inserir', { nome, formulario: f });
+    estado.desfazer = resp.desfazer || null;
+    registrarLancada(f.nf, resp.linhas, nome);
+    estado.pendentes = estado.pendentes.filter((p) => p.nome !== nome);
+    delete estado.leituras[nome];
+    delete estado.forms[nome];
+    estado.selecionadas.delete(nome);
+    return resp;
+  } finally {
+    estado.inserindo.delete(nome);
+  }
+}
+
+// Depois de lançar, as outras notas podem ter virado "já lançada": refaz os avisos delas.
+function revalidarFila() {
+  for (const p of estado.pendentes) if (leitura(p.nome)) estado.leituras[p.nome] = 'em-disco';
+}
+
+function proxima(nomeAtual) {
+  const i = estado.pendentes.findIndex((p) => p.nome === nomeAtual);
+  return estado.pendentes.slice(i + 1).concat(estado.pendentes.slice(0, Math.max(i, 0))).find((p) => p.nome !== nomeAtual) || null;
+}
+
+$('#btInserir').onclick = async () => {
+  const nome = estado.atual;
+  if (!nome || !leitura(nome)) return;
+  const bt = $('#btInserir');
+  bt.disabled = true;
+  bt.innerHTML = '<span class="girando" style="width:16px;height:16px;border-width:2px;margin:0"></span>Inserindo...';
+  const prox = proxima(nome);
+  try {
+    const resp = await inserirUma(nome);
+    toast(resp.linhas.length > 1 ? `NF inserida nas linhas ${resp.linhas.join(', ')}` : `NF inserida na linha ${resp.linhas[0]}`);
+    revalidarFila();
+    estado.atual = null;
+    await atualizar();
+    if (prox && estado.pendentes.some((p) => p.nome === prox.nome)) selecionar(prox.nome);
+  } catch (e) {
+    toast(e.message, true);
+    revalidarFila();
+    selecionar(nome);
+  }
+};
+
+$('#btInserirLote').onclick = async () => {
+  const nomes = estado.pendentes.map((p) => p.nome).filter((n) => estado.selecionadas.has(n));
+  if (!nomes.length) return;
+  $('#btInserirLote').disabled = true;
+  let ok = 0;
+  const falhas = [];
+  for (const nome of nomes) {
+    try {
+      await inserirUma(nome);
+      ok++;
+    } catch (e) {
+      falhas.push(e.message);
+    }
+    desenharLista();
+  }
+  $('#btInserirLote').disabled = false;
+  estado.selecionadas.clear();
+  revalidarFila();
+  if (falhas.length) toast(`${ok} inserida(s). Não inseridas: ${falhas.join(' | ')}`, true);
+  else toast(`${ok} nota(s) inserida(s) na planilha`);
+  await atualizar();
+};
+$('#btLimparSel').onclick = () => { estado.selecionadas.clear(); desenharLista(); };
+$('#btSelTodas').onclick = () => {
+  for (const p of estado.pendentes) if (pronta(p.nome)) estado.selecionadas.add(p.nome);
+  desenharLista();
+};
+
+$('#btPular').onclick = () => { const p = proxima(estado.atual); if (p) selecionar(p.nome); else toast('Esta é a única nota da fila.'); };
+$('#btReler').onclick = () => selecionar(estado.atual, true);
+$('#btRemover').onclick = async () => {
+  const nome = estado.atual;
+  if (!nome) return;
+  const prox = proxima(nome);
+  try {
+    await api('/api/remover', { nome });
+    toast('Nota tirada da fila (está na pasta "Removidas")');
+    delete estado.leituras[nome];
+    delete estado.forms[nome];
+    estado.atual = null;
+    await atualizar();
+    if (prox && estado.pendentes.some((p) => p.nome === prox.nome)) selecionar(prox.nome);
+  } catch (e) { toast(e.message, true); }
+};
+$('#btAbrirPasta').onclick = () => api('/api/abrir-pasta', {}).catch((e) => toast(e.message, true));
+$('#btConfig').onclick = () => abrirConfig();
+
+// Atalho: Ctrl+Enter confirma e insere
+window.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter' && !$('#btInserir').disabled && !$('#dlgConfig').open) $('#btInserir').click();
+});
+
+// ---------- Configurações ----------
+function mostrarOpcoes() {
+  const f = $('#formConfig');
+  document.querySelectorAll('[data-destino]').forEach((el) => (el.style.display = el.dataset.destino === f.elements.destino.value ? '' : 'none'));
+  document.querySelectorAll('[data-ia]').forEach((el) => (el.style.display = el.dataset.ia === f.elements.ia.value ? '' : 'none'));
+}
+$('#formConfig').elements.destino.onchange = mostrarOpcoes;
+document.querySelectorAll('[data-escolher]').forEach((bt) => {
+  bt.onclick = async () => {
+    const tipo = bt.dataset.escolher;
+    const campo = $('#formConfig').elements[tipo === 'pasta' ? 'pastaNotas' : 'planilha'];
+    const texto = bt.innerHTML;
+    bt.disabled = true;
+    bt.innerHTML = 'Abrindo...';
+    toast(tipo === 'pasta' ? 'Escolha a pasta na janela do Windows' : 'Escolha a planilha na janela do Windows');
+    try {
+      const r = await api('/api/escolher', { tipo, atual: campo.value });
+      if (r.caminho) campo.value = r.caminho;
+    } catch (e) { toast(e.message, true); }
+    bt.disabled = false;
+    bt.innerHTML = texto;
+  };
+});
+$('#formConfig').elements.ia.onchange = mostrarOpcoes;
+$('#btCopiarScript').onclick = async () => {
+  const codigo = await (await fetch('/api/apps-script')).text();
+  await navigator.clipboard.writeText(codigo);
+  toast('Código copiado! Agora cole no Apps Script.');
+};
+
+function abrirConfig() {
+  const c = estado.config || {};
+  const f = $('#formConfig');
+  for (const k of ['ia', 'destino', 'planilha', 'googleUrl', 'aba', 'auditor', 'pastaNotas']) f.elements[k].value = c[k] || '';
+  if (!f.elements.destino.value) f.elements.destino.value = 'excel';
+  if (!f.elements.ia.value) f.elements.ia.value = 'gemini';
+  f.elements.apiKey.value = '';
+  f.elements.geminiKey.value = '';
+  $('#ajudaGemini').innerHTML = c.temChaveGemini
+    ? 'Já existe uma chave salva. Deixe em branco para manter.'
+    : 'Crie de graça em <b>aistudio.google.com/apikey</b> (entre com a conta Google → <b>Create API key</b>) e cole aqui.';
+  $('#ajudaChave').textContent = c.temChave
+    ? 'Já existe uma chave salva. Deixe em branco para manter.'
+    : 'Crie em console.anthropic.com → API Keys (precisa ter crédito na conta).';
+  const ligadas = new Set(c.colunas && c.colunas.length ? c.colunas : COLUNAS.map((x) => x[0]));
+  $('#gradeColunas').innerHTML = COLUNAS.map(([l, nome]) =>
+    `<label><input type="checkbox" value="${l}" ${ligadas.has(l) ? 'checked' : ''}><span class="letra">${l}</span>${esc(nome)}</label>`).join('');
+  mostrarOpcoes();
+  const dlg = $('#dlgConfig');
+  if (!dlg.open) dlg.showModal();
+}
+$('#dlgConfig').addEventListener('close', async () => {
+  if ($('#dlgConfig').returnValue !== 'salvar') return;
+  const f = $('#formConfig');
+  const dados = {};
+  for (const k of ['ia', 'destino', 'planilha', 'googleUrl', 'aba', 'auditor', 'pastaNotas', 'apiKey', 'geminiKey']) dados[k] = f.elements[k].value;
+  dados.colunas = [...document.querySelectorAll('#gradeColunas input:checked')].map((i) => i.value);
+  if (!dados.colunas.length) { toast('Marque pelo menos uma coluna para preencher.', true); return; }
+  if (dados.colunas.length === COLUNAS.length) dados.colunas = [];
+  try {
+    await api('/api/config', dados);
+    if (dados.destino === 'google' && dados.googleUrl) {
+      toast('Testando a ligação com o Google...');
+      await api('/api/testar-google', {});
+    }
+    toast('Configurações salvas');
+    estado.erros = {};
+    revalidarFila();
+    await atualizar();
+  } catch (e) { toast(e.message, true); }
+});
+
+atualizar().catch((e) => toast(e.message, true));
+
+// ---------- Atualização automática ----------
+async function verVersaoNova() {
+  if (sessionStorage.getItem('atuDepois')) return;
+  const v = await api('/api/versao').catch(() => null);
+  if (!v || !v.nova) return;
+  $('#atuTitulo').textContent = v.nova.precisaZip
+    ? `Versão nova ${v.nova.versao}: esta precisa ser instalada pelo zip novo. Peça o arquivo.`
+    : `Versão nova disponível (${v.nova.versao})`;
+  $('#atuNovidades').textContent = v.nova.novidades.join(' · ');
+  $('#btAtualizar').hidden = v.nova.precisaZip;
+  $('#faixaAtualizacao').hidden = false;
+}
+$('#btAtuDepois').onclick = () => {
+  try { sessionStorage.setItem('atuDepois', '1'); } catch {}
+  $('#faixaAtualizacao').hidden = true;
+};
+$('#btAtualizar').onclick = async () => {
+  const bt = $('#btAtualizar');
+  bt.disabled = true;
+  bt.textContent = 'Atualizando...';
+  try {
+    const r = await api('/api/atualizar', {});
+    $('#atuTitulo').textContent = `Atualizado para a versão ${r.versao}. Abrindo de novo...`;
+    $('#atuNovidades').textContent = '';
+    // Espera o programa reiniciar e recarrega a página.
+    await new Promise((ok) => setTimeout(ok, 2500));
+    for (let i = 0; i < 30; i++) {
+      try { await api('/api/estado'); location.reload(); return; } catch { await new Promise((ok) => setTimeout(ok, 1000)); }
+    }
+    $('#atuTitulo').textContent = 'Atualizado. Feche a janela preta e abra o "Abrir Leitor de Notas.bat" de novo.';
+  } catch (e) {
+    toast(e.message, true);
+    bt.disabled = false;
+    bt.textContent = 'Atualizar agora';
+  }
+};
+verVersaoNova();
+setInterval(verVersaoNova, 3 * 3600 * 1000);
+</script>
+</body>
+</html>
