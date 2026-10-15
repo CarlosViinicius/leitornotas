@@ -296,6 +296,12 @@ async function inserirNota(config, nome, formulario) {
   if (!formulario || !Array.isArray(formulario.itens) || !formulario.itens.length) throw new Error('Nenhum item para inserir.');
   esquecerReferencia();
   const ref = await referencia(config);
+  const semCadastro = formulario.itens
+    .map((it) => String(it.cultivar || '').trim().toUpperCase().replace(/s+/g, ''))
+    .filter((c) => !ref.cultivares.some((x) => x.nome.replace(/s+/g, '') === c));
+  if (semCadastro.length) {
+    throw new Error(`Cultivar fora da BASE DE DADOS: ${[...new Set(semCadastro.map((c) => c || '(vazia)'))].join(', ')}. Só lançamos cultivares da base. Corrija ou remova o item.`);
+  }
   const repetida = linhasJaLancadas(ref, formulario.nf, [formulario.deslint.cnpj, formulario.licenc.cnpj], [formulario.deslint.razao, formulario.licenc.razao]);
   if (repetida.length) {
     throw new Error(`A NF ${formulario.nf} já foi lançada (linha ${repetida.join(', ')}). Não inseri de novo.`);

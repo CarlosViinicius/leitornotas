@@ -1,16 +1,14 @@
 {
-  "versao": "1.1.1",
+  "versao": "1.1.2",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Chave de acesso mais certeira (corrige sozinha quando um número vem lido errado)",
-    "Abre o navegador sozinho também no Windows 10",
-    "Atualização automática"
+    "Só cultivares da BASE DE DADOS; DP = BAYER/TMG; ignora lacres e outros produtos"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "89ed0ff17a9b4b0aa4168b7fcb7b5938d690b7d38c53fe1d6ff8ae9a73c9476c"
+      "sha256": "07cfee339923e6f2142efee70df911d42c6872949b3d7f82c6c83a81c6d0d9d2"
     },
     {
       "arquivo": "package.json",
@@ -34,7 +32,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "a1f31d276d5aaddd97f0426576ba49cbd27f2df4585f93553dfcd440799d373f"
+      "sha256": "52f44fb39ba40b0be0a819f5f9cb2a4949541231bc26972818f8dfe4f5d2e02f"
     },
     {
       "arquivo": "lib/google.js",
@@ -42,7 +40,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "311747b7e01f4292587a976ed5ca4226324b73a0c247fff30b22739ef0dba512"
+      "sha256": "966c9c155d54ce0539e645db6ee2c80ec0d5eb606426987251e192b6f0281f5b"
     },
     {
       "arquivo": "lib/planilha.js",
