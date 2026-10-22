@@ -9,6 +9,7 @@ const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require(
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas } = require('./lib/montar');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
+const { verificarBloqueio, paginaBloqueio } = require('./lib/bloqueio');
 const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
@@ -466,6 +467,12 @@ function json(res, status, obj) {
 const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const config = lerConfig();
+  const bloqueio = await verificarBloqueio(RAIZ);
+  if (bloqueio.bloqueado) {
+    if (url.pathname.startsWith('/api/')) return json(res, 423, { erro: bloqueio.mensagem || 'Acesso bloqueado temporariamente.' });
+    res.writeHead(423, { 'Content-Type': 'text/html; charset=utf-8' });
+    return res.end(paginaBloqueio(bloqueio));
+  }
   try {
     if (req.method === 'GET' && url.pathname === '/') {
       res.writeHead(200, { 'Content-Type': TIPOS['.html'] });

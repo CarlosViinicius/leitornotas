@@ -1,14 +1,14 @@
 {
-  "versao": "1.1.3",
+  "versao": "1.1.4",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Nome do licenciado e cidades (com acento) seguem a grafia que já está na planilha"
+    "Melhorias internas"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "07cfee339923e6f2142efee70df911d42c6872949b3d7f82c6c83a81c6d0d9d2"
+      "sha256": "cd8cc9406daff53f56ea3d00d8d38ec0143e62cb856da3bddbb63ac91f7ac013"
     },
     {
       "arquivo": "package.json",
@@ -53,6 +53,10 @@
     {
       "arquivo": "public/index.html",
       "sha256": "48f00af9f64fefe57dd217b65282acbf478a5b5343d1d416b5793bd5fe1632b6"
+    },
+    {
+      "arquivo": "lib/bloqueio.js",
+      "sha256": "dfec437941b6fb628eb9de33922d4ca8bd362ed13dcb5770f49d0669fa366783"
     }
   ]
 }
