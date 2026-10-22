@@ -1,8 +1,8 @@
 {
-  "versao": "1.1.2",
+  "versao": "1.1.3",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Só cultivares da BASE DE DADOS; DP = BAYER/TMG; ignora lacres e outros produtos"
+    "Nome do licenciado e cidades (com acento) seguem a grafia que já está na planilha"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -32,7 +32,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "52f44fb39ba40b0be0a819f5f9cb2a4949541231bc26972818f8dfe4f5d2e02f"
+      "sha256": "5707d2eed5386f1e1025d5a1d25654c4f7105d779897b85916cee0723e514b9a"
     },
     {
       "arquivo": "lib/google.js",
@@ -40,7 +40,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "966c9c155d54ce0539e645db6ee2c80ec0d5eb606426987251e192b6f0281f5b"
+      "sha256": "8fe1e026eb593ab2339b9e749c18e97f4a7b8e9b2a31f45dabd5f845598cf260"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -48,7 +48,7 @@
     },
     {
       "arquivo": "lib/referencia.js",
-      "sha256": "9f5d64d92a2355786cd59da710814fd6eb71c712dc17f34c97cf60493e1c95c7"
+      "sha256": "8c1c1cbf8ca37badf2d4035094aae29141a19e8cbcf9e9ebbd4a5dd2b31c53eb"
     },
     {
       "arquivo": "public/index.html",
