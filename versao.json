@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.4",
+  "versao": "1.1.5",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Melhorias internas"
@@ -56,7 +56,7 @@
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "dfec437941b6fb628eb9de33922d4ca8bd362ed13dcb5770f49d0669fa366783"
+      "sha256": "5d23e7624f0080215824463c6000d49c0771fa73cd2294a3b1e6dc5ee4b4febf"
     }
   ]
 }

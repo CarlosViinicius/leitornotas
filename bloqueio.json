@@ -1,5 +1,5 @@
 {
-  "bloqueado": false,
+  "bloqueado": true,
   "titulo": "Acesso suspenso temporariamente",
   "mensagem": "O Leitor de Notas está bloqueado até você pedir desculpa. 😄"
 }
