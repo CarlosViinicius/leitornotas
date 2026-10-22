@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { exec, execFile } = require('child_process');
 const crypto = require('crypto');
-const { extrairNota, extrairNotaGemini, lerChaveGemini } = require('./lib/extrair');
+const { extrairNota, extrairNotaGemini, lerChaveGemini, VERSAO_LEITURA } = require('./lib/extrair');
 const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require('./lib/referencia');
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas } = require('./lib/montar');
@@ -85,7 +85,7 @@ function listarPendentes(config) {
     .sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true }))
     .map((nome) => {
       const carta = cartaDe(config, nome);
-      return { nome, lido: fs.existsSync(caminhoCache(nome)), carta: carta ? path.basename(carta) : null };
+      return { nome, lido: Boolean(leituraGuardada(nome)), carta: carta ? path.basename(carta) : null };
     });
 }
 
@@ -136,6 +136,16 @@ function receberCarta(req, config, nota, nomeOriginal) {
 
 function caminhoCache(nome) {
   return path.join(PASTA_CACHE, nome + '.json');
+}
+
+// Leitura guardada da nota, só se foi feita com a versão atual das instruções da IA.
+function leituraGuardada(nome) {
+  try {
+    const dados = JSON.parse(fs.readFileSync(caminhoCache(nome), 'utf8'));
+    return dados._versaoLeitura === VERSAO_LEITURA ? dados : null;
+  } catch {
+    return null;
+  }
 }
 
 function arquivoPendente(config, nome) {
@@ -231,8 +241,9 @@ async function lerNota(config, nome, forcar) {
   const ref = await referencia(config);
   let dados;
   const cache = caminhoCache(path.basename(caminho));
-  if (!forcar && fs.existsSync(cache)) {
-    dados = JSON.parse(fs.readFileSync(cache, 'utf8'));
+  const guardada = forcar ? null : leituraGuardada(path.basename(caminho));
+  if (guardada) {
+    dados = guardada;
   } else if (process.env.LEITOR_TESTE) {
     // Modo de teste: usa respostas gravadas em vez de chamar a API.
     dados = JSON.parse(fs.readFileSync(path.join(process.env.LEITOR_TESTE, path.basename(caminho) + '.json'), 'utf8'));
@@ -272,6 +283,7 @@ async function lerNota(config, nome, forcar) {
       }
     }
   }
+  dados._versaoLeitura = VERSAO_LEITURA;
   fs.mkdirSync(PASTA_CACHE, { recursive: true });
   fs.writeFileSync(cache, JSON.stringify(dados, null, 2));
   return {
@@ -298,8 +310,8 @@ async function inserirNota(config, nome, formulario) {
   esquecerReferencia();
   const ref = await referencia(config);
   const semCadastro = formulario.itens
-    .map((it) => String(it.cultivar || '').trim().toUpperCase().replace(/s+/g, ''))
-    .filter((c) => !ref.cultivares.some((x) => x.nome.replace(/s+/g, '') === c));
+    .map((it) => String(it.cultivar || '').trim().toUpperCase().replace(/\s+/g, ''))
+    .filter((c) => !ref.cultivares.some((x) => x.nome.replace(/\s+/g, '') === c));
   if (semCadastro.length) {
     throw new Error(`Cultivar fora da BASE DE DADOS: ${[...new Set(semCadastro.map((c) => c || '(vazia)'))].join(', ')}. Só lançamos cultivares da base. Corrija ou remova o item.`);
   }
@@ -468,13 +480,19 @@ const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const config = lerConfig();
   const bloqueio = await verificarBloqueio(RAIZ);
-  if (bloqueio.bloqueado) {
+  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar'].includes(url.pathname)) {
+    // Bloqueado, mas com versão nova no ar: atualiza primeiro (a tela de atualização se resolve sozinha).
+    const v = await verificarAtualizacao(RAIZ);
+    if (v.nova && !url.pathname.startsWith('/api/')) {
+      res.writeHead(426, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(paginaAtualizacao(v.nova));
+    }
     if (url.pathname.startsWith('/api/')) return json(res, 423, { erro: bloqueio.mensagem || 'Acesso bloqueado temporariamente.' });
     res.writeHead(423, { 'Content-Type': 'text/html; charset=utf-8' });
-    return res.end(paginaBloqueio(bloqueio));
+    return res.end(paginaBloqueio(bloqueio, v.atual));
   }
   // Atualização obrigatória: com versão nova no ar, nada abre até atualizar (garante que o bloqueio sempre funcione).
-  if (!['/api/versao', '/api/atualizar', '/api/estado'].includes(url.pathname)) {
+  if (!['/api/versao', '/api/atualizar', '/api/estado', '/api/aviso'].includes(url.pathname)) {
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova) {
       if (url.pathname.startsWith('/api/')) return json(res, 426, { erro: 'Atualização obrigatória: atualize o programa para continuar.' });
@@ -561,6 +579,9 @@ const servidor = http.createServer(async (req, res) => {
       const { tipo, atual } = await lerCorpo(req);
       const caminho = await escolherNoWindows(tipo === 'pasta' ? 'pasta' : 'planilha', atual);
       return json(res, 200, { caminho });
+    }
+    if (req.method === 'GET' && url.pathname === '/api/aviso') {
+      return json(res, 200, { aviso: bloqueio.aviso || '' });
     }
     if (req.method === 'GET' && url.pathname === '/api/versao') {
       return json(res, 200, await verificarAtualizacao(RAIZ));

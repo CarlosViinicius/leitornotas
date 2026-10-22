@@ -1,14 +1,17 @@
 {
-  "versao": "1.1.6",
+  "versao": "1.1.7",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Atualização automática obrigatória"
+    "Atualização funciona mesmo com o bloqueio ativo",
+    "Acentos corretos nos textos lidos da nota",
+    "Aviso quando a soma dos itens não bate com o peso da nota",
+    "Leituras antigas são refeitas sozinhas quando a leitura melhora"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "a711057414e7d907a274dae8e036c648947c3f2fe7976d6f50acafdf22d9d40b"
+      "sha256": "fec3c7fd7245da376adb67cbe6e10a395aa5ef48b1a5da1833d4c98292ed1479"
     },
     {
       "arquivo": "package.json",
@@ -32,7 +35,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "5707d2eed5386f1e1025d5a1d25654c4f7105d779897b85916cee0723e514b9a"
+      "sha256": "383154e44ed46fcd3531d549e5e8dbeceb4f7080cb88bb102e98dd81cc6ebb52"
     },
     {
       "arquivo": "lib/google.js",
@@ -40,7 +43,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "8fe1e026eb593ab2339b9e749c18e97f4a7b8e9b2a31f45dabd5f845598cf260"
+      "sha256": "ff942828a2ca07df1693303871e7cd2b591451c4a072eaef6709c8fd55423b7b"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -52,11 +55,11 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "48f00af9f64fefe57dd217b65282acbf478a5b5343d1d416b5793bd5fe1632b6"
+      "sha256": "2b2f33cea39629c39906610583a5276a6f1f89d1c06a0c5989f83dac807200da"
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "9bafb3dd45ec0ca8582a8b5756b1c9309e2a598ae3da0c526edb2a646396c5ca"
+      "sha256": "d99df708ab90c58023fc53c69e91e3bd3ade3f629f346153eff678133ff23436"
     }
   ]
 }
