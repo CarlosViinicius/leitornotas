@@ -1,14 +1,14 @@
 {
-  "versao": "1.1.5",
+  "versao": "1.1.6",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Melhorias internas"
+    "Atualização automática obrigatória"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "cd8cc9406daff53f56ea3d00d8d38ec0143e62cb856da3bddbb63ac91f7ac013"
+      "sha256": "a711057414e7d907a274dae8e036c648947c3f2fe7976d6f50acafdf22d9d40b"
     },
     {
       "arquivo": "package.json",
@@ -20,7 +20,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "849203d0cd1af2ced219e3038f6db1c3e5b1c322035ff30ca3938bf16fadf233"
+      "sha256": "001b929b6fd4256e1bec6ff91519304080ec5b41122f3adc672040a87fc05503"
     },
     {
       "arquivo": "lib/chave.js",
@@ -56,7 +56,7 @@
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "5d23e7624f0080215824463c6000d49c0771fa73cd2294a3b1e6dc5ee4b4febf"
+      "sha256": "9bafb3dd45ec0ca8582a8b5756b1c9309e2a598ae3da0c526edb2a646396c5ca"
     }
   ]
 }

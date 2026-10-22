@@ -10,7 +10,7 @@ const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas } = require('./lib/montar');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
 const { verificarBloqueio, paginaBloqueio } = require('./lib/bloqueio');
-const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao } = require('./lib/atualizar');
+const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
 const PORTA = Number(process.env.LEITOR_PORTA) || 3210;
@@ -472,6 +472,15 @@ const servidor = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/')) return json(res, 423, { erro: bloqueio.mensagem || 'Acesso bloqueado temporariamente.' });
     res.writeHead(423, { 'Content-Type': 'text/html; charset=utf-8' });
     return res.end(paginaBloqueio(bloqueio));
+  }
+  // Atualização obrigatória: com versão nova no ar, nada abre até atualizar (garante que o bloqueio sempre funcione).
+  if (!['/api/versao', '/api/atualizar', '/api/estado'].includes(url.pathname)) {
+    const v = await verificarAtualizacao(RAIZ);
+    if (v.nova) {
+      if (url.pathname.startsWith('/api/')) return json(res, 426, { erro: 'Atualização obrigatória: atualize o programa para continuar.' });
+      res.writeHead(426, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(paginaAtualizacao(v.nova));
+    }
   }
   try {
     if (req.method === 'GET' && url.pathname === '/') {
