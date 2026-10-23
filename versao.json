@@ -1,16 +1,17 @@
 {
-  "versao": "1.1.11",
+  "versao": "1.1.12",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Lançadas agora: a lista começa vazia ao fechar e abrir o navegador",
-    "Botão Melhoria: envie ideias ou problemas direto para o desenvolvedor",
-    "Visual refinado e cronômetro do prazo no topo"
+    "Tela de bloqueio nova: Pix com QR Code, cartão Flash e WhatsApp",
+    "Senha numérica de liberação escondida na tela de bloqueio (reinicia todo dia 27 às 15:00)",
+    "Bloqueio entra na hora exata do prazo",
+    "Botão Melhoria e visual refinado"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "7259282b583f72329a0548f7651319c5a14fb94e374ec2a1020387b0dec51038"
+      "sha256": "108a7832e665723a3cddc2d4bedf539e70f047610fd636ea2db826c8e8474356"
     },
     {
       "arquivo": "package.json",
@@ -54,11 +55,15 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "0af607cf1b12177b79d64a20f87b75a2b680062685fa48c610d9f208c91d6c66"
+      "sha256": "81bb8fb54cc5bdb737c9e4d7498de7c30d67922356faaac3fcbc499b16516091"
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "a59723b7cbb622f2004b803d19144c72d29d5037869de48a90efad40570ea04e"
+      "sha256": "c0ae72744f5648f342b1f3d232cb58a8ba3d4cebf586d07bbd88bb22603ef466"
+    },
+    {
+      "arquivo": "lib/liberar.js",
+      "sha256": "3cacc66eaee3b33cefcd7942f3395fde3b3d120a434b70f9e9834cf115a88db6"
     }
   ]
 }

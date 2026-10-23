@@ -1856,7 +1856,7 @@ function desenharPrazo() {
   const caixa = $('#avisoPag');
   if (!prazoFim) { caixa.hidden = true; return; }
   const resta = prazoFim - Date.now();
-  if (resta <= 0) { location.reload(); return; }
+  if (resta <= 0) { if (!window.recarregando) { window.recarregando = true; setTimeout(() => location.reload(), 1500); } return; }
   const d = Math.floor(resta / 864e5), h = Math.floor(resta / 36e5) % 24, m = Math.floor(resta / 6e4) % 60, s = Math.floor(resta / 1e3) % 60;
   const dois = (n) => String(n).padStart(2, '0');
   $('#przD').textContent = dois(d); $('#przH').textContent = dois(h); $('#przM').textContent = dois(m); $('#przS').textContent = dois(s);

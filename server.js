@@ -13,7 +13,9 @@ const { verificarBloqueio, paginaBloqueio } = require('./lib/bloqueio');
 const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
+const { usarCodigo } = require('./lib/liberar');
 const PORTA = Number(process.env.LEITOR_PORTA) || 3210;
+let tentativasCodigo = [];
 // Sugestões dos usuários chegam por e-mail (serviço gratuito FormSubmit; no primeiro envio ele manda um e-mail para ativar).
 const EMAIL_SUGESTOES = 'carlosvendramini51@gmail.com';
 let ultimaSugestao = 0;
@@ -483,7 +485,7 @@ const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const config = lerConfig();
   const bloqueio = await verificarBloqueio(RAIZ);
-  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar'].includes(url.pathname)) {
+  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/liberar'].includes(url.pathname)) {
     // Bloqueado, mas com versão nova no ar: atualiza primeiro (a tela de atualização se resolve sozinha).
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova && !url.pathname.startsWith('/api/')) {
@@ -495,7 +497,7 @@ const servidor = http.createServer(async (req, res) => {
     return res.end(paginaBloqueio(bloqueio, v.atual));
   }
   // Atualização obrigatória: com versão nova no ar, nada abre até atualizar (garante que o bloqueio sempre funcione).
-  if (!['/api/versao', '/api/atualizar', '/api/estado', '/api/aviso'].includes(url.pathname)) {
+  if (!['/api/versao', '/api/atualizar', '/api/estado', '/api/aviso', '/api/liberar'].includes(url.pathname)) {
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova) {
       if (url.pathname.startsWith('/api/')) return json(res, 426, { erro: 'Atualização obrigatória: atualize o programa para continuar.' });
@@ -596,6 +598,15 @@ const servidor = http.createServer(async (req, res) => {
       console.log(`Atualizado para a versão ${r.versao}. Reiniciando...`);
       setTimeout(() => process.exit(75), 500);
       return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/liberar') {
+      const { codigo } = await lerCorpo(req);
+      tentativasCodigo = tentativasCodigo.filter((t) => Date.now() - t < 60 * 1000);
+      if (tentativasCodigo.length >= 8) return json(res, 429, { erro: 'Muitas tentativas. Aguarde um minuto.' });
+      tentativasCodigo.push(Date.now());
+      const r = usarCodigo(RAIZ, codigo);
+      if (!r.ok) return json(res, 400, { erro: r.erro });
+      return json(res, 200, { ok: true, dias: r.dias });
     }
     if (req.method === 'POST' && url.pathname === '/api/sugestao') {
       const { texto, nome } = await lerCorpo(req);
