@@ -1,10 +1,10 @@
 {
-  "versao": "1.1.8",
+  "versao": "1.1.9",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Visual novo: cores, fonte, cartões e animações mais bonitos",
-    "Tela de atualização obrigatória redesenhada, com barra de progresso",
-    "Contagem regressiva do prazo de pagamento sempre visível",
+    "Tela de atualização obrigatória redesenhada: ele clica em \"Atualizar agora\" e acompanha o progresso",
+    "Mensagem e cronômetro do prazo de pagamento no topo, ao lado dos chips",
     "Tela de bloqueio quando o prazo de pagamento vence"
   ],
   "precisaZip": false,
@@ -23,7 +23,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "e519e31a38e2fffb7e5cc6ccc4aacba95bcc3441b8aa9b86e4a290482e31f596"
+      "sha256": "bb4393cb5307b80829f221a86671d43f52b9a299964742832294bad20fbab16f"
     },
     {
       "arquivo": "lib/chave.js",
@@ -55,7 +55,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "64dc20a7d2fbb3be5054c26705303c19cce6a8a776b9fa2f92859244cfba730e"
+      "sha256": "6b979e0aff8337be16eda73d9ac917a8afc0e8ac5d49602d19a0512307e5125b"
     },
     {
       "arquivo": "lib/bloqueio.js",

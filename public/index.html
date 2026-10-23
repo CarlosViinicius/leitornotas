@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Leitor de Notas</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23166534'/%3E%3Cpath d='M10 8h9l5 5v11a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z' fill='%23fff'/%3E%3Cpath d='M12 17h8M12 21h6' stroke='%23166534' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --fundo: #edf1ee; --painel: #ffffff; --borda: #d9e0dc; --borda-forte: #c3cdc7;
@@ -287,33 +289,95 @@
   .com-botao input { margin-top: 0; flex: 1; min-width: 0; }
   .com-botao button { flex: none; }
 
-  /* Rodapé */
-  #rodape { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 7px 18px; font-size: 12px; color: var(--suave); background: linear-gradient(90deg, var(--verde-claro), var(--painel) 50%, var(--verde-claro)); border-top: 1px solid var(--verde-borda); }
-  #rodape p { margin: 0; text-align: center; }
-  #rodape b { color: var(--verde-texto); font-weight: 600; }
-  #rodape .coracao { animation: bate 1.8s ease-in-out infinite; }
-  @keyframes bate { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.25); } 28% { transform: scale(1); } 42% { transform: scale(1.18); } }
   #faixaAtualizacao { background: linear-gradient(90deg, var(--verde-claro), var(--painel)); border-bottom-color: var(--verde-borda); font-weight: 500; }
 
-  /* Timer de pagamento (sempre na frente) */
-  #prazo { position: fixed; top: 74px; right: 18px; z-index: 60; width: 292px; padding: 12px 14px 12px; border-radius: 16px; color: var(--texto); background: color-mix(in srgb, var(--painel) 90%, transparent); backdrop-filter: blur(14px);
-    border: 1px solid var(--verde-borda); box-shadow: var(--sombra-alta), 0 0 0 4px color-mix(in srgb, var(--verde-2) 10%, transparent); --cor: var(--verde-2); transition: border-color .4s, box-shadow .4s; animation: aparece .5s cubic-bezier(.2,.7,.2,1) both; }
-  #prazo[hidden] { display: none; }
-  #prazo.atencao { --cor: #e0a100; border-color: #e0a100; }
-  #prazo.urgente { --cor: #e5483b; border-color: #e5483b; box-shadow: var(--sombra-alta), 0 0 0 4px rgba(229, 72, 59, .18); animation: aparece .5s both, alerta 1.6s ease-in-out .5s infinite; }
-  @keyframes alerta { 50% { box-shadow: var(--sombra-alta), 0 0 0 8px rgba(229, 72, 59, .28); } }
-  #prazo .p-topo { display: flex; align-items: center; gap: 7px; font-size: 11.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--cor); }
-  #prazo .p-topo svg { width: 16px; height: 16px; }
-  #prazo .p-relogio { display: flex; align-items: flex-start; justify-content: space-between; margin-top: 8px; }
-  #prazo .p-relogio > div { flex: 1; text-align: center; }
-  #prazo .p-relogio b { display: block; font-size: 30px; line-height: 1.05; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-  #prazo .p-relogio small { display: block; margin-top: 1px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); }
-  #prazo .p-relogio > span { font-size: 24px; line-height: 1.2; font-weight: 700; color: var(--fraco); }
-  #prazo .p-barra { height: 5px; margin-top: 10px; border-radius: 99px; background: var(--chip); overflow: hidden; }
-  #prazo .p-barra i { display: block; height: 100%; width: 100%; border-radius: 99px; background: var(--cor); transition: width 1s linear, background .4s; }
-  #prazo .p-info { margin-top: 8px; font-size: 12px; color: var(--suave); text-align: center; }
-  #prazo .p-info b { color: var(--texto); }
-  @media (max-width: 760px) { #prazo { top: auto; bottom: 52px; right: 10px; left: 10px; width: auto; } }
+  /* ===== Acabamento visual ===== */
+  :root { --raio: 14px; --fonte: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --sombra: 0 1px 2px rgba(16, 24, 20, .05), 0 6px 18px -6px rgba(16, 24, 20, .12); --logo: linear-gradient(145deg, #22a559 0%, #166534 100%); }
+  @media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) { --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px -8px rgba(0,0,0,.6); --logo: linear-gradient(145deg, #34b36a 0%, #1a6b3c 100%); } }
+  :root[data-tema="escuro"] { --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px -8px rgba(0,0,0,.6); --logo: linear-gradient(145deg, #34b36a 0%, #1a6b3c 100%); }
+  body { font-family: var(--fonte); font-size: 14px; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+  input, textarea, select { font-family: var(--fonte); font-size: 14px; font-variant-numeric: tabular-nums; border-radius: 9px; padding: 8px 11px; }
+  .rotulo-mini { font-family: var(--fonte); }
+  label { font-size: 12px; letter-spacing: .01em; }
+  button { font-family: var(--fonte); border-radius: 10px; }
+  button.primario { background: linear-gradient(180deg, var(--verde-2), var(--verde)); box-shadow: 0 1px 2px rgba(0,0,0,.15), 0 4px 12px -4px rgba(22,101,52,.55); }
+  button.primario:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+  button.primario:active:not(:disabled) { transform: translateY(0); }
+  button { transition: background .15s, border-color .15s, box-shadow .15s, transform .15s, filter .15s; }
+
+  /* Topo */
+  header { padding: 12px 22px; background: color-mix(in srgb, var(--painel) 88%, transparent); backdrop-filter: blur(10px); box-shadow: 0 1px 0 var(--borda), 0 6px 20px -14px rgba(0,0,0,.25); position: relative; z-index: 5; }
+  .logo { width: 38px; height: 38px; border-radius: 11px; background: var(--logo); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 4px 12px -3px rgba(22,101,52,.55); }
+  .marca h1 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+  .marca small { font-size: 12px; letter-spacing: .02em; }
+  .chip { padding: 5px 12px; font-weight: 500; }
+
+  /* Fila: status em pílula */
+  .item { padding: 10px 11px; border-radius: 11px; transition: background .15s, border-color .15s, box-shadow .15s; }
+  .item.atual { box-shadow: 0 0 0 1px var(--verde-borda), 0 4px 14px -8px rgba(22,101,52,.5); }
+  .item .tipo { border-radius: 9px; width: 32px; height: 32px; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+  .item .tipo.pdf { background: linear-gradient(145deg, #ec5a49, #c73a2b); } .item .tipo.img { background: linear-gradient(145deg, #4a96ee, #2467bf); }
+  .item .nome { font-weight: 500; }
+  .status { margin-top: 3px; padding: 1px 8px 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; background: color-mix(in srgb, currentColor 12%, transparent); border: 1px solid color-mix(in srgb, currentColor 22%, transparent); }
+  .status::before { width: 6px; height: 6px; }
+  .fila-topo h2 { letter-spacing: .08em; font-weight: 700; }
+  .soltar-mini { border-radius: 12px; transition: all .15s; }
+  .soltar-mini:hover { transform: translateY(-1px); box-shadow: var(--sombra); }
+
+  /* Cartões do formulário */
+  .cartao { border-radius: var(--raio); padding: 16px 16px 14px; border-color: color-mix(in srgb, var(--borda) 80%, transparent); }
+  .cartao-titulo { font-size: 13.5px; letter-spacing: -.005em; margin-bottom: 14px; }
+  .cartao-titulo > svg { width: 28px; height: 28px; padding: 6px; border-radius: 9px; background: var(--verde-claro); border: 1px solid var(--verde-borda); color: var(--verde-texto); box-sizing: border-box; }
+  .item-nota { border-radius: 11px; }
+  input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 4px rgba(21, 128, 61, .16); }
+  .incerto input, .incerto textarea { background: color-mix(in srgb, var(--amarelo) 55%, var(--campo)); border-color: var(--amarelo-borda); box-shadow: inset 3px 0 0 var(--amarelo-borda); }
+  .aviso { border-radius: 11px; padding: 11px 13px; }
+  #acoes { padding: 14px 18px; background: color-mix(in srgb, var(--painel) 88%, transparent); backdrop-filter: blur(10px); box-shadow: 0 -8px 20px -16px rgba(0,0,0,.35); }
+  #campos { padding: 18px; }
+
+  /* Entrada suave ao trocar de nota */
+  @keyframes aparece { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  #campos > .cartao, #campos > .avisos, #campos > .carregando, #campos > .vazio-painel { animation: aparece .32s cubic-bezier(.2,.7,.2,1) both; }
+  #campos > .cartao:nth-of-type(2) { animation-delay: .04s; } #campos > .cartao:nth-of-type(3) { animation-delay: .08s; }
+  #campos > .cartao:nth-of-type(4) { animation-delay: .12s; } #campos > .cartao:nth-of-type(5) { animation-delay: .16s; }
+  .lancada { border-radius: 11px; }
+  #visor { background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--visor) 92%, #fff) 0%, var(--visor) 70%); }
+  .abas-visor { border-radius: 12px; box-shadow: var(--sombra-alta); backdrop-filter: blur(8px); }
+
+  /* Tela inicial */
+  .area-soltar { border-radius: 22px; padding: 50px 30px; background: radial-gradient(90% 90% at 50% 0%, rgba(143,214,163,.10), transparent 70%); }
+  .area-soltar:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -20px rgba(143,214,163,.45); }
+  .area-soltar .grande-icone { width: 66px; height: 66px; border-radius: 20px; transition: transform .25s; animation: flutua 3.6s ease-in-out infinite; }
+  .area-soltar:hover .grande-icone { transform: scale(1.1) rotate(-4deg); }
+  @keyframes flutua { 50% { translate: 0 -5px; } }
+  .area-soltar, .area-soltar:hover { transition: border-color .15s, background .15s, transform .2s, box-shadow .2s; }
+
+  /* Toast e janelas */
+  #toast { border-radius: 14px; padding: 12px 20px; backdrop-filter: blur(6px); }
+  dialog { border-radius: 18px; border: 1px solid var(--borda); }
+  dialog::backdrop { backdrop-filter: blur(3px); }
+  dialog .secao { border-radius: 13px; background: var(--sutil); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-thumb { background: var(--borda-forte); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--fraco); background-clip: content-box; border: 2px solid transparent; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+  /* Mensagem + cronômetro de pagamento (no topo, ao lado dos chips) */
+  #avisoPag { --cor: var(--verde-2); display: flex; align-items: center; gap: 12px; min-width: 0; flex: 0 1 auto; margin-left: 6px; padding: 5px 14px 5px 6px; border-radius: 999px; border: 1px solid var(--verde-borda); background: var(--verde-claro); }
+  #avisoPag[hidden] { display: none; }
+  #avisoPag .rel { display: inline-flex; align-items: center; gap: 7px; flex: none; padding: 5px 12px; border-radius: 999px; color: #fff; background: var(--cor); font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px -2px var(--cor); }
+  #avisoPag .rel svg { width: 15px; height: 15px; }
+  #avisoPag .digs { font-size: 13px; white-space: nowrap; }
+  #avisoPag .digs b { font-weight: 700; font-size: 14px; }
+  #avisoPag .digs i { font-style: normal; font-size: 10.5px; opacity: .85; margin-right: 1px; }
+  #avisoPag p { margin: 0; font-size: 12.5px; color: var(--texto); line-height: 1.3; min-width: 0; max-width: 430px; }
+  #avisoPag p b { color: var(--verde-texto); }
+  #avisoPag.atencao { --cor: #c98a00; border-color: #e0a100; background: var(--amarelo); }
+  #avisoPag.atencao p b { color: var(--amarelo-texto); }
+  #avisoPag.urgente { --cor: #e5483b; border-color: #e5483b; background: var(--vermelho-fundo); animation: alertaPag 1.6s ease-in-out infinite; }
+  #avisoPag.urgente p b { color: var(--vermelho-texto); }
+  @keyframes alertaPag { 50% { box-shadow: 0 0 0 5px rgba(229, 72, 59, .2); } }
+  @media (max-width: 1500px) { #avisoPag p { display: none; } #avisoPag { padding: 4px; } }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -356,6 +420,11 @@
   <div class="chips">
     <span class="chip" id="chipPlanilha" title="Para onde as notas vão"><svg class="i"><use href="#i-tabela"/></svg><span></span></span>
     <span class="chip" id="chipIA" title="IA que lê as notas"><svg class="i"><use href="#i-ia"/></svg><span></span></span>
+  </div>
+  <div id="avisoPag" hidden role="timer">
+    <div class="rel" id="relPag"><svg class="i"><use href="#i-relogio"/></svg>
+      <span class="digs"><b id="przD">00</b><i>d</i> <b id="przH">00</b><i>h</i> <b id="przM">00</b><i>m</i> <b id="przS">00</b><i>s</i></span></div>
+    <p id="msgPag"><b>É bom né?</b> Te poupa <b>horas</b> todo mês. Quem te devolveu esse tempo espera o <b>pagamento</b> 😉</p>
   </div>
   <span class="espaco"></span>
   <span class="contador-hoje" id="contadorHoje"></span>
@@ -403,23 +472,11 @@
     </div>
   </section>
 </main>
-<footer id="rodape"><span class="coracao">💚</span><p>É bom né? Cada nota que você lança aqui <b>economiza minutos</b> — no fim do mês são <b>várias horas</b> que você não passa digitando, conferindo e errando campo. Tempo que vale dinheiro. Então não esquece: <b>quem te devolveu essas horas está esperando o pagamento</b> 😉</p></footer>
 
 <input type="file" id="arquivos" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <div id="sobrepor"><div class="caixa"><svg class="i"><use href="#i-upload"/></svg><h3>Solte as notas aqui</h3></div></div>
 <div id="toast"></div>
-<div id="prazo" hidden role="timer" aria-live="off">
-  <div class="p-topo"><svg class="i"><use href="#i-relogio"/></svg><b id="przTitulo">Pagamento</b></div>
-  <div class="p-relogio">
-    <div><b id="przD">00</b><small>dias</small></div><span>:</span>
-    <div><b id="przH">00</b><small>horas</small></div><span>:</span>
-    <div><b id="przM">00</b><small>min</small></div><span>:</span>
-    <div><b id="przS">00</b><small>seg</small></div>
-  </div>
-  <div class="p-barra"><i id="przBarra"></i></div>
-  <div class="p-info" id="przInfo"></div>
-</div>
 
 <dialog id="dlgConfig">
   <form method="dialog" id="formConfig">
@@ -1465,11 +1522,11 @@ async function verAviso() {
 verAviso();
 setInterval(verAviso, 5 * 60 * 1000);
 
-// ---------- Timer do prazo de pagamento ----------
+// ---------- Cronômetro do prazo de pagamento ----------
 // O prazo vem do servidor (bloqueio.json no GitHub). Ao vencer, o servidor bloqueia e a página recarrega na tela de bloqueio.
 let prazoFim = null;
 function desenharPrazo() {
-  const caixa = $('#prazo');
+  const caixa = $('#avisoPag');
   if (!prazoFim) { caixa.hidden = true; return; }
   const resta = prazoFim - Date.now();
   if (resta <= 0) { location.reload(); return; }
@@ -1478,15 +1535,12 @@ function desenharPrazo() {
   $('#przD').textContent = dois(d); $('#przH').textContent = dois(h); $('#przM').textContent = dois(m); $('#przS').textContent = dois(s);
   caixa.classList.toggle('urgente', resta < 864e5);
   caixa.classList.toggle('atencao', resta >= 864e5 && resta < 3 * 864e5);
-  $('#przTitulo').textContent = resta < 864e5 ? 'Último dia para o pagamento!' : 'Tempo para o pagamento';
-  $('#przBarra').style.width = Math.max(0, Math.min(100, (resta / (7 * 864e5)) * 100)) + '%';
-  $('#przInfo').innerHTML = 'Vence em <b>' + new Date(prazoFim).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</b> · depois disso o acesso é <b>bloqueado</b> até o pagamento';
+  caixa.title = 'Prazo do pagamento: ' + new Date(prazoFim).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) + ' · depois disso o acesso é bloqueado até o pagamento';
   caixa.hidden = false;
 }
 async function verPrazo() {
   const r = await api('/api/aviso').catch(() => null);
-  const novo = r && r.prazo ? Number(r.prazo) : null;
-  prazoFim = novo;
+  prazoFim = r && r.prazo ? Number(r.prazo) : null;
   desenharPrazo();
 }
 verPrazo();
