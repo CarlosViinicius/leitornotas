@@ -286,6 +286,34 @@
   .com-botao { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
   .com-botao input { margin-top: 0; flex: 1; min-width: 0; }
   .com-botao button { flex: none; }
+
+  /* Rodapé */
+  #rodape { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 7px 18px; font-size: 12px; color: var(--suave); background: linear-gradient(90deg, var(--verde-claro), var(--painel) 50%, var(--verde-claro)); border-top: 1px solid var(--verde-borda); }
+  #rodape p { margin: 0; text-align: center; }
+  #rodape b { color: var(--verde-texto); font-weight: 600; }
+  #rodape .coracao { animation: bate 1.8s ease-in-out infinite; }
+  @keyframes bate { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.25); } 28% { transform: scale(1); } 42% { transform: scale(1.18); } }
+  #faixaAtualizacao { background: linear-gradient(90deg, var(--verde-claro), var(--painel)); border-bottom-color: var(--verde-borda); font-weight: 500; }
+
+  /* Timer de pagamento (sempre na frente) */
+  #prazo { position: fixed; top: 74px; right: 18px; z-index: 60; width: 292px; padding: 12px 14px 12px; border-radius: 16px; color: var(--texto); background: color-mix(in srgb, var(--painel) 90%, transparent); backdrop-filter: blur(14px);
+    border: 1px solid var(--verde-borda); box-shadow: var(--sombra-alta), 0 0 0 4px color-mix(in srgb, var(--verde-2) 10%, transparent); --cor: var(--verde-2); transition: border-color .4s, box-shadow .4s; animation: aparece .5s cubic-bezier(.2,.7,.2,1) both; }
+  #prazo[hidden] { display: none; }
+  #prazo.atencao { --cor: #e0a100; border-color: #e0a100; }
+  #prazo.urgente { --cor: #e5483b; border-color: #e5483b; box-shadow: var(--sombra-alta), 0 0 0 4px rgba(229, 72, 59, .18); animation: aparece .5s both, alerta 1.6s ease-in-out .5s infinite; }
+  @keyframes alerta { 50% { box-shadow: var(--sombra-alta), 0 0 0 8px rgba(229, 72, 59, .28); } }
+  #prazo .p-topo { display: flex; align-items: center; gap: 7px; font-size: 11.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--cor); }
+  #prazo .p-topo svg { width: 16px; height: 16px; }
+  #prazo .p-relogio { display: flex; align-items: flex-start; justify-content: space-between; margin-top: 8px; }
+  #prazo .p-relogio > div { flex: 1; text-align: center; }
+  #prazo .p-relogio b { display: block; font-size: 30px; line-height: 1.05; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  #prazo .p-relogio small { display: block; margin-top: 1px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); }
+  #prazo .p-relogio > span { font-size: 24px; line-height: 1.2; font-weight: 700; color: var(--fraco); }
+  #prazo .p-barra { height: 5px; margin-top: 10px; border-radius: 99px; background: var(--chip); overflow: hidden; }
+  #prazo .p-barra i { display: block; height: 100%; width: 100%; border-radius: 99px; background: var(--cor); transition: width 1s linear, background .4s; }
+  #prazo .p-info { margin-top: 8px; font-size: 12px; color: var(--suave); text-align: center; }
+  #prazo .p-info b { color: var(--texto); }
+  @media (max-width: 760px) { #prazo { top: auto; bottom: 52px; right: 10px; left: 10px; width: auto; } }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -316,6 +344,7 @@
   <symbol id="i-fora" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="i-recolher" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
   <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></symbol>
   <symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 5l10 7-10 7zM19 5v14"/></symbol>
 </svg>
 
@@ -336,7 +365,6 @@
 <div id="faixaAtualizacao" hidden>
   <svg class="i"><use href="#i-recarregar"/></svg>
   <div class="texto"><b id="atuTitulo"></b><span id="atuNovidades"></span></div>
-  <button type="button" class="fantasma" id="btAtuDepois">Depois</button>
   <button type="button" class="primario" id="btAtualizar">Atualizar agora</button>
 </div>
 <div id="faixaAviso" hidden></div>
@@ -375,11 +403,23 @@
     </div>
   </section>
 </main>
+<footer id="rodape"><span class="coracao">💚</span><p>É bom né? Cada nota que você lança aqui <b>economiza minutos</b> — no fim do mês são <b>várias horas</b> que você não passa digitando, conferindo e errando campo. Tempo que vale dinheiro. Então não esquece: <b>quem te devolveu essas horas está esperando o pagamento</b> 😉</p></footer>
 
 <input type="file" id="arquivos" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <div id="sobrepor"><div class="caixa"><svg class="i"><use href="#i-upload"/></svg><h3>Solte as notas aqui</h3></div></div>
 <div id="toast"></div>
+<div id="prazo" hidden role="timer" aria-live="off">
+  <div class="p-topo"><svg class="i"><use href="#i-relogio"/></svg><b id="przTitulo">Pagamento</b></div>
+  <div class="p-relogio">
+    <div><b id="przD">00</b><small>dias</small></div><span>:</span>
+    <div><b id="przH">00</b><small>horas</small></div><span>:</span>
+    <div><b id="przM">00</b><small>min</small></div><span>:</span>
+    <div><b id="przS">00</b><small>seg</small></div>
+  </div>
+  <div class="p-barra"><i id="przBarra"></i></div>
+  <div class="p-info" id="przInfo"></div>
+</div>
 
 <dialog id="dlgConfig">
   <form method="dialog" id="formConfig">
@@ -1387,20 +1427,15 @@ atualizar().catch((e) => toast(e.message, true));
 
 // ---------- Atualização automática ----------
 async function verVersaoNova() {
-  if (sessionStorage.getItem('atuDepois')) return;
   const v = await api('/api/versao').catch(() => null);
   if (!v || !v.nova) return;
   $('#atuTitulo').textContent = v.nova.precisaZip
     ? `Versão nova ${v.nova.versao}: esta precisa ser instalada pelo zip novo. Peça o arquivo.`
-    : `Versão nova disponível (${v.nova.versao})`;
+    : `Atualização obrigatória (${v.nova.versao})`;
   $('#atuNovidades').textContent = v.nova.novidades.join(' · ');
   $('#btAtualizar').hidden = v.nova.precisaZip;
   $('#faixaAtualizacao').hidden = false;
 }
-$('#btAtuDepois').onclick = () => {
-  try { sessionStorage.setItem('atuDepois', '1'); } catch {}
-  $('#faixaAtualizacao').hidden = true;
-};
 $('#btAtualizar').onclick = async () => {
   const bt = $('#btAtualizar');
   bt.disabled = true;
@@ -1429,6 +1464,34 @@ async function verAviso() {
 }
 verAviso();
 setInterval(verAviso, 5 * 60 * 1000);
+
+// ---------- Timer do prazo de pagamento ----------
+// O prazo vem do servidor (bloqueio.json no GitHub). Ao vencer, o servidor bloqueia e a página recarrega na tela de bloqueio.
+let prazoFim = null;
+function desenharPrazo() {
+  const caixa = $('#prazo');
+  if (!prazoFim) { caixa.hidden = true; return; }
+  const resta = prazoFim - Date.now();
+  if (resta <= 0) { location.reload(); return; }
+  const d = Math.floor(resta / 864e5), h = Math.floor(resta / 36e5) % 24, m = Math.floor(resta / 6e4) % 60, s = Math.floor(resta / 1e3) % 60;
+  const dois = (n) => String(n).padStart(2, '0');
+  $('#przD').textContent = dois(d); $('#przH').textContent = dois(h); $('#przM').textContent = dois(m); $('#przS').textContent = dois(s);
+  caixa.classList.toggle('urgente', resta < 864e5);
+  caixa.classList.toggle('atencao', resta >= 864e5 && resta < 3 * 864e5);
+  $('#przTitulo').textContent = resta < 864e5 ? 'Último dia para o pagamento!' : 'Tempo para o pagamento';
+  $('#przBarra').style.width = Math.max(0, Math.min(100, (resta / (7 * 864e5)) * 100)) + '%';
+  $('#przInfo').innerHTML = 'Vence em <b>' + new Date(prazoFim).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</b> · depois disso o acesso é <b>bloqueado</b> até o pagamento';
+  caixa.hidden = false;
+}
+async function verPrazo() {
+  const r = await api('/api/aviso').catch(() => null);
+  const novo = r && r.prazo ? Number(r.prazo) : null;
+  prazoFim = novo;
+  desenharPrazo();
+}
+verPrazo();
+setInterval(verPrazo, 5 * 60 * 1000);
+setInterval(desenharPrazo, 1000);
 verVersaoNova();
 setInterval(verVersaoNova, 3 * 3600 * 1000);
 </script>

@@ -581,7 +581,7 @@ const servidor = http.createServer(async (req, res) => {
       return json(res, 200, { caminho });
     }
     if (req.method === 'GET' && url.pathname === '/api/aviso') {
-      return json(res, 200, { aviso: bloqueio.aviso || '' });
+      return json(res, 200, { aviso: bloqueio.aviso || '', prazo: bloqueio.prazo || null });
     }
     if (req.method === 'GET' && url.pathname === '/api/versao') {
       return json(res, 200, await verificarAtualizacao(RAIZ));

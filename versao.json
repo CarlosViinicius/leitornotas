@@ -1,17 +1,17 @@
 {
-  "versao": "1.1.7",
+  "versao": "1.1.8",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Atualização funciona mesmo com o bloqueio ativo",
-    "Acentos corretos nos textos lidos da nota",
-    "Aviso quando a soma dos itens não bate com o peso da nota",
-    "Leituras antigas são refeitas sozinhas quando a leitura melhora"
+    "Visual novo: cores, fonte, cartões e animações mais bonitos",
+    "Tela de atualização obrigatória redesenhada, com barra de progresso",
+    "Contagem regressiva do prazo de pagamento sempre visível",
+    "Tela de bloqueio quando o prazo de pagamento vence"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "fec3c7fd7245da376adb67cbe6e10a395aa5ef48b1a5da1833d4c98292ed1479"
+      "sha256": "b644598026088366cde74968b8f332a5cf7fc12bf6c8237b0d4761d81159411b"
     },
     {
       "arquivo": "package.json",
@@ -23,7 +23,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "001b929b6fd4256e1bec6ff91519304080ec5b41122f3adc672040a87fc05503"
+      "sha256": "e519e31a38e2fffb7e5cc6ccc4aacba95bcc3441b8aa9b86e4a290482e31f596"
     },
     {
       "arquivo": "lib/chave.js",
@@ -55,11 +55,11 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "2b2f33cea39629c39906610583a5276a6f1f89d1c06a0c5989f83dac807200da"
+      "sha256": "64dc20a7d2fbb3be5054c26705303c19cce6a8a776b9fa2f92859244cfba730e"
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "d99df708ab90c58023fc53c69e91e3bd3ade3f629f346153eff678133ff23436"
+      "sha256": "a59723b7cbb622f2004b803d19144c72d29d5037869de48a90efad40570ea04e"
     }
   ]
 }
