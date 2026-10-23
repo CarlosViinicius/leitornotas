@@ -1,11 +1,9 @@
 {
-  "versao": "1.1.12",
+  "versao": "1.1.13",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Tela de bloqueio nova: Pix com QR Code, cartão Flash e WhatsApp",
-    "Senha numérica de liberação escondida na tela de bloqueio (reinicia todo dia 27 às 15:00)",
-    "Bloqueio entra na hora exata do prazo",
-    "Botão Melhoria e visual refinado"
+    "Depois do pagamento o cronômetro e a mensagem somem do topo",
+    "Tela de bloqueio com Pix, cartão Flash e WhatsApp; senha numérica de liberação escondida"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -59,7 +57,7 @@
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "c0ae72744f5648f342b1f3d232cb58a8ba3d4cebf586d07bbd88bb22603ef466"
+      "sha256": "83934debd51f5bf3e9adb0e52561b87608012743ede4a978a1830036b9c9a9d6"
     },
     {
       "arquivo": "lib/liberar.js",
