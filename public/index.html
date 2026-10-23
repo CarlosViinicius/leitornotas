@@ -843,7 +843,19 @@ const icone = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
 const EXT_OK = /\.(pdf|jpe?g|png|webp)$/i;
 const LEITURAS_AO_MESMO_TEMPO = 2;
 // As lançadas ficam na lista até fechar o navegador (sessionStorage guarda se recarregar a página).
-const lerLancadas = () => { try { return JSON.parse(sessionStorage.getItem('lancadas') || '[]'); } catch { return []; } };
+const lerLancadas = () => {
+  try {
+    // O Chrome pode restaurar a sessão ao reabrir. Se nenhuma página do programa esteve aberta nos últimos 10 segundos, o navegador foi fechado: começa vazio.
+    const parado = Date.now() - Number(localStorage.getItem('batimento') || 0) > 10000;
+    if (parado) { sessionStorage.removeItem('lancadas'); return []; }
+    return JSON.parse(sessionStorage.getItem('lancadas') || '[]');
+  } catch { return []; }
+};
+const batida = () => { try { localStorage.setItem('batimento', String(Date.now())); } catch {} };
+// Lê a lista ANTES de marcar que a página está viva (senão nunca saberia se o navegador foi fechado).
+const lancadasIniciais = lerLancadas();
+batida();
+setInterval(batida, 4000);
 const guardarLancadas = () => { try { sessionStorage.setItem('lancadas', JSON.stringify(estado.lancadas)); } catch {} };
 const COLUNAS = [
   ['A', 'Cliente'], ['C', 'Val. nº NF'], ['D', 'Cidade do deslintamento'], ['E', 'UF do deslintamento'],
@@ -866,7 +878,7 @@ const estado = {
   selecionadas: new Set(),
   inserindo: new Set(),
   enviando: [],
-  lancadas: lerLancadas(),   // { id, nf, linhas, nome }
+  lancadas: lancadasIniciais,   // { id, nf, linhas, nome }
   desfazer: null, // a inserção mais recente que ainda dá para desfazer: { id, nf, nome, linhas }
   tentativas: {}, // nome -> quantas vezes a leitura falhou por IA ocupada
   proximaTentativa: {},
@@ -1044,10 +1056,8 @@ function desenharLista() {
   if (!estado.pendentes.length && !estado.enviando.length) {
     html = '<div class="fila-vazia">Nenhuma nota na fila.<br>Clique em <b>Adicionar notas</b> ou arraste os arquivos para a tela.</div>';
   }
-  // Depois de reabrir o programa a lista "Lançadas agora" está vazia, mas a última inserção
-  // ainda pode ser desfeita: mostra ela.
+  // "Lançadas agora" só tem o que foi lançado enquanto o navegador ficou aberto.
   const lancadas = [...estado.lancadas];
-  if (estado.desfazer && !lancadas.some(podeDesfazer)) lancadas.unshift({ id: 'ultima', ...estado.desfazer, anterior: true });
   if (lancadas.length) {
     html += `<div class="secao-lancadas"><h4>Lançadas agora <span class="qtd-lanc">${lancadas.length}</span></h4>${lancadas.map((x) => `
       <div class="lancada" data-id="${x.id}" title="${esc(x.nome)}"><span class="ok">${icone('check')}</span>

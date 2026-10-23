@@ -1,12 +1,10 @@
 {
-  "versao": "1.1.10",
+  "versao": "1.1.11",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
+    "Lançadas agora: a lista começa vazia ao fechar e abrir o navegador",
     "Botão Melhoria: envie ideias ou problemas direto para o desenvolvedor",
-    "Visual refinado: cabeçalho, lista de notas, resumo da nota e formulário",
-    "Cronômetro e mensagem do prazo de pagamento no topo",
-    "Notas lançadas ficam na lista até fechar o navegador",
-    "Tela de atualização obrigatória com botão \"Atualizar agora\""
+    "Visual refinado e cronômetro do prazo no topo"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -56,7 +54,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "eb96130f80702cdf7e971481eb771403b55457fe5e2afca916f74f6883b3c235"
+      "sha256": "0af607cf1b12177b79d64a20f87b75a2b680062685fa48c610d9f208c91d6c66"
     },
     {
       "arquivo": "lib/bloqueio.js",
