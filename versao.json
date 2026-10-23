@@ -1,17 +1,18 @@
 {
-  "versao": "1.1.9",
+  "versao": "1.1.10",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Visual novo: cores, fonte, cartões e animações mais bonitos",
-    "Tela de atualização obrigatória redesenhada: ele clica em \"Atualizar agora\" e acompanha o progresso",
-    "Mensagem e cronômetro do prazo de pagamento no topo, ao lado dos chips",
-    "Tela de bloqueio quando o prazo de pagamento vence"
+    "Botão Melhoria: envie ideias ou problemas direto para o desenvolvedor",
+    "Visual refinado: cabeçalho, lista de notas, resumo da nota e formulário",
+    "Cronômetro e mensagem do prazo de pagamento no topo",
+    "Notas lançadas ficam na lista até fechar o navegador",
+    "Tela de atualização obrigatória com botão \"Atualizar agora\""
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "b644598026088366cde74968b8f332a5cf7fc12bf6c8237b0d4761d81159411b"
+      "sha256": "7259282b583f72329a0548f7651319c5a14fb94e374ec2a1020387b0dec51038"
     },
     {
       "arquivo": "package.json",
@@ -55,7 +56,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "6b979e0aff8337be16eda73d9ac917a8afc0e8ac5d49602d19a0512307e5125b"
+      "sha256": "eb96130f80702cdf7e971481eb771403b55457fe5e2afca916f74f6883b3c235"
     },
     {
       "arquivo": "lib/bloqueio.js",

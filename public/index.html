@@ -363,21 +363,284 @@
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
   /* Mensagem + cronômetro de pagamento (no topo, ao lado dos chips) */
-  #avisoPag { --cor: var(--verde-2); display: flex; align-items: center; gap: 12px; min-width: 0; flex: 0 1 auto; margin-left: 6px; padding: 5px 14px 5px 6px; border-radius: 999px; border: 1px solid var(--verde-borda); background: var(--verde-claro); }
+  #avisoPag { --cor: var(--verde-2); display: flex; align-items: center; gap: 12px; flex: 0 1 auto; min-width: 0; height: 38px; margin-left: 6px; padding: 0 16px 0 5px; border-radius: 12px; border: 1px solid var(--verde-borda); background: var(--verde-claro); }
   #avisoPag[hidden] { display: none; }
-  #avisoPag .rel { display: inline-flex; align-items: center; gap: 7px; flex: none; padding: 5px 12px; border-radius: 999px; color: #fff; background: var(--cor); font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px -2px var(--cor); }
-  #avisoPag .rel svg { width: 15px; height: 15px; }
-  #avisoPag .digs { font-size: 13px; white-space: nowrap; }
-  #avisoPag .digs b { font-weight: 700; font-size: 14px; }
-  #avisoPag .digs i { font-style: normal; font-size: 10.5px; opacity: .85; margin-right: 1px; }
-  #avisoPag p { margin: 0; font-size: 12.5px; color: var(--texto); line-height: 1.3; min-width: 0; max-width: 430px; }
-  #avisoPag p b { color: var(--verde-texto); }
+  #avisoPag .rel { display: inline-flex; align-items: center; gap: 4px; flex: none; height: 28px; padding: 0 10px 0 9px; border-radius: 9px; color: #fff; background: var(--cor); box-shadow: 0 2px 8px -3px var(--cor), inset 0 1px 0 rgba(255,255,255,.25); }
+  #avisoPag .rel svg { width: 15px; height: 15px; margin-right: 3px; }
+  #avisoPag .un { display: inline-flex; align-items: baseline; gap: 2px; }
+  #avisoPag .un b { min-width: 21px; text-align: center; font-size: 14px; line-height: 20px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 2px; border-radius: 5px; background: rgba(0,0,0,.2); }
+  #avisoPag .un i { font-style: normal; font-size: 9.5px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; opacity: .85; }
+  #avisoPag .dp { font-weight: 700; opacity: .55; margin: 0 -1px; }
+  #avisoPag p { margin: 0; font-size: 12.5px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; color: var(--texto); }
+  #avisoPag p b { color: var(--verde-texto); font-weight: 600; }
   #avisoPag.atencao { --cor: #c98a00; border-color: #e0a100; background: var(--amarelo); }
   #avisoPag.atencao p b { color: var(--amarelo-texto); }
   #avisoPag.urgente { --cor: #e5483b; border-color: #e5483b; background: var(--vermelho-fundo); animation: alertaPag 1.6s ease-in-out infinite; }
   #avisoPag.urgente p b { color: var(--vermelho-texto); }
-  @keyframes alertaPag { 50% { box-shadow: 0 0 0 5px rgba(229, 72, 59, .2); } }
-  @media (max-width: 1500px) { #avisoPag p { display: none; } #avisoPag { padding: 4px; } }
+  @keyframes alertaPag { 50% { box-shadow: 0 0 0 4px rgba(229, 72, 59, .2); } }
+  @media (max-width: 1500px) { #avisoPag p { display: none; } #avisoPag { padding: 0 5px; } }
+
+  /* ===== Reforma visual (cabeçalho, fila, formulário) ===== */
+  body { font-size: 14.5px; }
+
+  /* Cabeçalho em verde, com identidade */
+  header { gap: 12px; padding: 0 22px; height: 64px; color: #fff; border-bottom: 0; backdrop-filter: none;
+    background: linear-gradient(105deg, #0b3a21 0%, #145a31 55%, #1c7a43 100%); box-shadow: 0 6px 24px -10px rgba(10, 60, 30, .6); }
+  header .logo { background: #fff; color: #166534; box-shadow: 0 4px 14px -4px rgba(0,0,0,.45); }
+  header .marca h1 { color: #fff; font-size: 18px; }
+  header .marca small { color: rgba(255,255,255,.72); }
+  header .chip { color: #eaf7ef; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); backdrop-filter: blur(4px); }
+  header .chip.ok { color: #fff; background: rgba(255,255,255,.2); }
+  header .contador-hoje { color: rgba(255,255,255,.8); }
+  header .contador-hoje b { color: #9cf0bd; }
+  header button.fantasma { color: #eaf7ef; }
+  header button.fantasma:hover { background: rgba(255,255,255,.14); color: #fff; }
+  #avisoPag { height: 40px; }
+
+  /* Fila de notas: cartões */
+  #fila { background: var(--sutil); }
+  .fila-topo { padding: 18px 14px 10px; }
+  .fila-topo h2 { font-size: 12px; margin-bottom: 12px; }
+  .soltar-mini { padding: 14px; font-size: 14px; background: var(--painel); border-radius: 14px; }
+  #lista { padding: 6px 12px 14px; }
+  .item { padding: 12px; gap: 11px; margin-bottom: 8px; border-radius: 14px; background: var(--painel); border: 1px solid var(--borda); box-shadow: 0 1px 2px rgba(16,24,20,.04); }
+  .item:hover { border-color: var(--borda-forte); transform: translateY(-1px); box-shadow: var(--sombra); background: var(--painel); }
+  .item.atual { background: var(--verde-claro); border-color: var(--verde-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--verde-2) 18%, transparent), var(--sombra); }
+  .item .tipo { width: 38px; height: 38px; border-radius: 11px; font-size: 11px; }
+  .item .nome { font-size: 14px; font-weight: 600; }
+  .fila-rodape { background: var(--painel); }
+
+  /* Resumo da nota (topo do formulário) */
+  .resumo-nf { position: relative; overflow: hidden; display: flex; align-items: center; gap: 16px; margin-bottom: 14px; padding: 18px 20px; border-radius: 18px; color: #fff;
+    background: linear-gradient(120deg, #0f4a29 0%, #178a47 100%); box-shadow: 0 14px 30px -16px rgba(22,101,52,.8), inset 0 1px 0 rgba(255,255,255,.2); }
+  .resumo-nf::after { content: ""; position: absolute; right: -40px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 70%); pointer-events: none; }
+  .resumo-nf .rn-num { flex: none; }
+  .resumo-nf small { display: block; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; opacity: .75; font-weight: 600; }
+  .resumo-nf .rn-num b { display: block; font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .resumo-nf .rn-div { width: 1px; align-self: stretch; background: rgba(255,255,255,.25); }
+  .resumo-nf .rn-info { min-width: 0; flex: 1; }
+  .resumo-nf .rn-info b { display: block; font-size: 15.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .resumo-nf .rn-info span { display: block; margin-top: 2px; font-size: 12.5px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .resumo-nf .rn-itens { flex: none; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25); position: relative; z-index: 1; }
+
+  /* Formulário mais confortável de ler e preencher */
+  #campos { padding: 20px; }
+  .cartao { padding: 20px 20px 18px; margin-bottom: 16px; border-radius: 18px; }
+  .cartao-titulo { font-size: 15px; font-weight: 700; margin-bottom: 16px; gap: 10px; }
+  .cartao-titulo > svg { width: 32px; height: 32px; padding: 7px; border-radius: 10px; }
+  .grade { gap: 14px 14px; }
+  label { font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--suave); }
+  input, textarea, select { margin-top: 6px; padding: 10px 12px; font-size: 15px; font-weight: 500; border-radius: 10px; border-color: var(--borda); background: var(--sutil); }
+  input:hover, textarea:hover, select:hover { border-color: var(--borda-forte); }
+  input:focus, textarea:focus, select:focus { background: var(--campo); border-color: var(--verde-2); }
+  .item-nota { padding: 16px; border-radius: 14px; background: var(--sutil); }
+  .item-nota .topo { margin-bottom: 12px; letter-spacing: .08em; }
+  .chave, .natureza, .carta { border-radius: 12px; }
+  .linha-chave { font-size: 14px; }
+  .aviso { padding: 14px 16px; font-size: 13.5px; }
+
+  /* Barra de ações */
+  #acoes { padding: 14px 20px; gap: 10px; }
+  #acoes button { padding: 10px 16px; border-radius: 12px; }
+  button.primario.grande { padding: 13px 26px; font-size: 15.5px; border-radius: 14px; letter-spacing: .01em; }
+  button.primario.grande:not(:disabled) { box-shadow: 0 12px 24px -10px rgba(22,101,52,.75), inset 0 1px 0 rgba(255,255,255,.25); }
+
+  #acoes { gap: 8px; padding: 14px 16px; }
+  #acoes button { white-space: nowrap; padding: 10px 13px; }
+  button.primario.grande { padding: 12px 20px; font-size: 15px; }
+  .linha-chave { font-size: 13px; letter-spacing: 0; }
+  @media (max-width: 1500px) { .resumo-nf .rn-num b { font-size: 26px; } .resumo-nf { padding: 15px 16px; } }
+
+  /* ===== Refino: cabeçalho limpo e fila mais calma ===== */
+  header { height: 62px; padding: 0 22px; gap: 14px; color: var(--texto); background: var(--painel); box-shadow: 0 1px 0 var(--borda); }
+  header .logo { background: var(--logo); color: #fff; box-shadow: 0 4px 12px -4px rgba(22,101,52,.6); }
+  header .marca h1 { color: var(--texto); font-size: 17px; }
+  header .marca small { color: var(--suave); }
+  header .chip { color: var(--suave); background: var(--sutil); border-color: var(--borda); backdrop-filter: none; font-weight: 500; }
+  header .chip.ok { color: var(--verde-texto); background: var(--verde-claro); border-color: var(--verde-borda); }
+  header .contador-hoje { color: var(--suave); }
+  header .contador-hoje b { color: var(--verde-texto); }
+  header button.fantasma { color: var(--suave); }
+  header button.fantasma:hover { background: var(--hover); color: var(--texto); }
+  header #btConfig { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 14px; border-radius: 10px; }
+  header #btConfig:hover { border-color: var(--borda-forte); background: var(--hover); }
+
+  /* Prazo: sem caixa colorida em volta, só uma divisória */
+  #avisoPag { height: auto; margin-left: 4px; padding: 0 0 0 18px; gap: 14px; border: 0; border-left: 1px solid var(--borda); border-radius: 0; background: none; animation: none; }
+  #avisoPag .rel { height: 32px; gap: 6px; padding: 0 12px 0 10px; border-radius: 10px; color: var(--cor); background: color-mix(in srgb, var(--cor) 13%, var(--painel)); border: 1px solid color-mix(in srgb, var(--cor) 38%, transparent); box-shadow: none; }
+  #avisoPag .rel svg { margin-right: 2px; }
+  #avisoPag .un b { min-width: 0; padding: 0; background: none; color: var(--texto); font-size: 15px; font-weight: 700; }
+  #avisoPag .un i { color: var(--suave); opacity: 1; font-size: 9.5px; margin-left: 1px; }
+  #avisoPag .dp { color: var(--fraco); opacity: 1; margin: 0 3px; font-weight: 600; }
+  #avisoPag p { color: var(--suave); font-size: 12.5px; }
+  #avisoPag p b { color: var(--texto); font-weight: 600; }
+  #avisoPag.atencao { background: none; border-color: var(--borda); }
+  #avisoPag.urgente { background: none; border-color: var(--borda); animation: none; }
+  #avisoPag.urgente .rel { animation: alertaPag 1.6s ease-in-out infinite; }
+  #avisoPag.atencao p b, #avisoPag.urgente p b { color: var(--texto); }
+  @media (max-width: 1500px) { #avisoPag { padding-left: 14px; } }
+
+  /* Fila: lista limpa, sem brilho */
+  #fila { background: var(--painel); }
+  .fila-topo { padding: 20px 16px 8px; }
+  .fila-topo h2 { margin-bottom: 14px; font-size: 11.5px; letter-spacing: .1em; color: var(--suave); }
+  #contador { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--verde-claro); color: var(--verde-texto); font-size: 11.5px; font-weight: 700; letter-spacing: 0; }
+  .soltar-mini { padding: 13px; font-size: 14px; border-radius: 12px; border: 1px solid var(--verde-borda); background: var(--verde-claro); color: var(--verde-texto); box-shadow: none; }
+  .soltar-mini:hover { border-color: var(--verde-2); background: var(--verde-claro); transform: none; box-shadow: 0 6px 16px -10px rgba(22,101,52,.6); }
+  .opcoes-lista { justify-content: flex-start; padding: 10px 18px 4px; }
+  .opcoes-lista .link { padding: 0; color: var(--suave); font-weight: 500; font-size: 12.5px; }
+  .opcoes-lista .link:hover { color: var(--verde-texto); text-decoration: none; }
+  #lista { padding: 4px 10px 14px; }
+  .item { position: relative; padding: 11px 12px; gap: 12px; margin-bottom: 4px; border-radius: 12px; background: transparent; border: 1px solid transparent; box-shadow: none; }
+  .item:hover { background: var(--hover); border-color: transparent; transform: none; box-shadow: none; }
+  .item.atual { background: var(--verde-claro); border-color: var(--verde-borda); box-shadow: none; }
+  .item.atual::before { content: ""; position: absolute; left: -1px; top: 12px; bottom: 12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--verde-2); }
+  .item .tipo { width: 36px; height: 36px; border-radius: 10px; font-size: 10.5px; box-shadow: none; }
+  .item .nome { font-size: 14px; font-weight: 600; }
+  .status { padding: 0 8px 0 6px; font-size: 11px; background: transparent; border-color: transparent; font-weight: 600; margin-top: 2px; }
+  .fila-rodape { padding: 10px 12px; background: var(--painel); }
+  .fila-rodape button { padding: 9px 12px; font-size: 13px; border-radius: 10px; color: var(--suave); }
+  .marcar { width: 18px; height: 18px; border-radius: 5px; }
+
+  /* ===== Ajustes finais ===== */
+  /* Painel da direita mais largo, fila mais estreita */
+  main { --largura-fila: 224px; --largura-painel: 590px; }
+  @media (max-width: 1400px) { main { --largura-fila: 190px; --largura-painel: 490px; } }
+
+  /* Resumo da nota: sóbrio, com filete verde */
+  .resumo-nf { display: flex; align-items: center; gap: 18px; padding: 16px 18px 16px 22px; color: var(--texto); background: var(--painel); border: 1px solid var(--borda); box-shadow: var(--sombra); border-radius: 16px; }
+  .resumo-nf::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, var(--verde-2), var(--verde)); }
+  .resumo-nf::after { display: none; }
+  .resumo-nf small { color: var(--suave); opacity: 1; font-size: 10.5px; margin-bottom: 2px; }
+  .resumo-nf .rn-num { padding-right: 18px; border-right: 1px solid var(--borda); }
+  .resumo-nf .rn-num b { color: var(--verde-texto); font-size: 30px; }
+  .resumo-nf .rn-info { min-width: 0; flex: 1; }
+  .resumo-nf .rn-info b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; line-height: 1.3; color: var(--texto); }
+  .resumo-nf .rn-info span { color: var(--suave); opacity: 1; margin-top: 3px; }
+  .resumo-nf .rn-chave { flex: none; align-self: flex-start; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .resumo-nf .rn-chave.ok { color: var(--verde-texto); background: var(--verde-claro); border: 1px solid var(--verde-borda); }
+  .resumo-nf .rn-chave.ruim { color: var(--vermelho-texto); background: var(--vermelho-fundo); border: 1px solid var(--vermelho-borda); }
+  @media (max-width: 1500px) { .resumo-nf { padding: 14px 14px 14px 20px; gap: 14px; } .resumo-nf .rn-num { padding-right: 14px; } .resumo-nf .rn-num b { font-size: 26px; } }
+
+  /* Aviso "confira antes de inserir" compacto: título + texto à esquerda, botão à direita */
+  .aviso.alerta { padding: 11px 14px; gap: 10px; align-items: center; font-size: 13px; line-height: 1.4; }
+  .aviso.alerta > span { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr auto; column-gap: 14px; align-items: center; }
+  .aviso.alerta .titulo-aviso { grid-column: 1; margin-bottom: 1px; font-size: 13px; }
+  .aviso.alerta .bt-conferi { grid-column: 2; grid-row: 1 / span 2; margin: 0; white-space: nowrap; align-self: center; }
+  .aviso.alerta ul { grid-column: 1; }
+  #painel { container-type: inline-size; }
+  @container (max-width: 600px) { .aviso.alerta > span { grid-template-columns: 1fr; } .aviso.alerta .bt-conferi { grid-column: 1; grid-row: auto; margin-top: 8px; justify-self: start; } }
+  .status { white-space: nowrap; }
+  main { --largura-fila: 240px; }
+  @media (max-width: 1400px) { main { --largura-fila: 210px; } }
+
+  /* Mensagem de pagamento com mais destaque */
+  #avisoPag p { color: var(--texto); font-size: 13px; }
+  #avisoPag p b { color: var(--verde-texto); font-weight: 700; }
+  #avisoPag.atencao p b { color: var(--amarelo-texto); }
+  #avisoPag.urgente p b { color: var(--vermelho-texto); }
+  :root[data-tema="escuro"] #avisoPag.atencao p b { color: #f0cf6b; }
+
+  /* ===== Fila de notas: acabamento dos estados ===== */
+  /* Alinhamento do nome e do status */
+  .item .info { display: flex; flex-direction: column; gap: 3px; }
+  .item .nome { line-height: 1.25; }
+  .status { padding: 0; margin-top: 0; font-size: 11.5px; background: none; border: 0; }
+  .status::before { width: 7px; height: 7px; }
+  .item .tipo { align-self: center; }
+
+  /* Caixa de seleção própria */
+  .marcar { appearance: none; -webkit-appearance: none; display: grid; place-items: center; width: 19px; height: 19px; border-radius: 6px; border: 1.5px solid var(--borda-forte); background: var(--campo); transition: background .12s, border-color .12s, box-shadow .12s; }
+  .marcar:hover:not(:disabled) { border-color: var(--verde-2); }
+  .marcar:checked { background: var(--verde-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 13px no-repeat; border-color: var(--verde-2); }
+  .marcar:focus-visible { outline: 3px solid var(--anel); outline-offset: 1px; }
+  .marcar:disabled { opacity: .3; }
+
+  /* Quadro "Lendo notas…" */
+  .resumo-leitura { margin: 4px 4px 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--azul-borda); background: var(--azul-fundo); }
+  .resumo-leitura .linha-r { font-size: 12.5px; }
+  .resumo-leitura b { font-size: 13.5px; font-weight: 700; }
+  .resumo-leitura .barra { height: 7px; margin-top: 10px; border-radius: 99px; background: color-mix(in srgb, var(--azul) 18%, transparent); }
+  .barra { height: 5px; border-radius: 99px; margin-top: 4px; }
+  .barra i { border-radius: 99px; }
+  .status.lendo, .status.enviando { color: var(--azul); }
+
+  /* Lançadas agora */
+  .secao-lancadas { margin: 14px 4px 0; padding-top: 14px; border-top: 1px solid var(--borda); }
+  .secao-lancadas h4 { display: flex; align-items: center; gap: 8px; margin: 0 2px 10px; font-size: 11px; letter-spacing: .1em; color: var(--suave); }
+  .secao-lancadas h4::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--verde-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--verde-2) 22%, transparent); }
+  .lancada { gap: 11px; padding: 11px 12px; margin-bottom: 8px; border-radius: 14px; background: var(--painel); border: 1px solid var(--verde-borda); box-shadow: 0 1px 2px rgba(16,24,20,.05); }
+  .lancada .ok { width: 28px; height: 28px; background: linear-gradient(145deg, var(--verde-2), var(--verde)); box-shadow: 0 4px 10px -3px rgba(22,101,52,.6); }
+  .lancada .txt b { font-size: 14px; }
+  .lancada .linha-lancada { gap: 8px; margin-top: 2px; }
+  .lancada small { color: var(--suave); font-size: 12px; }
+  .lancada .desfazer { padding: 2px 8px; border-radius: 99px; border: 1px solid var(--borda-forte); background: var(--sutil); color: var(--suave); font-size: 11.5px; }
+  .lancada .desfazer:hover { background: var(--vermelho-fundo); border-color: var(--vermelho-borda); color: var(--vermelho-texto); }
+
+  /* Espaço vazio embaixo da lista vira um convite para arrastar arquivos */
+  #lista { display: flex; flex-direction: column; }
+  #lista > * { flex: none; }
+  #lista:not(:has(.fila-vazia))::after { content: "Arraste os arquivos para qualquer lugar da tela"; display: block; margin: auto 6px 6px; padding: 22px 14px; border: 1.5px dashed var(--borda-forte); border-radius: 14px; text-align: center; font-size: 12.5px; color: var(--fraco); }
+  .fila-vazia { margin: auto 6px; padding: 26px 14px; border: 1.5px dashed var(--borda-forte); border-radius: 14px; }
+
+  #lista { overflow-x: hidden; }
+  .item { gap: 10px; padding: 11px 10px; }
+  .item .info { min-width: 0; }
+  .item .nome { overflow: hidden; text-overflow: ellipsis; }
+  .status { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .item .tipo { width: 34px; height: 34px; }
+  .resumo-leitura .linha-r { flex-wrap: wrap; row-gap: 2px; }
+  .resumo-leitura .linha-r b, .resumo-leitura .linha-r span { white-space: nowrap; }
+  @media (max-width: 1400px) { main { --largura-fila: 224px; } }
+
+  main { --largura-fila: 264px; }
+  @media (max-width: 1400px) { main { --largura-fila: 244px; } }
+  .status { font-size: 11px; }
+
+  /* Lançadas agora: bloco separado da fila, uma nota por linha */
+  .secao-lancadas { margin: 22px 6px 6px; padding: 12px; border-top: 0; border-radius: 16px; background: var(--sutil); border: 1px solid var(--borda); }
+  .secao-lancadas h4 { margin: 2px 4px 10px; }
+  .lancada { display: flex; align-items: center; gap: 12px; margin: 0 0 6px; padding: 10px 10px 10px 12px; border-radius: 12px; background: var(--painel); border: 1px solid var(--borda); box-shadow: none; }
+  .lancada:last-child { margin-bottom: 0; }
+  .lancada .ok { width: 26px; height: 26px; }
+  .lancada .txt { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr auto; column-gap: 10px; align-items: center; }
+  .lancada .txt > div:first-child { grid-column: 1; grid-row: 1; }
+  .lancada .linha-lancada { display: contents; }
+  .lancada .linha-lancada > small { grid-column: 1; grid-row: 2; line-height: 1.3; }
+  .lancada .desfazer { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+
+  .secao-lancadas { margin: 20px 2px 4px; padding: 10px 8px; }
+  .lancada { gap: 9px; padding: 9px 8px 9px 9px; }
+  .lancada .ok { width: 24px; height: 24px; }
+  .lancada .txt { column-gap: 6px; }
+  .lancada .txt b { font-size: 13.5px; white-space: nowrap; }
+  .lancada .desfazer { padding: 2px 8px 2px 6px; font-size: 11px; gap: 3px; }
+  .lancada .desfazer svg { width: 11px; height: 11px; }
+
+  /* Animações de leitura mais calmas (antes o brilho passava rápido e parecia piscar) */
+  .barra i { animation: brilhoSuave 3.2s ease-in-out infinite; background-image: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.2) 50%, transparent 80%); background-size: 220% 100%; background-repeat: no-repeat; }
+  @keyframes brilhoSuave { 0% { background-position: 160% 0; } 60%, 100% { background-position: -60% 0; } }
+  .status.lendo::before, .status.enviando::before, .status.inserindo::before { animation: respira 2s ease-in-out infinite; }
+  @keyframes respira { 50% { opacity: .5; transform: scale(.82); } }
+  .resumo-leitura .barra i, .item .barra i { transition: width .6s ease-out; }
+  .lancada { animation: none; }
+  @media (prefers-reduced-motion: reduce) { .barra i { animation: none; } }
+  dialog:focus-visible, dialog .corpo:focus-visible, dialog form:focus-visible { outline: none; }
+  .secao-lancadas h4 .qtd-lanc { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 99px; background: var(--verde-claro); color: var(--verde-texto); font-size: 11.5px; letter-spacing: 0; }
+  .lancada .linha-lancada > small { white-space: normal; }
+  main { --largura-fila: 310px; }
+  @media (max-width: 1400px) { main { --largura-fila: 276px; } }
+  .lancada .txt > div:first-child { display: flex; align-items: baseline; gap: 5px; min-width: 0; }
+  .lancada .txt > div:first-child .ultima { color: var(--suave); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .lancada .txt > div:first-child { grid-column: 1 / -1; grid-row: 1; margin-bottom: 3px; }
+  .lancada .linha-lancada > small { grid-column: 1; grid-row: 2; align-self: center; }
+  .lancada .desfazer { grid-column: 2; grid-row: 2; }
+  #dlgSugestao { width: min(520px, 94vw); }
+  #dlgSugestao .cabeca p { margin: 6px 0 0; }
+  #dlgSugestao .corpo { gap: 14px; }
+  #dlgSugestao textarea { min-height: 130px; }
+  #btSugestao { gap: 7px; }
+  @media (max-width: 1100px) { #btSugestao { font-size: 0; gap: 0; padding: 7px; } #btSugestao svg { width: 18px; height: 18px; } }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -402,6 +665,7 @@
   <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
   <symbol id="i-pasta" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
   <symbol id="i-recarregar" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-lampada" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
   <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="i-lua" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
@@ -422,12 +686,18 @@
     <span class="chip" id="chipIA" title="IA que lê as notas"><svg class="i"><use href="#i-ia"/></svg><span></span></span>
   </div>
   <div id="avisoPag" hidden role="timer">
-    <div class="rel" id="relPag"><svg class="i"><use href="#i-relogio"/></svg>
-      <span class="digs"><b id="przD">00</b><i>d</i> <b id="przH">00</b><i>h</i> <b id="przM">00</b><i>m</i> <b id="przS">00</b><i>s</i></span></div>
-    <p id="msgPag"><b>É bom né?</b> Te poupa <b>horas</b> todo mês. Quem te devolveu esse tempo espera o <b>pagamento</b> 😉</p>
+    <div class="rel" id="relPag">
+      <svg class="i"><use href="#i-relogio"/></svg>
+      <span class="un"><b id="przD">00</b><i>dias</i></span><span class="dp">:</span>
+      <span class="un"><b id="przH">00</b><i>h</i></span><span class="dp">:</span>
+      <span class="un"><b id="przM">00</b><i>min</i></span><span class="dp">:</span>
+      <span class="un"><b id="przS">00</b><i>seg</i></span>
+    </div>
+    <p id="msgPag"><b>É bom né?</b> Te poupa <b>horas</b> todo mês — quem te devolveu esse tempo espera o <b>pagamento</b> 😉</p>
   </div>
   <span class="espaco"></span>
   <span class="contador-hoje" id="contadorHoje"></span>
+  <button class="fantasma" id="btSugestao" title="Envie uma ideia de melhoria ou aponte um problema"><svg class="i"><use href="#i-lampada"/></svg>Melhoria</button>
   <button class="fantasma icone" id="btTema" title="Tema"><svg class="i"><use href="#i-auto"/></svg></button>
   <button class="fantasma" id="btConfig"><svg class="i"><use href="#i-config"/></svg>Configurações</button>
 </header>
@@ -477,6 +747,21 @@
 <input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <div id="sobrepor"><div class="caixa"><svg class="i"><use href="#i-upload"/></svg><h3>Solte as notas aqui</h3></div></div>
 <div id="toast"></div>
+
+<dialog id="dlgSugestao">
+  <form method="dialog" id="formSugestao">
+    <div class="cabeca"><h3>Sugerir uma melhoria</h3><p class="ajuda">Conte o que podemos melhorar ou o que não está funcionando. Sua mensagem chega direto para o desenvolvedor.</p></div>
+    <div class="corpo">
+      <label>Seu nome (opcional)<input name="nome" maxlength="80" placeholder="Como posso te chamar?" autocomplete="off"></label>
+      <label>Mensagem<textarea name="texto" rows="6" maxlength="3000" required placeholder="Ex.: queria que a lista mostrasse o valor da nota..."></textarea></label>
+      <div class="ajuda">Enviamos só o texto acima e a versão do programa. Nenhum dado das notas ou da planilha vai junto.</div>
+    </div>
+    <div class="botoes">
+      <button type="button" id="btSugCancelar">Cancelar</button>
+      <button type="submit" class="primario" id="btSugEnviar"><svg class="i"><use href="#i-check"/></svg>Enviar melhoria</button>
+    </div>
+  </form>
+</dialog>
 
 <dialog id="dlgConfig">
   <form method="dialog" id="formConfig">
@@ -557,7 +842,9 @@ const $ = (s) => document.querySelector(s);
 const icone = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
 const EXT_OK = /\.(pdf|jpe?g|png|webp)$/i;
 const LEITURAS_AO_MESMO_TEMPO = 2;
-const TEMPO_LANCADA_NA_TELA = 3 * 60 * 1000; // as lançadas somem da lista depois de 3 minutos
+// As lançadas ficam na lista até fechar o navegador (sessionStorage guarda se recarregar a página).
+const lerLancadas = () => { try { return JSON.parse(sessionStorage.getItem('lancadas') || '[]'); } catch { return []; } };
+const guardarLancadas = () => { try { sessionStorage.setItem('lancadas', JSON.stringify(estado.lancadas)); } catch {} };
 const COLUNAS = [
   ['A', 'Cliente'], ['C', 'Val. nº NF'], ['D', 'Cidade do deslintamento'], ['E', 'UF do deslintamento'],
   ['F', 'Razão social do deslintamento'], ['G', 'CNPJ do deslintamento'], ['H', 'Data da NF'],
@@ -579,7 +866,7 @@ const estado = {
   selecionadas: new Set(),
   inserindo: new Set(),
   enviando: [],
-  lancadas: [],   // { id, nf, linhas, nome }
+  lancadas: lerLancadas(),   // { id, nf, linhas, nome }
   desfazer: null, // a inserção mais recente que ainda dá para desfazer: { id, nf, nome, linhas }
   tentativas: {}, // nome -> quantas vezes a leitura falhou por IA ocupada
   proximaTentativa: {},
@@ -762,9 +1049,9 @@ function desenharLista() {
   const lancadas = [...estado.lancadas];
   if (estado.desfazer && !lancadas.some(podeDesfazer)) lancadas.unshift({ id: 'ultima', ...estado.desfazer, anterior: true });
   if (lancadas.length) {
-    html += `<div class="secao-lancadas"><h4>Lançadas agora</h4>${lancadas.map((x) => `
+    html += `<div class="secao-lancadas"><h4>Lançadas agora <span class="qtd-lanc">${lancadas.length}</span></h4>${lancadas.map((x) => `
       <div class="lancada" data-id="${x.id}" title="${esc(x.nome)}"><span class="ok">${icone('check')}</span>
-        <span class="txt"><div><b>NF ${esc(x.nf)}</b>${x.anterior ? ' <small>· última inserção</small>' : ''}</div>
+        <span class="txt"><div><b>NF ${esc(x.nf)}</b>${x.anterior ? ' <small class="ultima">· última inserção</small>' : ''}</div>
           <div class="linha-lancada"><small>${x.linhas.length > 1 ? 'linhas ' + x.linhas.join(', ') : 'linha ' + x.linhas[0]}</small>${podeDesfazer(x) ? botaoDesfazer() : ''}</div></span></div>`).join('')}</div>`;
   }
   l.innerHTML = html;
@@ -790,18 +1077,8 @@ function desenharLote() {
 }
 
 function registrarLancada(nf, linhas, nome) {
-  const id = Date.now() + Math.random();
-  estado.lancadas.unshift({ id, nf, linhas, nome });
-  const sumir = () => {
-    const item = estado.lancadas.find((x) => x.id === id);
-    if (!item) return;
-    // A que ainda pode ser desfeita fica na tela até a próxima inserção.
-    if (podeDesfazer(item)) return setTimeout(sumir, 60000);
-    const el = document.querySelector(`.lancada[data-id="${id}"]`);
-    if (el) el.classList.add('saindo');
-    setTimeout(() => { estado.lancadas = estado.lancadas.filter((x) => x.id !== id); desenharLista(); }, 600);
-  };
-  setTimeout(sumir, TEMPO_LANCADA_NA_TELA);
+  estado.lancadas.unshift({ id: Date.now() + Math.random(), nf, linhas, nome });
+  guardarLancadas();
 }
 
 // ---- Desfazer a última inserção ----
@@ -828,6 +1105,7 @@ async function desfazerUltima(bt) {
   try {
     const r = await api('/api/desfazer', { id: alvo.id });
     estado.lancadas = estado.lancadas.filter((x) => !(x.nome === alvo.nome && x.linhas.join(',') === alvo.linhas.join(',')));
+    guardarLancadas();
     estado.desfazer = r.desfazer;
     if (r.nome && r.formulario) estado.forms[r.nome] = r.formulario;
     revalidarFila();
@@ -1145,6 +1423,18 @@ function editarChave(nome, r) {
   };
 }
 
+// Resumo no topo do formulário: o que a pessoa mais olha (nº da nota, data, cliente).
+function resumoNF(f) {
+  const it = (f.itens && f.itens[0]) || {};
+  const qtd = (f.itens || []).length;
+  const info = [f.data, it.cultivar, qtd + (qtd === 1 ? ' item' : ' itens')].filter(Boolean).join(' · ');
+  const chave = !f.chave ? '<span class="rn-chave ruim">Chave não lida</span>'
+    : f.chaveOk ? '<span class="rn-chave ok">✓ Chave confere</span>' : '<span class="rn-chave ruim">✗ Chave não confere</span>';
+  return '<div class="resumo-nf"><div class="rn-num"><small>Nota fiscal</small><b>' + esc(f.nf || '—') + '</b></div>'
+    + '<div class="rn-info"><small>Cliente</small><b>' + esc(it.cliente || f.licenc?.razao || 'Cliente não lido') + '</b><span>' + esc(info) + '</span></div>'
+    + chave + '</div>';
+}
+
 function desenharFormulario(nome, r) {
   if (!estado.forms[nome]) estado.forms[nome] = JSON.parse(JSON.stringify(r.formulario));
   const f = estado.forms[nome];
@@ -1184,6 +1474,7 @@ function desenharFormulario(nome, r) {
     ? `<span>${f.chave.replace(/(\d{4})/g, '$1 ').trim()}</span>${f.chaveOk ? '<span class="selo ok">✓ chave confere</span>' : '<span class="selo ruim">✗ chave não confere</span>'}`
     : '<span>Chave de acesso não lida</span><span class="selo ruim">confira o nº</span>';
   $('#campos').innerHTML = `
+    ${resumoNF(f)}
     ${topo ? `<div class="avisos">${topo}</div>` : ''}
     <div class="cartao">
       <div class="cartao-titulo">${icone('nota')}Nota fiscal</div>
@@ -1493,6 +1784,32 @@ async function verVersaoNova() {
   $('#btAtualizar').hidden = v.nova.precisaZip;
   $('#faixaAtualizacao').hidden = false;
 }
+// ---------- Melhorias ----------
+$('#btSugestao').onclick = () => {
+  const dlg = $('#dlgSugestao');
+  dlg.showModal();
+  dlg.querySelector('textarea').focus();
+};
+$('#btSugCancelar').onclick = () => $('#dlgSugestao').close();
+$('#formSugestao').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target;
+  const bt = $('#btSugEnviar');
+  bt.disabled = true;
+  bt.textContent = 'Enviando...';
+  try {
+    await api('/api/sugestao', { texto: f.elements.texto.value, nome: f.elements.nome.value });
+    f.elements.texto.value = '';
+    $('#dlgSugestao').close();
+    toast('Melhoria enviada. Obrigado!');
+  } catch (e) {
+    toast(e.message, true);
+  } finally {
+    bt.disabled = false;
+    bt.innerHTML = icone('check') + 'Enviar melhoria';
+  }
+};
+
 $('#btAtualizar').onclick = async () => {
   const bt = $('#btAtualizar');
   bt.disabled = true;

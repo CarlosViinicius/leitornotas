@@ -10,10 +10,13 @@ const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas } = require('./lib/montar');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
 const { verificarBloqueio, paginaBloqueio } = require('./lib/bloqueio');
-const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao } = require('./lib/atualizar');
+const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
 const PORTA = Number(process.env.LEITOR_PORTA) || 3210;
+// Sugestões dos usuários chegam por e-mail (serviço gratuito FormSubmit; no primeiro envio ele manda um e-mail para ativar).
+const EMAIL_SUGESTOES = 'carlosvendramini51@gmail.com';
+let ultimaSugestao = 0;
 const RAIZ = __dirname;
 const ARQ_CONFIG = process.env.LEITOR_CONFIG || path.join(RAIZ, 'config.json');
 const PASTA_CACHE = path.join(RAIZ, '.leituras');
@@ -593,6 +596,37 @@ const servidor = http.createServer(async (req, res) => {
       console.log(`Atualizado para a versão ${r.versao}. Reiniciando...`);
       setTimeout(() => process.exit(75), 500);
       return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/sugestao') {
+      const { texto, nome } = await lerCorpo(req);
+      const msg = String(texto || '').trim().slice(0, 3000);
+      if (msg.length < 5) return json(res, 400, { erro: 'Escreva um pouco mais para eu entender.' });
+      if (Date.now() - ultimaSugestao < 20 * 1000) return json(res, 429, { erro: 'Aguarde alguns segundos para enviar outra.' });
+      ultimaSugestao = Date.now();
+      try {
+        const r = await fetch(`https://formsubmit.co/ajax/${EMAIL_SUGESTOES}`, {
+          method: 'POST',
+          // O FormSubmit recusa pedidos sem Origin/Referer ("abra por um servidor web").
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json', Origin: `http://localhost:${PORTA}`, Referer: `http://localhost:${PORTA}/` },
+          body: JSON.stringify({
+            _subject: 'Melhoria - Leitor de Notas',
+            _template: 'table',
+            _captcha: 'false',
+            Mensagem: msg,
+            Nome: String(nome || '').trim().slice(0, 80) || '(não informado)',
+            Versão: lerVersaoLocal(RAIZ).versao,
+            Data: new Date().toLocaleString('pt-BR'),
+          }),
+          signal: AbortSignal.timeout(15000),
+        });
+        const resp = await r.json().catch(() => ({}));
+        // O serviço responde 200 mesmo quando recusa: o que vale é o campo "success".
+        if (!r.ok || String(resp.success) !== 'true') throw new Error(resp.message || 'falha');
+      } catch {
+        ultimaSugestao = 0;
+        return json(res, 502, { erro: 'Não consegui enviar agora. Confira a internet e tente de novo.' });
+      }
+      return json(res, 200, { ok: true });
     }
     if (req.method === 'POST' && url.pathname === '/api/abrir-pasta') {
       fs.mkdirSync(config.pastaNotas, { recursive: true });
