@@ -1,12 +1,12 @@
 {
-  "versao": "1.1.17",
+  "versao": "1.1.18",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Tela do Mac e de notebooks pequenos: o nome do programa não quebra mais em várias linhas",
-    "A mensagem do cronômetro vai para o rodapé quando não cabe inteira no topo",
+    "Tela de bloqueio nova (vermelha): Pix com QR Code, cartão Flash e WhatsApp com botões do mesmo tamanho, e o botão Ver planos",
     "Nova página de Planos (botão com ícone de cartão no topo), com Pix, cartão, boleto e cartão Flash",
-    "A tela de bloqueio agora tem o botão Ver planos; ao voltar ao programa ela continua bloqueada até o código",
-    "Modo claro: a área de arrastar notas ficou legível"
+    "Telas menores e Mac: o nome do programa não quebra mais e a mensagem do cronômetro vai para o rodapé quando não cabe",
+    "Modo claro: a área de arrastar notas ficou legível",
+    "Botões do topo (Planos, Melhoria, tema e Configurações) agora só com ícones"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -28,7 +28,7 @@
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "27452380bd241b6fc8e7947263488b2473dc48e4feb87e8a81e6ba9b717a4350"
+      "sha256": "2cc3a59ee02f0758aa7ec0d964d03b7e6a9c70f5c5a60cddef0b367c4b53fa34"
     },
     {
       "arquivo": "lib/chave.js",
