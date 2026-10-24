@@ -2,15 +2,13 @@
   "versao": "1.1.14",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Só entram cultivares da BASE DE DADOS (DP = BAYER/TMG); lacres e outros produtos são ignorados",
-    "Nome do licenciado e cidades seguem a grafia (com acento) que já está na planilha",
-    "Acentos corretos nos textos lidos da nota",
-    "Aviso quando a soma dos itens não bate com o peso da nota",
-    "Leituras antigas são refeitas sozinhas quando a leitura melhora",
-    "Regra Polato: entre Polato Agrícola (deslintadora) e Polato Sementes (licenciado) a nota é lançada como saída deslintada",
+    "Visual novo: cores, fonte, cartões e animações mais bonitos",
+    "Visual refinado: cabeçalho, lista de notas, resumo da nota e formulário",
+    "Tela de atualização redesenhada, com botão \"Atualizar agora\" e barra de progresso",
     "Botão Melhoria: envie ideias ou problemas direto para o desenvolvedor",
-    "Visual novo: cores, fonte, cartões e animações; botões do topo no mesmo estilo e ícone de enviar notas sem animação",
-    "Lançadas agora: a lista começa vazia ao fechar e abrir o navegador"
+    "Lançadas agora: a lista começa vazia ao fechar e abrir o navegador",
+    "Regra Polato: entre Polato Agrícola (deslintadora) e Polato Sementes (licenciado) a nota é lançada como saída deslintada",
+    "Botões do topo (Melhoria, tema e Configurações) com o mesmo estilo; ícone de enviar notas sem animação"
   ],
   "precisaZip": false,
   "arquivos": [
