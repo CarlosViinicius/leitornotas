@@ -1,18 +1,17 @@
 {
-  "versao": "1.1.19",
+  "versao": "1.1.20",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Botões de baixo do painel agora ficam todos na mesma linha; o botão Pular saiu (a lista ao lado faz o mesmo) e a lixeira ficou igual aos outros",
-    "Corrigida a mensagem do WhatsApp ao pagar pelo cartão Flash",
-    "Tela de bloqueio nova (vermelha): Pix com QR Code, Flash e WhatsApp com botões do mesmo tamanho, e o botão Ver planos",
-    "Nova página de Planos (ícone de cartão no topo), com Pix, cartão, boleto e Flash",
-    "Telas menores e Mac: o nome não quebra e o cronômetro vai para o rodapé quando não cabe"
+    "Quebra técnica agora é reconhecida (inclusive abreviada, como \"Q TECNICA\") e vai na coluna U, na mesma linha do volume da cultivar",
+    "Nota com \"retorno de mercadoria não utilizada na industrialização\" (na natureza ou nas informações complementares) vai para Saída sem deslintar",
+    "Foto menor na leitura e tempos de leitura na janela preta, para achar o que deixa a foto lenta",
+    "O aviso de peso diferente não aparece mais à toa quando a nota tem quebra técnica"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "e6b2fcf49a2ded53abd28abe535141c671e1729e8dae4baa94a586d11f59d3db"
+      "sha256": "f6b55d9859b25e4a556757484ab9b50a73426d7656bd7dd75969cb084116ced9"
     },
     {
       "arquivo": "package.json",
@@ -40,7 +39,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "383154e44ed46fcd3531d549e5e8dbeceb4f7080cb88bb102e98dd81cc6ebb52"
+      "sha256": "b27f92c81f029af53b83e45b6fa9beaffd1276ab011801e8f2338d74360b6db4"
     },
     {
       "arquivo": "lib/google.js",
@@ -52,7 +51,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "8dcfc88098c483199260990e09cfbe02ff6f5376ce5321b65b384a298e63dd87"
+      "sha256": "0b9a448202dd5c0c3b76f60603dedc2cd10e66beea0c9de5dfd02021209590d3"
     },
     {
       "arquivo": "lib/planilha.js",

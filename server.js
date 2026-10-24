@@ -261,7 +261,10 @@ async function lerNota(config, nome, forcar) {
       if (!config.geminiKey) throw new Error('Falta a chave do Gemini. Abra Configurações.');
       return extrairNotaGemini(caminho, { apiKey: config.geminiKey, modelo: config.modeloGemini, referenciaTexto: referenciaComoTexto(ref), carta });
     };
+    const inicio = Date.now();
+    const seg = () => ((Date.now() - inicio) / 1000).toFixed(1) + 's';
     dados = await lerComIA();
+    console.log(`[leitura] ${path.basename(caminho)}: nota lida em ${seg()}`);
     // A chave de acesso tem dígito verificador: se não conferir, algo foi lido errado.
     // 1) tenta consertar cruzando com UF, data, CNPJ, série e número lidos na nota;
     // 2) se não der, lê de novo só a chave (no Gemini, com um modelo mais forte) e cruza tudo de novo.
@@ -282,6 +285,7 @@ async function lerNota(config, nome, forcar) {
           break; // fica com o que já tem; a tela avisa que a chave não confere
         }
       }
+      console.log(`[leitura] ${path.basename(caminho)}: chave não conferia, releitura da chave terminou em ${seg()} (${certa ? 'consertada' : 'não consertada'})`);
       if (certa && certa !== soDigitos(dados.chave_acesso)) {
         dados.chave_lida = dados.chave_acesso;
         dados.chave_acesso = certa;
