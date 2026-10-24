@@ -1,12 +1,12 @@
 {
-  "versao": "1.1.16",
+  "versao": "1.1.17",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Nova página de Planos (botão com ícone de cartão no topo), com pagamento por Pix, cartão, boleto e cartão Flash",
+    "Tela do Mac e de notebooks pequenos: o nome do programa não quebra mais em várias linhas",
+    "A mensagem do cronômetro vai para o rodapé quando não cabe inteira no topo",
+    "Nova página de Planos (botão com ícone de cartão no topo), com Pix, cartão, boleto e cartão Flash",
     "A tela de bloqueio agora tem o botão Ver planos; ao voltar ao programa ela continua bloqueada até o código",
-    "Funciona melhor em notebooks com tela menor: a mensagem do cronômetro vai para o rodapé quando não cabe no topo",
-    "Modo claro: a área de arrastar notas ficou legível",
-    "Botões do topo (Planos, Melhoria, tema e Configurações) agora só com ícones"
+    "Modo claro: a área de arrastar notas ficou legível"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -64,7 +64,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "3ce0571bf661f2f0c97d35faf00100750edbc6c81a68779cf1d3bb00e83e92a1"
+      "sha256": "6d0941651a9ef541f103b5a1c249fb71c0374a4fea225929a31c7a6dfa925eb9"
     },
     {
       "arquivo": "public/planos.html",

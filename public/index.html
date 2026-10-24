@@ -663,10 +663,10 @@
   #avisoRodape b { color: var(--verde-texto); font-weight: 600; }
   #avisoRodape.atencao b { color: var(--amarelo-texto); }
   #avisoRodape.urgente b { color: var(--vermelho-texto); }
-  @media (max-width: 1250px) {
-    #avisoPag p { display: none; }
-    #avisoRodape:not([hidden]) { display: flex; }
-  }
+  body.aviso-baixo #avisoPag p { display: none; }
+  body.aviso-baixo #avisoRodape:not([hidden]) { display: flex; }
+  .marca { flex: none; }
+  .marca h1, .marca small { white-space: nowrap; }
 
   /* Tela vazia do visor: usa as cores do tema (antes eram fixas para fundo escuro e sumiam no modo claro). */
   .boas-vindas { color: var(--texto); }
@@ -1918,7 +1918,19 @@ function desenharPrazo() {
   rodape.hidden = false;
   rodape.classList.toggle('urgente', caixa.classList.contains('urgente'));
   rodape.classList.toggle('atencao', caixa.classList.contains('atencao'));
+  if (!window.avisoMedido) { window.avisoMedido = true; ajustarAvisoPag(); }
 }
+
+// A frase do cronômetro fica no topo só se couber inteira; senão vai para a faixa do rodapé (sem mexer nos botões de baixo).
+function ajustarAvisoPag() {
+  const caixa = $('#avisoPag');
+  if (caixa.hidden) return;
+  document.body.classList.remove('aviso-baixo');
+  const p = $('#msgPag'), topo = document.querySelector('header');
+  const cabe = getComputedStyle(p).display !== 'none' && p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1 && topo.scrollWidth <= topo.clientWidth + 1;
+  document.body.classList.toggle('aviso-baixo', !cabe);
+}
+window.addEventListener('resize', () => { if (window.avisoMedido) ajustarAvisoPag(); });
 async function verPrazo() {
   const r = await api('/api/aviso').catch(() => null);
   prazoFim = r && r.prazo ? Number(r.prazo) : null;
