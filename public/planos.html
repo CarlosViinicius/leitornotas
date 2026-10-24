@@ -467,25 +467,6 @@
     }
   });
 
-  function zapLink(p, total) {
-    var plano = p.nome + ' (' + (anual() ? 'anual' : 'mensal') + ', R$ ' + total + ')';
-    var msg = s.metodo === 'pix' ? 'Olá Carlos! Acabei de pagar o plano ' + plano + ' do Leitor de Notas por Pix. Pode conferir?'
-      : s.metodo === 'boleto' ? 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas por boleto. Pode me enviar?'
-      : 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas no cartão. Como combinamos?';
-    return 'https://wa.me/' + s.pix.whatsapp + '?text=' + encodeURIComponent(msg);
-  }
-
-  function copiarPix() {
-    if (!s.pix) return;
-    var t = s.pix.codigo;
-    var ok = function () { s.copiado = true; desenhar(); setTimeout(function () { s.copiado = false; if (s.sel != null && s.etapa === 'pay') desenhar(); }, 2500); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, ok);
-    else { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); ok(); }
-  }
-
-  // Pix real (o mesmo da tela de bloqueio)
-  fetch('/api/pix').then(function (r) { return r.json(); }).then(function (p) { s.pix = p; if (s.sel != null && s.etapa === 'pay' && s.metodo === 'pix') desenhar(); }).catch(function () {});
-
   desenhar();
 })();
 </script>

@@ -1,12 +1,12 @@
 {
-  "versao": "1.1.18",
+  "versao": "1.1.19",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Tela de bloqueio nova (vermelha): Pix com QR Code, cartão Flash e WhatsApp com botões do mesmo tamanho, e o botão Ver planos",
-    "Nova página de Planos (botão com ícone de cartão no topo), com Pix, cartão, boleto e cartão Flash",
-    "Telas menores e Mac: o nome do programa não quebra mais e a mensagem do cronômetro vai para o rodapé quando não cabe",
-    "Modo claro: a área de arrastar notas ficou legível",
-    "Botões do topo (Planos, Melhoria, tema e Configurações) agora só com ícones"
+    "Botões de baixo do painel agora ficam todos na mesma linha; o botão Pular saiu (a lista ao lado faz o mesmo) e a lixeira ficou igual aos outros",
+    "Corrigida a mensagem do WhatsApp ao pagar pelo cartão Flash",
+    "Tela de bloqueio nova (vermelha): Pix com QR Code, Flash e WhatsApp com botões do mesmo tamanho, e o botão Ver planos",
+    "Nova página de Planos (ícone de cartão no topo), com Pix, cartão, boleto e Flash",
+    "Telas menores e Mac: o nome não quebra e o cronômetro vai para o rodapé quando não cabe"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -64,11 +64,11 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "6d0941651a9ef541f103b5a1c249fb71c0374a4fea225929a31c7a6dfa925eb9"
+      "sha256": "7934128c85b9ad1fb98b4ddaad438f0cab4a18bbd46d43a6155cea1b5e97340d"
     },
     {
       "arquivo": "public/planos.html",
-      "sha256": "127b89b7ebc8ab18f7601b09695e0e63a055f0911338d0f8106ae5030fa128aa"
+      "sha256": "a6226553c82fcc133984d7c2f3edc94ca10cb5161497467075212d4aaf619b9d"
     }
   ]
 }

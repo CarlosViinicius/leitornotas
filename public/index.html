@@ -650,11 +650,16 @@
   @media (max-width: 1250px) { main { --largura-fila: 225px; --largura-painel: 430px; } }
   @media (max-width: 1100px) { main { --largura-fila: 220px; --largura-painel: 400px; } }
   @media (max-width: 960px) { main { --largura-fila: 210px; --largura-painel: 360px; } }
-  /* Botões do painel: se não couberem numa linha, "Confirmar e inserir" desce inteiro para a linha de baixo (nada fica espremido). */
+  /* Botões do painel: sempre na mesma linha. "Confirmar e inserir" ocupa o espaço que sobra; em painel muito estreito "Ler de novo" fica só com o ícone. */
   @media (max-width: 1250px) {
-    #acoes { flex-wrap: wrap; gap: 8px; padding: 12px; }
-    #acoes button { padding: 9px 12px; font-size: 13.5px; }
-    #btInserir { flex: 1 1 170px; justify-content: center; }
+    #acoes { flex-wrap: nowrap; gap: 8px; padding: 12px; }
+    #acoes button { padding: 9px 12px; font-size: 13.5px; white-space: nowrap; }
+    #acoes .espaco { display: none; }
+    #btInserir { flex: 1 1 auto; min-width: 0; justify-content: center; overflow: hidden; text-overflow: ellipsis; }
+  }
+  @media (max-width: 960px) {
+    #acoes #btReler { font-size: 0; gap: 0; padding: 9px 11px; }
+    #acoes #btReler svg { width: 18px; height: 18px; }
   }
   /* Mensagem do cronômetro: quando não cabe no topo, aparece numa faixa fina no rodapé (fora da barra de botões). */
   #avisoRodape { display: none; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 30px; padding: 5px 16px; border-top: 1px solid var(--borda); background: var(--painel); color: var(--suave); font-size: 12.5px; line-height: 1.3; text-align: center; }
@@ -667,6 +672,9 @@
   body.aviso-baixo #avisoRodape:not([hidden]) { display: flex; }
   .marca { flex: none; }
   .marca h1, .marca small { white-space: nowrap; }
+
+  #acoes #btRemover { padding: 10px 12px; }
+  #acoes #btRemover svg { width: 18px; height: 18px; }
 
   /* Tela vazia do visor: usa as cores do tema (antes eram fixas para fundo escuro e sumiam no modo claro). */
   .boas-vindas { color: var(--texto); }
@@ -772,8 +780,7 @@
   <section id="painel">
     <div id="campos"></div>
     <div id="acoes">
-      <button class="fantasma" id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)" disabled><svg class="i"><use href="#i-lixo"/></svg></button>
-      <button id="btPular" title="Pular esta nota (fica na fila)" disabled><svg class="i"><use href="#i-pular"/></svg>Pular</button>
+      <button id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)" aria-label="Remover nota" disabled><svg class="i"><use href="#i-lixo"/></svg></button>
       <button id="btReler" disabled title="Pede para a IA ler a nota de novo"><svg class="i"><use href="#i-recarregar"/></svg>Ler de novo</button>
       <span class="espaco"></span>
       <button id="btInserir" class="primario grande" disabled><svg class="i"><use href="#i-check"/></svg>Confirmar e inserir</button>
@@ -1168,7 +1175,7 @@ async function desfazerUltima(bt) {
 }
 
 function botoes(ligados) {
-  ['#btPular', '#btReler', '#btInserir', '#btRemover'].forEach((b) => ($(b).disabled = !ligados.includes(b)));
+  ['#btReler', '#btInserir', '#btRemover'].forEach((b) => ($(b).disabled = !ligados.includes(b)));
 }
 
 function telaVazia() {
@@ -1388,7 +1395,7 @@ async function selecionar(nome, forcar) {
   estado.atual = nome;
   desenharLista();
   mostrarArquivo(nome);
-  botoes(['#btRemover', '#btPular']);
+  botoes(['#btRemover']);
   const jaTinha = leitura(nome);
   // Já lida nesta tela: mostra na hora, sem pedir de novo ao servidor (isso redesenhava o formulário
   // e apagava o que estava sendo digitado). Depois de cada inserção, revalidarFila() força a conferência.
@@ -1408,7 +1415,7 @@ async function selecionar(nome, forcar) {
       ? `<br><b>Vou tentar de novo sozinho em ${segundos >= 60 ? Math.round(segundos / 60) + ' min' : segundos + ' s'} (tentativa ${n + 1} de ${MAX_TENTATIVAS}).</b>`
       : n >= MAX_TENTATIVAS ? `<br><b>Já tentei ${MAX_TENTATIVAS} vezes. Clique em "Ler de novo" mais tarde.</b>` : '';
     $('#campos').innerHTML = `<div class="avisos"><div class="aviso ${vaiTentar ? 'alerta' : 'erro'}">${icone('alerta')}<span>Não consegui ler esta nota: ${esc(e.message)}${extra}</span></div></div>`;
-    botoes(['#btPular', '#btReler', '#btRemover']);
+    botoes(['#btReler', '#btRemover']);
   }
 }
 
@@ -1607,7 +1614,7 @@ function desenharFormulario(nome, r) {
     f.itens.push({ cliente: ult.cliente || '', cultivar: ult.cultivar || '', safra: ult.safra || '', entrada: '', saida: '', semDeslintar: '', quebra: '', comentario: '' });
     desenharItens(new Set());
   };
-  botoes(duplicada ? ['#btPular', '#btReler', '#btRemover'] : ['#btPular', '#btReler', '#btInserir', '#btRemover']);
+  botoes(duplicada ? ['#btReler', '#btRemover'] : ['#btReler', '#btInserir', '#btRemover']);
   $('#btInserir').innerHTML = duplicada ? `${icone('alerta')}Já lançada` : `${icone('check')}Confirmar e inserir`;
 }
 
@@ -1734,7 +1741,6 @@ $('#btSelTodas').onclick = () => {
   desenharLista();
 };
 
-$('#btPular').onclick = () => { const p = proxima(estado.atual); if (p) selecionar(p.nome); else toast('Esta é a única nota da fila.'); };
 $('#btReler').onclick = () => selecionar(estado.atual, true);
 $('#btRemover').onclick = async () => {
   const nome = estado.atual;
