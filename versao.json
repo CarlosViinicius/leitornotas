@@ -2,8 +2,6 @@
   "versao": "1.1.14",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Chave de acesso mais certeira: corrige sozinha quando um número vem lido errado",
-    "Abre o navegador sozinho também no Windows 10",
     "Só entram cultivares da BASE DE DADOS (DP = BAYER/TMG); lacres e outros produtos são ignorados",
     "Nome do licenciado e cidades seguem a grafia (com acento) que já está na planilha",
     "Acentos corretos nos textos lidos da nota",
