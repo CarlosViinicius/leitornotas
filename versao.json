@@ -1,9 +1,11 @@
 {
-  "versao": "1.1.13",
+  "versao": "1.1.14",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Depois do pagamento o cronômetro e a mensagem somem do topo",
-    "Tela de bloqueio com Pix, cartão Flash e WhatsApp; senha numérica de liberação escondida"
+    "Tela de bloqueio com Pix, cartão Flash e WhatsApp; senha numérica de liberação escondida",
+    "Regra Polato: entre Polato Agrícola (deslintadora) e Polato Sementes (licenciado) a nota é lançada como saída deslintada",
+    "Botões do topo (Melhoria, tema e Configurações) com o mesmo estilo; ícone de enviar notas sem animação"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -24,6 +26,10 @@
       "sha256": "bb4393cb5307b80829f221a86671d43f52b9a299964742832294bad20fbab16f"
     },
     {
+      "arquivo": "lib/bloqueio.js",
+      "sha256": "83934debd51f5bf3e9adb0e52561b87608012743ede4a978a1830036b9c9a9d6"
+    },
+    {
       "arquivo": "lib/chave.js",
       "sha256": "775d8969a56aef171a7d08c3201306b4701bb88bd6c5672037ae0a4bc7bae2f6"
     },
@@ -40,8 +46,12 @@
       "sha256": "93333e44bf4d86fefdba0b06fc04e570f368969479ff3077d3c338bc6d645274"
     },
     {
+      "arquivo": "lib/liberar.js",
+      "sha256": "3cacc66eaee3b33cefcd7942f3395fde3b3d120a434b70f9e9834cf115a88db6"
+    },
+    {
       "arquivo": "lib/montar.js",
-      "sha256": "ff942828a2ca07df1693303871e7cd2b591451c4a072eaef6709c8fd55423b7b"
+      "sha256": "8dcfc88098c483199260990e09cfbe02ff6f5376ce5321b65b384a298e63dd87"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -53,15 +63,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "81bb8fb54cc5bdb737c9e4d7498de7c30d67922356faaac3fcbc499b16516091"
-    },
-    {
-      "arquivo": "lib/bloqueio.js",
-      "sha256": "83934debd51f5bf3e9adb0e52561b87608012743ede4a978a1830036b9c9a9d6"
-    },
-    {
-      "arquivo": "lib/liberar.js",
-      "sha256": "3cacc66eaee3b33cefcd7942f3395fde3b3d120a434b70f9e9834cf115a88db6"
+      "sha256": "03163a09da997ea4e8573ea13f62c159948abbc5877d14117b168b7cc01680f3"
     }
   ]
 }

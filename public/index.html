@@ -348,7 +348,7 @@
   /* Tela inicial */
   .area-soltar { border-radius: 22px; padding: 50px 30px; background: radial-gradient(90% 90% at 50% 0%, rgba(143,214,163,.10), transparent 70%); }
   .area-soltar:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -20px rgba(143,214,163,.45); }
-  .area-soltar .grande-icone { width: 66px; height: 66px; border-radius: 20px; transition: transform .25s; animation: flutua 3.6s ease-in-out infinite; }
+  .area-soltar .grande-icone { width: 66px; height: 66px; border-radius: 20px; transition: transform .25s; }
   .area-soltar:hover .grande-icone { transform: scale(1.1) rotate(-4deg); }
   @keyframes flutua { 50% { translate: 0 -5px; } }
   .area-soltar, .area-soltar:hover { transition: border-color .15s, background .15s, transform .2s, box-shadow .2s; }
@@ -462,8 +462,9 @@
   header .contador-hoje b { color: var(--verde-texto); }
   header button.fantasma { color: var(--suave); }
   header button.fantasma:hover { background: var(--hover); color: var(--texto); }
-  header #btConfig { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 14px; border-radius: 10px; }
-  header #btConfig:hover { border-color: var(--borda-forte); background: var(--hover); }
+  header #btConfig, header #btSugestao, header #btTema { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 14px; border-radius: 10px; }
+  header #btTema { padding: 8px 10px; }
+  header #btConfig:hover, header #btSugestao:hover, header #btTema:hover { border-color: var(--borda-forte); background: var(--hover); }
 
   /* Prazo: sem caixa colorida em volta, só uma divisória */
   #avisoPag { height: auto; margin-left: 4px; padding: 0 0 0 18px; gap: 14px; border: 0; border-left: 1px solid var(--borda); border-radius: 0; background: none; animation: none; }
@@ -640,7 +641,7 @@
   #dlgSugestao .corpo { gap: 14px; }
   #dlgSugestao textarea { min-height: 130px; }
   #btSugestao { gap: 7px; }
-  @media (max-width: 1100px) { #btSugestao { font-size: 0; gap: 0; padding: 7px; } #btSugestao svg { width: 18px; height: 18px; } }
+  @media (max-width: 1100px) { header #btSugestao { font-size: 0; gap: 0; padding: 8px 10px; } #btSugestao svg { width: 18px; height: 18px; } }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
