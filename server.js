@@ -507,7 +507,8 @@ const servidor = http.createServer(async (req, res) => {
   }
   try {
     if (req.method === 'GET' && url.pathname === '/') {
-      res.writeHead(200, { 'Content-Type': TIPOS['.html'] });
+      // no-store: depois de atualizar, o navegador não pode mostrar a tela antiga guardada em cache.
+      res.writeHead(200, { 'Content-Type': TIPOS['.html'], 'Cache-Control': 'no-store, max-age=0' });
       return fs.createReadStream(path.join(RAIZ, 'public', 'index.html')).pipe(res);
     }
     if (req.method === 'GET' && url.pathname === '/api/estado') {

@@ -1,19 +1,14 @@
 {
-  "versao": "1.1.14",
+  "versao": "1.1.15",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Visual novo e refinado: cores, fonte, cartões, animações, cabeçalho, lista de notas, resumo da nota e formulário",
-    "Tela de atualização redesenhada, com botão \"Atualizar agora\" e barra de progresso",
-    "Botão Melhoria: envie ideias ou problemas direto para o desenvolvedor",
-    "Lançadas agora: a lista começa vazia ao fechar e abrir o navegador",
-    "Regra Polato: entre Polato Agrícola (deslintadora) e Polato Sementes (licenciado) a nota é lançada como saída deslintada",
-    "Botões do topo (Melhoria, tema e Configurações) com o mesmo estilo; ícone de enviar notas sem animação"
+    "Corrigido: depois de atualizar, o navegador mostra o layout novo (não guarda mais a tela antiga em cache)"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "108a7832e665723a3cddc2d4bedf539e70f047610fd636ea2db826c8e8474356"
+      "sha256": "1ffc4cf5496c9c2ea400194e459d6175317d34e3d2dde3379537619169bf1ca0"
     },
     {
       "arquivo": "package.json",
