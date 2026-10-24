@@ -2,10 +2,17 @@
   "versao": "1.1.14",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Depois do pagamento o cronômetro e a mensagem somem do topo",
-    "Tela de bloqueio com Pix, cartão Flash e WhatsApp; senha numérica de liberação escondida",
+    "Chave de acesso mais certeira: corrige sozinha quando um número vem lido errado",
+    "Abre o navegador sozinho também no Windows 10",
+    "Só entram cultivares da BASE DE DADOS (DP = BAYER/TMG); lacres e outros produtos são ignorados",
+    "Nome do licenciado e cidades seguem a grafia (com acento) que já está na planilha",
+    "Acentos corretos nos textos lidos da nota",
+    "Aviso quando a soma dos itens não bate com o peso da nota",
+    "Leituras antigas são refeitas sozinhas quando a leitura melhora",
     "Regra Polato: entre Polato Agrícola (deslintadora) e Polato Sementes (licenciado) a nota é lançada como saída deslintada",
-    "Botões do topo (Melhoria, tema e Configurações) com o mesmo estilo; ícone de enviar notas sem animação"
+    "Botão Melhoria: envie ideias ou problemas direto para o desenvolvedor",
+    "Visual novo: cores, fonte, cartões e animações; botões do topo no mesmo estilo e ícone de enviar notas sem animação",
+    "Lançadas agora: a lista começa vazia ao fechar e abrir o navegador"
   ],
   "precisaZip": false,
   "arquivos": [
