@@ -9,7 +9,7 @@ const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require(
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas } = require('./lib/montar');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
-const { verificarBloqueio, paginaBloqueio } = require('./lib/bloqueio');
+const { verificarBloqueio, paginaBloqueio, PIX, FLASH_LOGO } = require('./lib/bloqueio');
 const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
@@ -485,7 +485,8 @@ const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const config = lerConfig();
   const bloqueio = await verificarBloqueio(RAIZ);
-  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/liberar'].includes(url.pathname)) {
+  // /planos fica aberta mesmo bloqueado: é a página de planos que a tela de bloqueio oferece (ela só mostra preços, não libera nada).
+  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/liberar', '/planos', '/api/pix'].includes(url.pathname)) {
     // Bloqueado, mas com versão nova no ar: atualiza primeiro (a tela de atualização se resolve sozinha).
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova && !url.pathname.startsWith('/api/')) {
@@ -511,6 +512,11 @@ const servidor = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': TIPOS['.html'], 'Cache-Control': 'no-store, max-age=0' });
       return fs.createReadStream(path.join(RAIZ, 'public', 'index.html')).pipe(res);
     }
+    if (req.method === 'GET' && url.pathname === '/planos') {
+      res.writeHead(200, { 'Content-Type': TIPOS['.html'], 'Cache-Control': 'no-store, max-age=0' });
+      return fs.createReadStream(path.join(RAIZ, 'public', 'planos.html')).pipe(res);
+    }
+    if (req.method === 'GET' && url.pathname === '/api/pix') return json(res, 200, { ...PIX, flashLogo: FLASH_LOGO });
     if (req.method === 'GET' && url.pathname === '/api/estado') {
       const { apiKey, geminiKey, googleToken, ...semChave } = config;
       return json(res, 200, {

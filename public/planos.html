@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planos · Leitor de Notas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0A110E; color: #F2F7F4; font-family: Inter, system-ui, sans-serif; }
+  a { color: #A3B5AD; text-decoration: none; }
+  a:hover { color: #F2F7F4; }
+  button { font: inherit; cursor: pointer; }
+  input, textarea { font: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #3DDC84; outline-offset: 3px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pagina { min-height: 100vh; position: relative; overflow: hidden; }
+  .brilho { position: absolute; left: 50%; top: -240px; width: 1000px; height: 600px; margin-left: -500px; border-radius: 50%; background: radial-gradient(closest-side, rgba(61,220,132,0.14), rgba(61,220,132,0)); pointer-events: none; }
+  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+  @media (max-width: 880px) { .plans { grid-template-columns: minmax(0, 1fr); } }
+  @media (min-width: 881px) { .feat { transform: scale(1.06); z-index: 2; } }
+  .btn:hover { filter: brightness(1.1); }
+  .faq:hover { background: #121E19 !important; }
+  .field::placeholder { color: #6E827A; }
+  @media (prefers-reduced-motion: no-preference) { .btn, .tg, .faq { transition: all .16s ease; } }
+  .field { min-height: 50px; padding: 0 16px; border: 1px solid #2B3E36; border-radius: 12px; background: #0A110E; color: #F2F7F4; font-size: 15px; width: 100%; }
+  textarea.field { padding: 14px 16px; resize: vertical; }
+  label { font-size: 14px; font-weight: 600; }
+  .campo { display: flex; flex-direction: column; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div class="brilho" aria-hidden="true"></div>
+
+  <header style="position: relative; border-bottom: 1px solid #1A2722">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span style="width: 32px; height: 32px; border-radius: 9px; background: #3DDC84; color: #04170C; display: flex; align-items: center; justify-content: center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>
+        </span>
+        <span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px">Leitor de Notas</span>
+      </div>
+      <a href="/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; min-height: 44px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+        Voltar ao programa
+      </a>
+    </div>
+  </header>
+
+  <div id="app"></div>
+</div>
+
+<script>
+(function () {
+  // Preços mensais (R$) e desconto do plano anual: ajuste aqui.
+  var PRECOS = [29, 59, 119];
+  var DESCONTO = 20;
+
+  // Recursos na mesma ordem para os três planos: [Básico, Profissional, Equipe]
+  var RECURSOS = [
+    ['Leitura de PDF e foto', [1, 1, 1]],
+    ['Excel e Google Planilhas', [0, 1, 1]],
+    ['Carta de correção', [0, 1, 1]],
+    ['Desfazer lançamento', [0, 1, 1]],
+    ['Backup automático da planilha', [0, 1, 1]],
+    ['Várias planilhas', [0, 0, 1]],
+    ['Até 5 auditores', [0, 0, 1]],
+    ['Relatório de produtividade', [0, 0, 1]],
+    ['Suporte prioritário', [0, 0, 1]]
+  ];
+
+  var PLANOS = [
+    { nome: 'Básico', desc: 'Para quem lança poucas notas por mês.', cota: 'Até 100 notas por mês', cta: 'Começar no Básico' },
+    { nome: 'Profissional', desc: 'Para o auditor que lança notas todos os dias.', cota: 'Até 500 notas por mês', cta: 'Assinar Profissional', destaque: true },
+    { nome: 'Equipe', desc: 'Para escritórios com vários auditores.', cota: 'Notas ilimitadas', cta: 'Falar no WhatsApp', equipe: true }
+  ];
+
+  var FAQ = [
+    ['Posso trocar de plano depois?', 'Pode. Você troca de plano quando quiser, para cima ou para baixo, conforme o volume de notas do seu mês.'],
+    ['Em que formato eu envio as notas?', 'Você arrasta o PDF ou a foto da nota fiscal para a tela (ou cola com Ctrl+V). O Leitor de Notas lê os dados, você confere e ele lança direto na sua planilha.'],
+    ['Quais planilhas funcionam?', 'No Básico, você lança em 1 planilha de destino. No Profissional, em Excel e Google Planilhas. No Equipe, em várias planilhas ao mesmo tempo.'],
+    ['Como funciona o plano anual?', 'No plano anual você paga uma vez por ano e ganha ' + DESCONTO + '% de desconto em relação ao valor mensal.'],
+    ['O que acontece se eu passar do limite de notas?', 'Suas notas e sua planilha continuam guardadas, nada é apagado. Ao chegar perto do limite do mês, você pode trocar de plano na hora para seguir lançando.']
+  ];
+
+  var WHATSAPP = '5544997474225';
+  var MSG_EQUIPE = 'Olá Carlos! Tenho um escritório com vários auditores e quero saber do plano Equipe do Leitor de Notas.';
+
+  var METODOS = [['card', 'Cartão'], ['pix', 'Pix'], ['boleto', 'Boleto'], ['flash', 'Flash']];
+
+  var s = {
+    cobranca: 'mensal', sel: null, etapa: 'pay', metodo: 'card', copiado: false, faqAberta: 0,
+    num: '', titular: '', val: '', cvv: '', pix: null
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return n.toLocaleString('pt-BR'); };
+  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var anual = function () { return s.cobranca === 'anual'; };
+  var mensalDe = function (p) { return anual() ? Math.floor(p * (100 - DESCONTO) / 100) : p; };
+  var notaDe = function (m) { return anual() ? 'R$ ' + fmt(m * 12) + ' cobrados por ano' : 'Cobrado todo mês'; };
+
+  var ICONE = {
+    ok: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>',
+    okP: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>',
+    no: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>',
+    voltar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>',
+    seta: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>',
+    mais: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>',
+    estrela: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"></path></svg>',
+    info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>',
+    cadeado: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>',
+    boleto: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5v14"></path><path d="M8 5v14"></path><path d="M11 5v14"></path><path d="M15 5v14"></path><path d="M17 5v14"></path><path d="M20 5v14"></path></svg>',
+    escudo: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"></path><path d="M9 12l2.2 2.2L15.5 10"></path></svg>',
+    pix: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"></path><path d="M9 12l3 3 3-3-3-3z"></path></svg>',
+    zap: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5A8.5 8.5 0 1 1 21 11.5z"></path></svg>',
+    cartao: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="M2.5 10h19M6.5 15h4"></path></svg>',
+    check: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>'
+  };
+
+  // Estilos que dependem do estado
+  var BASE = 'display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 600;';
+  var LIGADO = BASE + ' background: #3DDC84; color: #04170C;';
+  var DESLIGADO = BASE + ' background: transparent; color: #A3B5AD;';
+
+  function seletorCobranca(cheio) {
+    var m = !anual();
+    var extra = cheio ? ' flex: 1; padding: 0 12px;' : '';
+    var pill = anual()
+      ? 'padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(4,23,12,0.2); color: #04170C'
+      : 'padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(61,220,132,0.16); color: #3DDC84';
+    var grupo = cheio
+      ? 'margin-top: 18px; display: flex; padding: 4px; gap: 4px; border-radius: 999px; background: #0A110E'
+      : 'margin-top: 14px; display: inline-flex; padding: 5px; gap: 4px; border: 1px solid #21322B; border-radius: 999px; background: #0F1915';
+    return '<div role="group" aria-label="Período de cobrança" style="' + grupo + '">'
+      + '<button class="tg" type="button" data-cobranca="mensal" aria-pressed="' + m + '" style="' + (m ? LIGADO : DESLIGADO) + extra + '">Mensal</button>'
+      + '<button class="tg" type="button" data-cobranca="anual" aria-pressed="' + anual() + '" style="' + (anual() ? LIGADO : DESLIGADO) + extra + '">Anual '
+      + (cheio ? '-' + DESCONTO + '%' : '<span style="' + pill + '">-' + DESCONTO + '%</span>') + '</button></div>';
+  }
+
+  // Prévia visual do boleto (não é um documento pagável: sem código real, só para o cliente ver como será).
+  function barrasBoleto() {
+    var html = '', x = 7;
+    for (var k = 0; k < 130; k++) {
+      x = (x * 31 + 11) % 97;
+      var larg = 1 + (x % 3);
+      html += '<span style="flex: ' + larg + ' 1 0; min-width: 0; height: 100%; background: #111;"></span><span style="flex: ' + (1 + (x % 2)) + ' 1 0; min-width: 0"></span>';
+    }
+    return html;
+  }
+
+  function boletoPrevia(total, p) {
+    var venc = new Date(); venc.setDate(venc.getDate() + 3);
+    var dataVenc = venc.toLocaleDateString('pt-BR');
+    var rot = 'font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6761; font-weight: 600';
+    var cel = function (titulo, valor, extra) {
+      return '<div style="padding: 8px 10px; border: 1px solid #C9D2CD; ' + (extra || '') + '"><div style="' + rot + '">' + titulo + '</div><div style="margin-top: 3px; font-size: 14px; font-weight: 600; color: #111">' + valor + '</div></div>';
+    };
+    return '<div style="margin-top: 24px">'
+      + '<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.25); color: #F5DE8A; font-size: 13px; line-height: 1.4">' + ICONE.info + 'Esta é só uma prévia de como o boleto aparece. O boleto de verdade é enviado pelo Carlos, pelo WhatsApp.</div>'
+      + '<div style="position: relative; margin-top: 16px; overflow: hidden; border-radius: 6px; background: #FFFFFF; color: #111; box-shadow: 0 24px 50px -24px rgba(0,0,0,0.8)">'
+      + '<div style="display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-bottom: 2px solid #111">'
+      + '<span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px">Leitor de Notas</span>'
+      + '<span style="margin-left: auto; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #444">Boleto de cobrança</span></div>'
+      + '<div style="padding: 10px 12px"><div style="padding: 8px 10px; border: 1px solid #C9D2CD"><div style="' + rot + '">Linha digitável (exemplo)</div><div style="margin-top: 3px; font-family: Consolas, monospace; font-weight: 700; font-size: clamp(10px, 2.6vw, 15px); letter-spacing: 0.02em; color: #111; word-break: break-all">00000.00000 00000.000000 00000.000000 0 00000000000000</div></div></div>'
+      + '<div style="padding: 0 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0">'
+      + cel('Beneficiário', esc(s.pix ? s.pix.nome : 'Carlos Vinicius'))
+      + cel('Vencimento', dataVenc)
+      + cel('Valor do documento', 'R$ ' + total, 'background: #F3F6F4')
+      + cel('Plano', esc(p.nome) + ' · ' + (anual() ? 'anual' : 'mensal'))
+      + cel('Pagador', 'Você')
+      + cel('Nosso número', '0000000000')
+      + '</div>'
+      + '<div style="padding: 14px 12px 16px"><div aria-hidden="true" style="display: flex; align-items: stretch; height: 56px; overflow: hidden">' + barrasBoleto() + '</div></div>'
+      + '</div></div>';
+  }
+
+  // Faixa de confiança: o que acontece com as notas e como o pagamento funciona.
+  function confianca() {
+    var itens = [
+      [ICONE.escudo, 'Suas notas ficam guardadas', 'Nada é apagado: suas notas e sua planilha continuam do jeito que estão.'],
+      [ICONE.pix, 'Pagamento por Pix', 'Cai direto na conta do Carlos, sem intermediário e sem cadastro de cartão.'],
+      [ICONE.zap, 'Liberação com código', 'Você paga, o Carlos confere e manda o código pelo WhatsApp.']
+    ];
+    return '<div style="margin: 56px auto 0; max-width: 1000px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">'
+      + itens.map(function (it) {
+        return '<div style="display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; border: 1px solid #1E2C26; border-radius: 16px; background: #0E1713">'
+          + '<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: rgba(61,220,132,0.12); color: #3DDC84; display: flex; align-items: center; justify-content: center">' + it[0] + '</span>'
+          + '<div><p style="margin: 0; font-size: 15px; font-weight: 700">' + it[1] + '</p><p style="margin: 4px 0 0; font-size: 13.5px; line-height: 1.5; color: #A3B5AD">' + it[2] + '</p></div></div>';
+      }).join('') + '</div>';
+  }
+
+  // ---------- Tela dos planos ----------
+  function telaPlanos() {
+    var cartoes = PLANOS.map(function (p, i) {
+      var m = mensalDe(PRECOS[i]);
+      var base = 'position: relative; display: flex; flex-direction: column; padding: 32px 28px; border-radius: 22px;';
+      var btn = 'margin-top: 22px; min-height: 50px; border-radius: 12px; font-weight: 700; font-size: 15px;';
+      var cardStyle = p.destaque
+        ? base + ' border: 2px solid #3DDC84; background: radial-gradient(120% 70% at 50% 0%, rgba(61,220,132,0.22) 0%, rgba(61,220,132,0) 60%), #0F1B16; box-shadow: 0 0 0 6px rgba(61,220,132,0.08), 0 40px 90px -30px rgba(61,220,132,0.6);'
+        : base + ' border: 1px solid #1E2C26; background: #0E1713;';
+      var priceStyle = p.destaque
+        ? 'font-family: Manrope, sans-serif; font-weight: 800; font-size: 84px; line-height: 1; letter-spacing: -0.05em; color: #3DDC84; text-shadow: 0 0 40px rgba(61,220,132,0.45);'
+        : 'font-family: Manrope, sans-serif; font-weight: 800; font-size: 72px; line-height: 1; letter-spacing: -0.05em; color: #F2F7F4;';
+      var btnStyle = p.destaque
+        ? btn + ' border: 0; background: #3DDC84; color: #04170C;'
+        : btn + ' border: 1px solid #2B3E36; background: transparent; color: #F2F7F4;';
+      var selo = p.destaque
+        ? '<span style="position: absolute; top: -17px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px; background: #3DDC84; color: #04170C; font-size: 13px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; box-shadow: 0 8px 24px -6px rgba(61,220,132,0.7)">' + ICONE.estrela + 'Recomendado</span>'
+        : '';
+      var itens = RECURSOS.map(function (r) {
+        var tem = !!r[1][i];
+        if (tem) {
+          return '<li style="display: flex; align-items: center; gap: 12px; color: #E3ECE7;"><span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: rgba(61,220,132,0.16); color: #3DDC84; display: flex; align-items: center; justify-content: center">' + ICONE.ok + '</span><span>' + r[0] + '</span></li>';
+        }
+        return '<li style="display: flex; align-items: center; gap: 12px; color: #6E827A; text-decoration: line-through; text-decoration-color: rgba(110,130,122,0.5);"><span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: #18231F; color: #6E827A; display: flex; align-items: center; justify-content: center">' + ICONE.no + '</span><span>' + r[0] + '<span class="sr"> (não incluso)</span></span></li>';
+      }).join('');
+      return '<section class="' + (p.destaque ? 'feat' : '') + '" style="' + cardStyle + '">' + selo
+        + '<h2 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 700; font-size: 20px">' + p.nome + '</h2>'
+        + '<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.45; color: #A3B5AD; min-height: 40px">' + p.desc + '</p>'
+        + '<div style="margin-top: 22px; display: flex; align-items: flex-start; gap: 4px">'
+        + '<span style="margin-top: 10px; font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #A3B5AD">R$</span>'
+        + '<span style="' + priceStyle + '">' + fmt(m) + '</span>'
+        + '<span style="align-self: flex-end; margin-bottom: 10px; font-size: 16px; font-weight: 500; color: #A3B5AD">/mês</span></div>'
+        + '<p style="margin: 8px 0 0; font-size: 13px; color: #869A91">' + notaDe(m) + '</p>'
+        + (p.equipe
+          ? '<a class="btn" href="https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(MSG_EQUIPE) + '" target="_blank" rel="noopener" style="' + btnStyle + ' display: flex; align-items: center; justify-content: center; gap: 8px">' + ICONE.zap + p.cta + '</a>'
+          : '<button class="btn" type="button" data-escolher="' + i + '" style="' + btnStyle + '">' + p.cta + '</button>')
+        + '<div style="margin-top: 24px; padding: 12px 14px; border-radius: 12px; background: #13201B; font-size: 14px; font-weight: 600; color: #F2F7F4; text-align: center">' + p.cota + '</div>'
+        + '<ul style="list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 13px; font-size: 14px">' + itens + '</ul>'
+        + '</section>';
+    }).join('');
+
+    var perguntas = FAQ.map(function (f, i) {
+      var aberta = s.faqAberta === i;
+      var icone = 'flex: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; '
+        + (aberta ? 'background: #3DDC84; color: #04170C; transform: rotate(45deg);' : 'background: #18231F; color: #3DDC84;');
+      return '<div style="border: 1px solid #1E2C26; border-radius: 16px; background: #0E1713; overflow: hidden">'
+        + '<button class="faq" type="button" data-faq="' + i + '" aria-expanded="' + aberta + '" style="width: 100%; min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; border: 0; background: transparent; color: #F2F7F4; text-align: left; font-size: 16px; font-weight: 600">'
+        + '<span>' + f[0] + '</span><span style="' + icone + '">' + ICONE.mais + '</span></button>'
+        + (aberta ? '<p style="margin: 0; padding: 0 22px 20px; font-size: 15px; line-height: 1.6; color: #A3B5AD">' + f[1] + '</p>' : '')
+        + '</div>';
+    }).join('');
+
+    return '<main style="position: relative; max-width: 1120px; margin: 0 auto; padding: 64px 24px 64px">'
+      + '<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">'
+      + '<h1 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: clamp(34px, 5vw, 52px); line-height: 1.08; letter-spacing: -0.03em">Escolha o plano ideal</h1>'
+      + '<p style="margin: 0; font-size: 17px; line-height: 1.5; color: #A3B5AD">Menos digitação, mais notas lançadas. Troque de plano quando quiser.</p>'
+      + seletorCobranca(false) + '</div>'
+      + '<div class="plans" style="margin-top: 64px">' + cartoes + '</div>'
+      + confianca()
+      + '<section style="margin: 80px auto 0; max-width: 760px">'
+      + '<h2 style="margin: 0; text-align: center; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Perguntas frequentes</h2>'
+      + '<div style="margin-top: 32px; display: flex; flex-direction: column; gap: 12px">' + perguntas + '</div></section>'
+      + '</main>';
+  }
+
+  // ---------- Cadastro / pagamento ----------
+  function qrCelulas() {
+    var N = 25, html = '';
+    function finder(x, y) {
+      var cantos = [[0, 0], [N - 7, 0], [0, N - 7]];
+      for (var k = 0; k < cantos.length; k++) {
+        var a = x - cantos[k][0], b = y - cantos[k][1];
+        if (a >= 0 && a < 7 && b >= 0 && b < 7) {
+          var borda = a === 0 || a === 6 || b === 0 || b === 6;
+          var miolo = a >= 2 && a <= 4 && b >= 2 && b <= 4;
+          return borda || miolo ? 1 : 0;
+        }
+        if (a >= -1 && a <= 7 && b >= -1 && b <= 7) return 0;
+      }
+      return -1;
+    }
+    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+      var f = finder(x, y);
+      var bit = f === -1 ? ((x * 31 + y * 17 + x * y * 7 + (x ^ y) * 3) % 5 < 2) : f === 1;
+      html += '<span style="background: ' + (bit ? '#04170C' : 'transparent') + ';"></span>';
+    }
+    return html;
+  }
+
+  function numeroNoCartao() {
+    return s.num.padEnd(16, '•').replace(/(.{4})/g, '$1 ').trim();
+  }
+  function numeroFormatado() { return s.num.replace(/(.{4})(?=.)/g, '$1 '); }
+
+  function telaCadastro() {
+    var p = PLANOS[s.sel];
+    var m = mensalDe(PRECOS[s.sel]);
+    var total = fmt(anual() ? m * 12 : m);
+
+    var etapas = '';
+    {
+      var atual = s.etapa === 'done' ? 1 : 0;
+      etapas = '<ol aria-label="Etapas" style="list-style: none; margin: 0 0 28px; padding: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap">'
+        + [['1', 'Pagamento'], ['2', 'Pronto']].map(function (e, k, arr) {
+          var ativo = k === atual, passou = k < atual;
+          return '<li style="display: flex; align-items: center; gap: 10px">'
+            + '<span style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; ' + (ativo || passou ? 'background: #3DDC84; color: #04170C;' : 'background: #18231F; color: #869A91;') + '">' + (passou ? '✓' : e[0]) + '</span>'
+            + '<span style="font-size: 14px; font-weight: 600; ' + (ativo ? 'color: #F2F7F4;' : 'color: #869A91;') + '">' + e[1] + '</span>'
+            + (k < arr.length - 1 ? '<span aria-hidden="true" style="width: 28px; height: 2px; border-radius: 2px; background: #24382F"></span>' : '')
+            + '</li>';
+        }).join('') + '</ol>';
+    }
+
+    var corpo = '';
+    if (s.etapa === 'pay') {
+      var metodos = METODOS.map(function (mt) {
+        var on = s.metodo === mt[0];
+        return '<button type="button" data-metodo="' + mt[0] + '" aria-pressed="' + on + '" style="min-height: 50px; border-radius: 12px; font-size: 15px; font-weight: 700; ' + (on ? 'border: 2px solid #3DDC84; background: rgba(61,220,132,0.12); color: #F2F7F4;' : 'border: 1px solid #2B3E36; background: transparent; color: #A3B5AD;') + '">' + mt[1] + '</button>';
+      }).join('');
+      var bloco = '';
+      if (s.metodo === 'card') {
+        bloco = '<div style="margin-top: 24px; max-width: 360px; aspect-ratio: 1.586; border-radius: 18px; padding: 22px 24px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #F2F7F4; background: radial-gradient(120% 120% at 100% 0%, rgba(61,220,132,0.55) 0%, rgba(61,220,132,0) 55%), linear-gradient(135deg, #12382A 0%, #0A1A13 100%); box-shadow: 0 24px 50px -20px rgba(61,220,132,0.45), inset 0 0 0 1px rgba(255,255,255,0.08)">'
+          + '<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 42px; height: 30px; border-radius: 6px; background: linear-gradient(135deg, #E8D58C, #B99A45)"></span><span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.04em; opacity: 0.85">Leitor de Notas</span></div>'
+          + '<div id="cartaoNum" style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 0.12em">' + numeroNoCartao() + '</div>'
+          + '<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; font-size: 12px">'
+          + '<div style="min-width: 0"><div style="opacity: 0.6; font-size: 10px; letter-spacing: 0.08em">NOME</div><div id="cartaoNome" style="margin-top: 3px; font-weight: 600; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">' + esc(s.titular ? s.titular.toUpperCase() : 'SEU NOME') + '</div></div>'
+          + '<div><div style="opacity: 0.6; font-size: 10px; letter-spacing: 0.08em">VALIDADE</div><div id="cartaoVal" style="margin-top: 3px; font-weight: 600">' + esc(s.val || 'MM/AA') + '</div></div></div></div>'
+          + '<div style="margin-top: 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">'
+          + '<div class="campo" style="grid-column: 1 / -1"><label for="cnum">Número do cartão</label><input class="field" id="cnum" type="text" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="0000 0000 0000 0000" style="letter-spacing: 0.06em" value="' + esc(numeroFormatado()) + '"></div>'
+          + '<div class="campo" style="grid-column: 1 / -1"><label for="cname">Nome impresso no cartão</label><input class="field" id="cname" type="text" autocomplete="off" placeholder="Como está no cartão" value="' + esc(s.titular) + '"></div>'
+          + '<div class="campo"><label for="cexp">Validade</label><input class="field" id="cexp" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="MM/AA" value="' + esc(s.val) + '"></div>'
+          + '<div class="campo"><label for="ccvv">CVV</label><input class="field" id="ccvv" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="123" value="' + esc(s.cvv) + '"></div>'
+          + '</div>';
+        bloco += '<p style="margin: 16px 0 0; font-size: 13px; line-height: 1.5; color: #869A91">Os dados do cartão ficam só no seu computador: nada é enviado nem guardado. O pagamento é combinado com o Carlos pelo WhatsApp.</p>';
+      } else if (s.metodo === 'pix') {
+        bloco = '<div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">'
+          + '<div style="flex: none; padding: 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 20px 40px -20px rgba(61,220,132,0.5)">' + (s.pix ? '<img src="' + s.pix.qr + '" alt="QR Code do Pix de ' + esc(s.pix.nome) + '" width="175" height="175" style="display: block; image-rendering: pixelated">' : '<div style="width: 175px; height: 175px; display: grid; grid-template-columns: repeat(25, minmax(0, 1fr))" role="img" aria-label="QR Code de exemplo">' + qrCelulas() + '</div>') + '</div>'
+          + '<div style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 12px">'
+          + '<p style="margin: 0; font-size: 15px; font-weight: 600">Pague com Pix pelo app do seu banco</p>'
+          + '<ol style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.5; color: #A3B5AD"><li>Abra o app do banco e escolha Pix.</li><li>Escaneie o QR Code ou cole o código.</li><li>Digite o valor de R$ ' + total + ' e confirme' + (s.pix ? ' para ' + esc(s.pix.nome) : '') + '.</li></ol>'
+          + '<div style="display: flex; gap: 8px; align-items: center; padding: 6px 6px 6px 14px; border: 1px solid #2B3E36; border-radius: 12px; background: #0A110E"><span style="flex: 1; min-width: 0; font-size: 13px; color: #869A91; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">' + esc(s.pix ? s.pix.codigo : 'Carregando o código Pix...') + '</span>'
+          + '<button class="btn" type="button" data-acao="copiar" style="flex: none; min-height: 40px; padding: 0 14px; border: 0; border-radius: 9px; background: #18231F; color: #3DDC84; font-weight: 600; font-size: 13px">' + (s.copiado ? 'Copiado' : 'Copiar') + '</button></div>'
+          + '</div></div>';
+      } else if (s.metodo === 'flash') {
+        bloco = '<div style="margin-top: 24px; padding: 22px; border: 1px solid rgba(255,45,135,0.28); border-radius: 16px; background: rgba(255,45,135,0.07); display: flex; gap: 16px; align-items: flex-start">'
+          + (s.pix && s.pix.flashLogo ? '<img src="' + s.pix.flashLogo + '" alt="Flash" width="48" height="48" style="flex: none; border-radius: 12px">' : '')
+          + '<div><p style="margin: 0; font-size: 15px; font-weight: 600">Pague com o cartão Flash, num lanche no iFood</p>'
+          + '<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: #C9B6BF">Prefere pagar com o Flash? Combine com o Carlos pelo WhatsApp: ele escolhe um lanche no iFood no valor de R$ ' + total + ' e você paga com o seu cartão Flash.</p></div></div>';
+      } else {
+        bloco = boletoPrevia(total, p);
+      }
+      var rotulo = s.metodo === 'pix' ? 'Já paguei' : s.metodo === 'boleto' ? 'Pedir boleto de R$ ' + total : s.metodo === 'flash' ? 'Combinar pelo Flash' : 'Enviar pedido de R$ ' + total;
+      corpo = '<h1 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Pagamento</h1>'
+        + '<p style="margin: 8px 0 0; font-size: 15px; line-height: 1.5; color: #A3B5AD">Escolha como prefere pagar.</p>'
+        + (s.metodo === 'pix' && s.pix ? '<div style="margin-top: 18px; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.25); color: #F5DE8A; font-size: 13px; line-height: 1.4">' + ICONE.info + 'O Pix é real: o pagamento cai direto na conta de ' + esc(s.pix.nome) + '. Depois de pagar, peça o código de liberação.</div>' : '')
+        + '<div role="group" aria-label="Forma de pagamento" style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px">' + metodos + '</div>'
+        + bloco
+        + '<button class="btn" type="button" data-acao="pagar" style="margin-top: 26px; width: 100%; min-height: 56px; border: 0; border-radius: 12px; background: #3DDC84; color: #04170C; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 16px 40px -16px rgba(61,220,132,0.7)">' + ICONE.cadeado + rotulo + '</button>';
+    } else {
+      var FORMAS = { card: 'Cartão', pix: 'Pix', boleto: 'Boleto', flash: 'Cartão Flash (iFood)' };
+      var linhas = [['Plano', p.nome], ['Cobrança', anual() ? 'Anual' : 'Mensal'], ['Valor', 'R$ ' + total]];
+      linhas.push(['Forma de pagamento', FORMAS[s.metodo]]);
+      var tit = s.metodo === 'pix' ? 'Pagamento enviado para conferência'
+        : s.metodo === 'boleto' ? 'Pedido de boleto enviado'
+        : 'Pedido enviado';
+      var txt = s.metodo === 'pix' ? 'O Carlos vai conferir se o Pix chegou certinho e, estando tudo certo, libera o seu acesso com o código.'
+        : s.metodo === 'flash' ? 'O Carlos combina com você o lanche no iFood pelo cartão Flash e, depois de confirmar, libera o seu acesso com o código.'
+        : s.metodo === 'boleto' ? 'O Carlos gera o boleto e envia para você. Assim que o pagamento for confirmado, ele libera o seu acesso com o código.'
+        : 'Nenhum dado do cartão foi enviado. O Carlos combina o pagamento com você e, depois de confirmar, libera o seu acesso com o código.';
+      var tabela = linhas.map(function (l, k) {
+        return '<div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0;' + (k ? ' border-top: 1px solid #1E2C26;' : '') + ' font-size: 14px"><span style="color: #869A91">' + l[0] + '</span><span style="font-weight: 600; text-align: right">' + esc(l[1]) + '</span></div>';
+      }).join('');
+      var botaoZap = s.pix
+        ? '<a class="btn" href="' + esc(zapLink(p, total)) + '" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 12px; background: #25D366; color: #04170C; font-weight: 800; font-size: 16px">' + ICONE.zap + 'Avisar o Carlos no WhatsApp</a>'
+        : '';
+      corpo = '<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 8px 0">'
+        + '<span style="width: 72px; height: 72px; border-radius: 50%; background: rgba(61,220,132,0.14); color: #3DDC84; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 8px rgba(61,220,132,0.06), 0 20px 50px -18px rgba(61,220,132,0.6)">' + ICONE.check + '</span>'
+        + '<h1 style="margin: 8px 0 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 30px; line-height: 1.15; letter-spacing: -0.02em">' + tit + '</h1>'
+        + '<p style="margin: 0; max-width: 460px; font-size: 15px; line-height: 1.6; color: #A3B5AD">' + txt + '</p>'
+        + '<div style="width: 100%; max-width: 420px; margin-top: 10px; padding: 4px 18px; border: 1px solid #1E2C26; border-radius: 16px; background: #0A110E; text-align: left">' + tabela + '</div>'
+        + '<div style="width: 100%; max-width: 420px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px">'
+        + botaoZap
+        + '<a class="btn" href="/" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 12px; background: #3DDC84; color: #04170C; font-weight: 700; font-size: 15px">Voltar ao programa</a>'
+        + '<button class="btn" type="button" data-acao="planos" style="min-height: 46px; border: 0; border-radius: 12px; background: transparent; color: #A3B5AD; font-weight: 600; font-size: 14px">Voltar aos planos</button>'
+        + '</div></div>';
+    }
+
+    var incluidos = RECURSOS.filter(function (r) { return r[1][s.sel]; }).map(function (r) {
+      return '<li style="display: flex; align-items: center; gap: 10px"><span style="flex: none; width: 20px; height: 20px; border-radius: 50%; background: rgba(61,220,132,0.16); color: #3DDC84; display: flex; align-items: center; justify-content: center">' + ICONE.okP + '</span>' + r[0] + '</li>';
+    }).join('');
+
+    return '<main style="position: relative; max-width: 1040px; margin: 0 auto; padding: 40px 24px 72px">'
+      + '<button type="button" data-acao="planos" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #A3B5AD; font-size: 14px; font-weight: 500">' + ICONE.voltar + 'Voltar aos planos</button>'
+      + '<div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">'
+      + '<section style="flex: 999 1 420px; min-width: 0; padding: 36px 32px; border: 1px solid #1E2C26; border-radius: 22px; background: #0E1713">' + etapas + corpo + '</section>'
+      + '<aside style="flex: 1 1 300px; min-width: 0; padding: 32px 28px; border: 2px solid #3DDC84; border-radius: 22px; background: radial-gradient(120% 70% at 50% 0%, rgba(61,220,132,0.18) 0%, rgba(61,220,132,0) 60%), #0F1B16">'
+      + '<p style="margin: 0; font-size: 13px; font-weight: 600; color: #3DDC84; letter-spacing: 0.04em">PLANO ESCOLHIDO</p>'
+      + '<h2 style="margin: 8px 0 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 26px">' + p.nome + '</h2>'
+      + seletorCobranca(true)
+      + '<div style="margin-top: 22px; display: flex; align-items: flex-start; gap: 4px"><span style="margin-top: 8px; font-family: Manrope, sans-serif; font-size: 20px; font-weight: 700; color: #A3B5AD">R$</span>'
+      + '<span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 64px; line-height: 1; letter-spacing: -0.05em; color: #3DDC84">' + fmt(m) + '</span>'
+      + '<span style="align-self: flex-end; margin-bottom: 8px; font-size: 15px; color: #A3B5AD">/mês</span></div>'
+      + '<p style="margin: 8px 0 0; font-size: 13px; color: #869A91">' + notaDe(m) + '</p>'
+      + '<div style="margin-top: 20px; padding: 12px 14px; border-radius: 12px; background: #13201B; font-size: 14px; font-weight: 600; text-align: center">' + p.cota + '</div>'
+      + '<ul style="list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 11px; font-size: 14px; color: #E3ECE7">' + incluidos + '</ul>'
+      + '<div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid #24382F; display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><span style="font-size: 15px; color: #A3B5AD">' + (anual() ? 'Total por ano' : 'Total por mês') + '</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 800">R$ ' + total + '</span></div>'
+      + '</aside></div></main>';
+  }
+
+  // ---------- Desenho e eventos ----------
+  var app = $('app');
+
+  function desenhar(foco) {
+    app.innerHTML = s.sel == null ? telaPlanos() : telaCadastro();
+    if (foco && $(foco)) { var el = $(foco); el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} }
+  }
+
+  app.addEventListener('click', function (e) {
+    var alvo = e.target.closest('[data-cobranca],[data-escolher],[data-faq],[data-metodo],[data-acao]');
+    if (!alvo) return;
+    if (alvo.dataset.cobranca) { s.cobranca = alvo.dataset.cobranca; desenhar(); return; }
+    if (alvo.dataset.escolher != null) {
+      s.sel = Number(alvo.dataset.escolher);
+      s.etapa = 'pay';
+      desenhar(); window.scrollTo(0, 0); return;
+    }
+    if (alvo.dataset.faq != null) { var i = Number(alvo.dataset.faq); s.faqAberta = s.faqAberta === i ? null : i; desenhar(); return; }
+    if (alvo.dataset.metodo) { s.metodo = alvo.dataset.metodo; desenhar(); return; }
+    var acao = alvo.dataset.acao;
+    if (acao === 'planos') { s.sel = null; s.etapa = 'pay'; s.copiado = false; desenhar(); window.scrollTo(0, 0); }
+    else if (acao === 'copiar') { copiarPix(); }
+    else if (acao === 'pagar') { s.etapa = 'done'; desenhar(); }
+  });
+
+  function zapLink(p, total) {
+    var plano = p.nome + ' (' + (anual() ? 'anual' : 'mensal') + ', R$ ' + total + ')';
+    var msg = s.metodo === 'pix' ? 'Olá Carlos! Acabei de pagar o plano ' + plano + ' do Leitor de Notas por Pix. Pode conferir?'
+      : s.metodo === 'flash' ? 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas com o cartão Flash, num lanche no iFood. Como combinamos?'
+      : s.metodo === 'boleto' ? 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas por boleto. Pode me enviar?'
+      : 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas no cartão. Como combinamos?';
+    return 'https://wa.me/' + s.pix.whatsapp + '?text=' + encodeURIComponent(msg);
+  }
+
+  function copiarPix() {
+    if (!s.pix) return;
+    var t = s.pix.codigo;
+    var ok = function () { s.copiado = true; desenhar(); setTimeout(function () { s.copiado = false; if (s.sel != null && s.etapa === 'pay') desenhar(); }, 2500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, ok);
+    else { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); ok(); }
+  }
+
+  // Pix real (o mesmo da tela de bloqueio)
+  fetch('/api/pix').then(function (r) { return r.json(); }).then(function (p) { s.pix = p; if (s.sel != null && s.etapa === 'pay' && s.metodo === 'pix') desenhar(); }).catch(function () {});
+
+  // Campos do cartão: atualizam só o desenho do cartão, sem refazer a tela (para não perder o cursor).
+  app.addEventListener('input', function (e) {
+    var id = e.target.id;
+    if (id === 'cnum') {
+      s.num = e.target.value.replace(/\D/g, '').slice(0, 16);
+      e.target.value = numeroFormatado();
+      $('cartaoNum').textContent = numeroNoCartao();
+    } else if (id === 'cname') {
+      s.titular = e.target.value.slice(0, 26);
+      $('cartaoNome').textContent = s.titular ? s.titular.toUpperCase() : 'SEU NOME';
+    } else if (id === 'cexp') {
+      var v = e.target.value.replace(/\D/g, '').slice(0, 4);
+      if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
+      e.target.value = v; s.val = v;
+      $('cartaoVal').textContent = v || 'MM/AA';
+    } else if (id === 'ccvv') {
+      s.cvv = e.target.value.replace(/\D/g, '').slice(0, 4);
+      e.target.value = s.cvv;
+    }
+  });
+
+  function zapLink(p, total) {
+    var plano = p.nome + ' (' + (anual() ? 'anual' : 'mensal') + ', R$ ' + total + ')';
+    var msg = s.metodo === 'pix' ? 'Olá Carlos! Acabei de pagar o plano ' + plano + ' do Leitor de Notas por Pix. Pode conferir?'
+      : s.metodo === 'boleto' ? 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas por boleto. Pode me enviar?'
+      : 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas no cartão. Como combinamos?';
+    return 'https://wa.me/' + s.pix.whatsapp + '?text=' + encodeURIComponent(msg);
+  }
+
+  function copiarPix() {
+    if (!s.pix) return;
+    var t = s.pix.codigo;
+    var ok = function () { s.copiado = true; desenhar(); setTimeout(function () { s.copiado = false; if (s.sel != null && s.etapa === 'pay') desenhar(); }, 2500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, ok);
+    else { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); ok(); }
+  }
+
+  // Pix real (o mesmo da tela de bloqueio)
+  fetch('/api/pix').then(function (r) { return r.json(); }).then(function (p) { s.pix = p; if (s.sel != null && s.etapa === 'pay' && s.metodo === 'pix') desenhar(); }).catch(function () {});
+
+  desenhar();
+})();
+</script>
+</body>
+</html>

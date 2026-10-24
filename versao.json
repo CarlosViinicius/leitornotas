@@ -1,14 +1,18 @@
 {
-  "versao": "1.1.15",
+  "versao": "1.1.16",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Corrigido: depois de atualizar, o navegador mostra o layout novo (não guarda mais a tela antiga em cache)"
+    "Nova página de Planos (botão com ícone de cartão no topo), com pagamento por Pix, cartão, boleto e cartão Flash",
+    "A tela de bloqueio agora tem o botão Ver planos; ao voltar ao programa ela continua bloqueada até o código",
+    "Funciona melhor em notebooks com tela menor: a mensagem do cronômetro vai para o rodapé quando não cabe no topo",
+    "Modo claro: a área de arrastar notas ficou legível",
+    "Botões do topo (Planos, Melhoria, tema e Configurações) agora só com ícones"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "1ffc4cf5496c9c2ea400194e459d6175317d34e3d2dde3379537619169bf1ca0"
+      "sha256": "e6b2fcf49a2ded53abd28abe535141c671e1729e8dae4baa94a586d11f59d3db"
     },
     {
       "arquivo": "package.json",
@@ -24,7 +28,7 @@
     },
     {
       "arquivo": "lib/bloqueio.js",
-      "sha256": "83934debd51f5bf3e9adb0e52561b87608012743ede4a978a1830036b9c9a9d6"
+      "sha256": "27452380bd241b6fc8e7947263488b2473dc48e4feb87e8a81e6ba9b717a4350"
     },
     {
       "arquivo": "lib/chave.js",
@@ -60,7 +64,11 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "03163a09da997ea4e8573ea13f62c159948abbc5877d14117b168b7cc01680f3"
+      "sha256": "3ce0571bf661f2f0c97d35faf00100750edbc6c81a68779cf1d3bb00e83e92a1"
+    },
+    {
+      "arquivo": "public/planos.html",
+      "sha256": "127b89b7ebc8ab18f7601b09695e0e63a055f0911338d0f8106ae5030fa128aa"
     }
   ]
 }

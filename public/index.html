@@ -378,7 +378,7 @@
   #avisoPag.urgente { --cor: #e5483b; border-color: #e5483b; background: var(--vermelho-fundo); animation: alertaPag 1.6s ease-in-out infinite; }
   #avisoPag.urgente p b { color: var(--vermelho-texto); }
   @keyframes alertaPag { 50% { box-shadow: 0 0 0 4px rgba(229, 72, 59, .2); } }
-  @media (max-width: 1500px) { #avisoPag p { display: none; } #avisoPag { padding: 0 5px; } }
+  @media (max-width: 1500px) { #avisoPag { padding: 0 5px; } }
 
   /* ===== Reforma visual (cabeçalho, fila, formulário) ===== */
   body { font-size: 14.5px; }
@@ -462,9 +462,9 @@
   header .contador-hoje b { color: var(--verde-texto); }
   header button.fantasma { color: var(--suave); }
   header button.fantasma:hover { background: var(--hover); color: var(--texto); }
-  header #btConfig, header #btSugestao, header #btTema { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 14px; border-radius: 10px; }
+  header #btConfig, header #btSugestao, header #btTema, header #btPlanos { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 10px; border-radius: 10px; }
   header #btTema { padding: 8px 10px; }
-  header #btConfig:hover, header #btSugestao:hover, header #btTema:hover { border-color: var(--borda-forte); background: var(--hover); }
+  header #btConfig:hover, header #btSugestao:hover, header #btTema:hover, header #btPlanos:hover { border-color: var(--borda-forte); background: var(--hover); }
 
   /* Prazo: sem caixa colorida em volta, só uma divisória */
   #avisoPag { height: auto; margin-left: 4px; padding: 0 0 0 18px; gap: 14px; border: 0; border-left: 1px solid var(--borda); border-radius: 0; background: none; animation: none; }
@@ -538,6 +538,9 @@
   /* Mensagem de pagamento com mais destaque */
   #avisoPag p { color: var(--texto); font-size: 13px; }
   #avisoPag p b { color: var(--verde-texto); font-weight: 700; }
+  #avisoPag p { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; flex: 0 1 auto; }
+  @media (max-width: 1500px) { #avisoPag p { font-size: 12px; } }
+  @media (max-width: 1100px) { #avisoPag p { display: none; } }
   #avisoPag.atencao p b { color: var(--amarelo-texto); }
   #avisoPag.urgente p b { color: var(--vermelho-texto); }
   :root[data-tema="escuro"] #avisoPag.atencao p b { color: #f0cf6b; }
@@ -642,6 +645,38 @@
   #dlgSugestao textarea { min-height: 130px; }
   #btSugestao { gap: 7px; }
   @media (max-width: 1100px) { header #btSugestao { font-size: 0; gap: 0; padding: 8px 10px; } #btSugestao svg { width: 18px; height: 18px; } }
+  /* Notebooks de tela pequena (ex.: 1366px com zoom de 125% = ~1100px): colunas laterais um pouco menores, sem espremer os textos. */
+  @media (max-width: 1400px) { main { --largura-fila: 235px; --largura-painel: 470px; } }
+  @media (max-width: 1250px) { main { --largura-fila: 225px; --largura-painel: 430px; } }
+  @media (max-width: 1100px) { main { --largura-fila: 220px; --largura-painel: 400px; } }
+  @media (max-width: 960px) { main { --largura-fila: 210px; --largura-painel: 360px; } }
+  /* Botões do painel: se não couberem numa linha, "Confirmar e inserir" desce inteiro para a linha de baixo (nada fica espremido). */
+  @media (max-width: 1250px) {
+    #acoes { flex-wrap: wrap; gap: 8px; padding: 12px; }
+    #acoes button { padding: 9px 12px; font-size: 13.5px; }
+    #btInserir { flex: 1 1 170px; justify-content: center; }
+  }
+  /* Mensagem do cronômetro: quando não cabe no topo, aparece numa faixa fina no rodapé (fora da barra de botões). */
+  #avisoRodape { display: none; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 30px; padding: 5px 16px; border-top: 1px solid var(--borda); background: var(--painel); color: var(--suave); font-size: 12.5px; line-height: 1.3; text-align: center; }
+  .fila-topo h2 > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  @media (max-width: 1250px) { .fila-topo h2 { letter-spacing: .05em; font-size: 11px; } }
+  #avisoRodape b { color: var(--verde-texto); font-weight: 600; }
+  #avisoRodape.atencao b { color: var(--amarelo-texto); }
+  #avisoRodape.urgente b { color: var(--vermelho-texto); }
+  @media (max-width: 1250px) {
+    #avisoPag p { display: none; }
+    #avisoRodape:not([hidden]) { display: flex; }
+  }
+
+  /* Tela vazia do visor: usa as cores do tema (antes eram fixas para fundo escuro e sumiam no modo claro). */
+  .boas-vindas { color: var(--texto); }
+  .area-soltar, .area-soltar:hover { background: var(--painel); }
+  .area-soltar { border-color: var(--borda-forte); box-shadow: var(--sombra); }
+  .area-soltar:hover { border-color: var(--verde-2); }
+  .area-soltar .grande-icone { background: var(--verde-claro); color: var(--verde-texto); }
+  .area-soltar h3 { color: var(--texto); }
+  .area-soltar p, .atalhos { color: var(--suave); }
+  kbd { background: var(--chip); border-color: var(--borda-forte); color: var(--texto); }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -671,6 +706,7 @@
   <symbol id="i-lua" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
   <symbol id="i-fora" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-cartao" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></symbol>
   <symbol id="i-recolher" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
   <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
   <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></symbol>
@@ -698,9 +734,10 @@
   </div>
   <span class="espaco"></span>
   <span class="contador-hoje" id="contadorHoje"></span>
-  <button class="fantasma" id="btSugestao" title="Envie uma ideia de melhoria ou aponte um problema"><svg class="i"><use href="#i-lampada"/></svg>Melhoria</button>
+  <button class="fantasma icone" id="btPlanos" title="Ver os planos" aria-label="Planos" onclick="location.href='/planos'"><svg class="i"><use href="#i-cartao"/></svg></button>
+  <button class="fantasma icone" id="btSugestao" title="Melhoria: envie uma ideia ou aponte um problema" aria-label="Melhoria"><svg class="i"><use href="#i-lampada"/></svg></button>
   <button class="fantasma icone" id="btTema" title="Tema"><svg class="i"><use href="#i-auto"/></svg></button>
-  <button class="fantasma" id="btConfig"><svg class="i"><use href="#i-config"/></svg>Configurações</button>
+  <button class="fantasma icone" id="btConfig" title="Configurações" aria-label="Configurações"><svg class="i"><use href="#i-config"/></svg></button>
 </header>
 <div id="faixaAtualizacao" hidden>
   <svg class="i"><use href="#i-recarregar"/></svg>
@@ -736,13 +773,14 @@
     <div id="campos"></div>
     <div id="acoes">
       <button class="fantasma" id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)" disabled><svg class="i"><use href="#i-lixo"/></svg></button>
-      <button id="btPular" disabled><svg class="i"><use href="#i-pular"/></svg>Pular</button>
+      <button id="btPular" title="Pular esta nota (fica na fila)" disabled><svg class="i"><use href="#i-pular"/></svg>Pular</button>
       <button id="btReler" disabled title="Pede para a IA ler a nota de novo"><svg class="i"><use href="#i-recarregar"/></svg>Ler de novo</button>
       <span class="espaco"></span>
       <button id="btInserir" class="primario grande" disabled><svg class="i"><use href="#i-check"/></svg>Confirmar e inserir</button>
     </div>
   </section>
 </main>
+<div id="avisoRodape" hidden role="note"></div>
 
 <input type="file" id="arquivos" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
@@ -1165,7 +1203,17 @@ function larguraPainel(px) {
   else $('main').style.removeProperty('--largura-painel');
   try { localStorage.setItem('larguraPainel', px ? String(px) : ''); } catch {}
 }
-try { const px = Number(localStorage.getItem('larguraPainel')); if (px >= 400) $('main').style.setProperty('--largura-painel', px + 'px'); } catch {}
+// A largura guardada do painel nunca pode deixar a nota sem espaço: em tela pequena ela encolhe (sem apagar o que ficou guardado).
+function ajustarPainelAoTamanho() {
+  let px = 0;
+  try { px = Number(localStorage.getItem('larguraPainel')); } catch {}
+  if (!(px >= 400)) { $('main').style.removeProperty('--largura-painel'); return; }
+  const largura = $('main').getBoundingClientRect().width;
+  const fila = $('main').classList.contains('fila-recolhida') ? 46 : $('#fila').getBoundingClientRect().width;
+  $('main').style.setProperty('--largura-painel', Math.min(px, Math.max(340, largura - fila - 420)) + 'px');
+}
+ajustarPainelAoTamanho();
+window.addEventListener('resize', ajustarPainelAoTamanho);
 $('#divisoria').onpointerdown = (e) => {
   e.preventDefault();
   const div = $('#divisoria');
@@ -1855,7 +1903,7 @@ setInterval(verAviso, 5 * 60 * 1000);
 let prazoFim = null;
 function desenharPrazo() {
   const caixa = $('#avisoPag');
-  if (!prazoFim) { caixa.hidden = true; return; }
+  if (!prazoFim) { caixa.hidden = true; $('#avisoRodape').hidden = true; return; }
   const resta = prazoFim - Date.now();
   if (resta <= 0) { if (!window.recarregando) { window.recarregando = true; setTimeout(() => location.reload(), 1500); } return; }
   const d = Math.floor(resta / 864e5), h = Math.floor(resta / 36e5) % 24, m = Math.floor(resta / 6e4) % 60, s = Math.floor(resta / 1e3) % 60;
@@ -1865,6 +1913,11 @@ function desenharPrazo() {
   caixa.classList.toggle('atencao', resta >= 864e5 && resta < 3 * 864e5);
   caixa.title = 'Prazo do pagamento: ' + new Date(prazoFim).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) + ' · depois disso o acesso é bloqueado até o pagamento';
   caixa.hidden = false;
+  const rodape = $('#avisoRodape');
+  if (!rodape.innerHTML) rodape.innerHTML = '<span>' + $('#msgPag').innerHTML + '</span>';
+  rodape.hidden = false;
+  rodape.classList.toggle('urgente', caixa.classList.contains('urgente'));
+  rodape.classList.toggle('atencao', caixa.classList.contains('atencao'));
 }
 async function verPrazo() {
   const r = await api('/api/aviso').catch(() => null);
