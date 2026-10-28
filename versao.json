@@ -1,11 +1,8 @@
 {
-  "versao": "1.1.20",
+  "versao": "1.1.21",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Quebra técnica agora é reconhecida (inclusive abreviada, como \"Q TECNICA\") e vai na coluna U, na mesma linha do volume da cultivar",
-    "Nota com \"retorno de mercadoria não utilizada na industrialização\" (na natureza ou nas informações complementares) vai para Saída sem deslintar",
-    "Foto menor na leitura e tempos de leitura na janela preta, para achar o que deixa a foto lenta",
-    "O aviso de peso diferente não aparece mais à toa quando a nota tem quebra técnica"
+    "Ajustes internos de liberação de acesso"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -47,7 +44,7 @@
     },
     {
       "arquivo": "lib/liberar.js",
-      "sha256": "3cacc66eaee3b33cefcd7942f3395fde3b3d120a434b70f9e9834cf115a88db6"
+      "sha256": "cf696924aafcc350c9ad872c61bb14bc46ad875e57ce1d55d11cf5c7ff00b3fb"
     },
     {
       "arquivo": "lib/montar.js",
