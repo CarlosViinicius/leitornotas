@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.21",
+  "versao": "1.1.22",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Ajustes internos de liberação de acesso"
@@ -44,7 +44,7 @@
     },
     {
       "arquivo": "lib/liberar.js",
-      "sha256": "cf696924aafcc350c9ad872c61bb14bc46ad875e57ce1d55d11cf5c7ff00b3fb"
+      "sha256": "08e4ea9904235faefef56632994ce23e3bef90d7d58183536c199a622bca6be1"
     },
     {
       "arquivo": "lib/montar.js",
