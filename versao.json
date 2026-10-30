@@ -1,14 +1,14 @@
 {
-  "versao": "1.1.22",
+  "versao": "1.1.23",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Ajustes internos de liberação de acesso"
+    "Senha de liberação agora libera por 20 minutos, com cronômetro na tela"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "f6b55d9859b25e4a556757484ab9b50a73426d7656bd7dd75969cb084116ced9"
+      "sha256": "9f5cac76c7d25699fb404f1971634cc36e8a0203b4409ff9cb589c6655c52d55"
     },
     {
       "arquivo": "package.json",
@@ -44,7 +44,7 @@
     },
     {
       "arquivo": "lib/liberar.js",
-      "sha256": "08e4ea9904235faefef56632994ce23e3bef90d7d58183536c199a622bca6be1"
+      "sha256": "bb2b4c5741552c54c50285a238f0b61263de1f18e9cc30877edff2e47b481841"
     },
     {
       "arquivo": "lib/montar.js",
@@ -65,6 +65,10 @@
     {
       "arquivo": "public/planos.html",
       "sha256": "a6226553c82fcc133984d7c2f3edc94ca10cb5161497467075212d4aaf619b9d"
+    },
+    {
+      "arquivo": "liberacao.json",
+      "sha256": "40fa0f140b682a019e7005b52b04ca42a1bd8904375af32c1ddca0f5cc43444d"
     }
   ]
 }
