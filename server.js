@@ -673,6 +673,7 @@ const servidor = http.createServer(async (req, res) => {
       const { nome, forcar } = await lerCorpo(req);
       const problema = problemaConfig(config);
       if (problema) return json(res, 400, { erro: problema });
+      await creditos.exigirSaldo(config.auditor); // sem crédito não lê nota
       return json(res, 200, await lerNota(config, nome, forcar));
     }
     if (req.method === 'POST' && url.pathname === '/api/inserir') {

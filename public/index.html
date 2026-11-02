@@ -272,6 +272,26 @@
   #toast { position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 20px); opacity: 0; display: flex; align-items: center; gap: 9px; padding: 11px 18px; border-radius: 10px; color: #fff; background: var(--verde); font-weight: 600; z-index: 40; box-shadow: var(--sombra-alta); transition: opacity .2s, transform .2s; pointer-events: none; max-width: 80vw; }
   #toast.visivel { opacity: 1; transform: translate(-50%, 0); }
   #toast.erro { background: var(--vermelho); }
+  #toast.acao { pointer-events: auto; background: #1a1d1b; color: #eef2ef; border: 1px solid #2c3530; gap: 12px; padding: 10px 10px 10px 12px; border-radius: 16px; font-weight: 500; }
+  #toast.acao .ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none; background: rgba(245,166,35,.16); color: #f5c469; }
+  #toast.acao .txt { display: flex; flex-direction: column; line-height: 1.3; }
+  #toast.acao .txt b { font-weight: 650; }
+  #toast.acao .txt small { color: #a9b5ae; font-size: 12.5px; }
+  #toast.acao button { flex: none; margin-left: 8px; padding: 10px 16px; border: 0; border-radius: 11px; background: #34b37f; color: #04130c; font: inherit; font-weight: 700; cursor: pointer; }
+  #toast.acao button:hover { background: #3cc18b; }
+  #visor.embacado iframe, #visor.embacado .imagem, #visor.embacado .dica { filter: blur(10px); pointer-events: none; user-select: none; }
+  #visor.embacado .abas-visor { display: none; }
+  #visor .selo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 24px 30px; width: min(320px, 86%); color: var(--texto); background: var(--painel); border: 1px solid var(--borda); border-radius: 18px; box-shadow: 0 18px 40px -18px rgba(0,0,0,.6); z-index: 2; }
+  #visor .selo .ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: rgba(245,166,35,.16); color: #d98a0b; margin-bottom: 4px; }
+  #visor .selo .ic svg { width: 26px; height: 26px; }
+  #visor .selo b { font-size: 16px; }
+  #visor .selo span:not(.ic) { color: var(--suave); font-size: 13.5px; max-width: 260px; }
+  .semcred { margin: auto; max-width: 340px; text-align: center; padding: 36px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .semcred .ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: rgba(245,166,35,.14); color: #d98a0b; }
+  .semcred .ic svg { width: 26px; height: 26px; }
+  .semcred h3 { margin: 6px 0 0; font-size: 17px; }
+  .semcred p { margin: 0; color: var(--suave); font-size: 14px; line-height: 1.45; }
+  .semcred button { margin-top: 10px; }
 
   dialog { border: none; border-radius: 14px; padding: 0; width: min(600px, 94vw); box-shadow: var(--sombra-alta); color: var(--texto); background: var(--painel); }
   dialog::backdrop { background: var(--fundo-modal); }
@@ -1001,8 +1021,23 @@ $('#btTema').onclick = () => {
 
 function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
+function semCredito() {
+  const c = creditosEstado;
+  return !!(c && c.ligado && c.cobranca !== false && !c.offline && typeof c.saldo === 'number' && c.saldo <= 0);
+}
+const MSG_SEM_CREDITO = 'Você está sem créditos. Compre um pacote para continuar lançando notas.';
+
 function toast(msg, erro) {
   const t = $('#toast');
+  // Falta de crédito: aviso com botão para comprar (não some sozinho tão rápido).
+  if (erro && /sem créditos/i.test(String(msg))) {
+    t.innerHTML = '<span class="ic">' + icone('cartao') + '</span><span class="txt"><b>Você está sem créditos</b><small>Quer adicionar mais para continuar?</small></span><button type="button" id="btToastComprar">Adicionar créditos</button>';
+    t.className = 'visivel acao';
+    $('#btToastComprar').onclick = () => { location.href = '/planos'; };
+    clearTimeout(t._h);
+    t._h = setTimeout(() => (t.className = ''), 14000);
+    return;
+  }
   t.innerHTML = icone(erro ? 'alerta' : 'check') + `<span>${esc(msg)}</span>`;
   t.className = 'visivel' + (erro ? ' erro' : '');
   clearTimeout(t._h);
@@ -1020,7 +1055,7 @@ async function api(url, corpo) {
   if (!r.ok) {
     const e = new Error(j.erro || 'Erro');
     e.codigo = j.codigo;
-    if (j.codigo === 'SEM_CREDITO') abrirCompra();
+    if (j.codigo === 'SEM_CREDITO') { if (creditosEstado) creditosEstado.saldo = 0; toast(e.message, true); atualizarCreditos(); }
     throw e;
   }
   return j;
@@ -1079,6 +1114,7 @@ function statusDe(nome) {
   if (estado.erros[nome]) {
     const n = estado.tentativas[nome] || 0;
     if (/ocupad|Limite|conexão/i.test(estado.erros[nome]) && n < MAX_TENTATIVAS) return ['conferir', `IA ocupada · nova tentativa (${n + 1}/${MAX_TENTATIVAS})`];
+    if (/sem créditos/i.test(estado.erros[nome])) return ['conferir', 'Sem créditos'];
     return ['erro', 'Erro na leitura'];
   }
   const r = leitura(nome);
@@ -1356,6 +1392,23 @@ const cartaDaNota = (nome) => estado.pendentes.find((p) => p.nome === nome)?.car
 
 // qual: 'nota' ou 'carta' (a carta de correção, quando a nota tem uma).
 function mostrarArquivo(nome, qual = 'nota') {
+  // Sem crédito não mostra a nota de verdade: só uma folha de exemplo, sempre embaçada.
+  $('#visor').classList.remove('embacado');
+  $('#visor .selo')?.remove();
+  if (semCredito()) { visorBloqueado(nome); return; }
+  mostrarArquivoReal(nome, qual);
+}
+
+function visorBloqueado(nome) {
+  nome = nome || estado.atual;
+  if (nome) mostrarArquivoReal(nome, 'nota');
+  const v = $('#visor');
+  v.classList.add('embacado');
+  v.querySelectorAll('a, [data-ver]').forEach((x) => x.remove());
+  if (!v.querySelector('.selo')) v.insertAdjacentHTML('beforeend', '<div class="selo"><span class="ic">' + icone('cartao') + '</span><b>Nota bloqueada</b><span>Adicione créditos para ver e lançar esta nota.</span></div>');
+}
+
+function mostrarArquivoReal(nome, qual = 'nota') {
   const carta = cartaDaNota(nome);
   if (!carta) qual = 'nota';
   const arquivo = qual === 'carta' ? carta : nome;
@@ -1416,6 +1469,12 @@ $('#arquivoCarta').onchange = (e) => {
 function ler(nome, forcar, atualizar) {
   if (!forcar && !atualizar && leitura(nome)) return Promise.resolve(leitura(nome));
   if (estado.lendo[nome]) return estado.lendo[nome];
+  if (semCredito()) {
+    estado.erros[nome] = MSG_SEM_CREDITO;
+    if (Date.now() - (ler._avisou || 0) > 8000) { ler._avisou = Date.now(); toast(MSG_SEM_CREDITO, true); }
+    const e = new Error(MSG_SEM_CREDITO); e.codigo = 'SEM_CREDITO';
+    return Promise.reject(e);
+  }
   delete estado.erros[nome];
   if (forcar) { delete estado.forms[nome]; delete estado.tentativas[nome]; estado.conferidas.delete(nome); }
   // Só leitura nova pela IA ganha barra de progresso (rever uma nota já lida é instantâneo).
@@ -1470,6 +1529,12 @@ async function selecionar(nome, forcar) {
     const extra = vaiTentar
       ? `<br><b>Vou tentar de novo sozinho em ${segundos >= 60 ? Math.round(segundos / 60) + ' min' : segundos + ' s'} (tentativa ${n + 1} de ${MAX_TENTATIVAS}).</b>`
       : n >= MAX_TENTATIVAS ? `<br><b>Já tentei ${MAX_TENTATIVAS} vezes. Clique em "Ler de novo" mais tarde.</b>` : '';
+    if (/sem créditos/i.test(e.message)) {
+      visorBloqueado(nome);
+      $('#campos').innerHTML = `<div class="semcred"><span class="ic">${icone('cartao')}</span><h3>Você está sem créditos</h3><p>Para ler e lançar esta nota, adicione créditos. Ela continua aqui na fila esperando.</p><button class="primario grande" onclick="location.href='/planos'">Adicionar créditos</button></div>`;
+      botoes(['#btRemover']);
+      return;
+    }
     $('#campos').innerHTML = `<div class="avisos"><div class="aviso ${vaiTentar ? 'alerta' : 'erro'}">${icone('alerta')}<span>Não consegui ler esta nota: ${esc(e.message)}${extra}</span></div></div>`;
     botoes(['#btReler', '#btRemover']);
   }
@@ -1727,8 +1792,7 @@ async function inserirUma(nome) {
   if (ce.ligado && ce.cobranca !== false && !ce.offline) {
     if (ce.bloqueado) throw new Error('Seu acesso está bloqueado. Fale com o suporte.');
     if (typeof ce.saldo === 'number' && ce.saldo <= 0) {
-      abrirCompra();
-      throw new Error('Você está sem créditos. Compre um pacote para continuar lançando notas.');
+      throw new Error(MSG_SEM_CREDITO);
     }
   }
   estado.inserindo.add(nome);
@@ -2030,10 +2094,26 @@ function mostrarSaldo(saldo) {
   chip.classList.toggle('ok', saldo > 3);
 }
 
+function liberarNotasBloqueadas() {
+  for (const n of Object.keys(estado.erros)) if (/sem créditos/i.test(estado.erros[n])) delete estado.erros[n];
+  $('#visor').classList.remove('embacado');
+  $('#visor .selo')?.remove();
+  if (estado.atual) selecionar(estado.atual);
+  lerEmSegundoPlano();
+  toast('Créditos adicionados! Pode lançar suas notas.');
+}
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || !creditosEstado.ligado) return;
+  const tinha = semCredito();
+  await atualizarCreditos();
+  if (tinha && !semCredito()) liberarNotasBloqueadas();
+});
+
 async function atualizarCreditos() {
   try {
     const c = await api('/api/creditos');
     creditosEstado = c;
+    if (semCredito() && estado.atual && $('#visor iframe, #visor .imagem')) visorBloqueado();
     const chip = $('#chipCreditos');
     if (!c.ligado) { chip.style.display = 'none'; mostrarRecado(null); return; }
     mostrarRecado(c.aviso);
@@ -2085,8 +2165,8 @@ async function abrirCompra() {
   if (dlg.open) return;
   await atualizarCreditos();
   if (creditosEstado.cobranca === false) { toast('Por enquanto o uso está liberado: nenhuma nota gasta crédito.'); return; }
-  mostrarPacotes();
-  if (!dlg.open) dlg.showModal();
+  // A compra agora é na tela de planos (pacotes, QR Code e confirmação automática).
+  location.href = '/planos';
 }
 
 async function comprarPacote(id) {

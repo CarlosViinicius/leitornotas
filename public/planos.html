@@ -215,7 +215,7 @@ table.cmp td{padding-top:10px;padding-bottom:10px}
 .empty p{color:var(--mu);max-width:320px;margin-bottom:14px;font-size:13px;line-height:18px}
 .sb{background:linear-gradient(90deg,var(--sk) 0%,var(--ln2) 50%,var(--sk) 100%);background-size:200% 100%;animation:sh 1.4s ease-in-out infinite;border-radius:5px;display:block}
 @keyframes sh{to{background-position:-200% 0}}
-@media (prefers-reduced-motion:reduce){.sb{animation:none}}
+
 .toast{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--tst);color:var(--tsi);font-weight:500;font-size:13px;box-shadow:var(--sh2)}
 .toast svg{color:inherit}
 
@@ -396,12 +396,7 @@ table.cmp td{padding-top:10px;padding-bottom:10px}
 /* controle do protótipo */
 .demo{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:28px;padding:10px;border:1px dashed var(--ln);border-radius:12px;font-size:13px;color:var(--mu)}
 
-@media (prefers-reduced-motion:reduce){
-.qr img,.qr .scan,.spin,.wait .pg::after,.okc,.okc::before,.okc::after,.okc svg path,.okp h2,.okp .plus,.okp .msg,.rec,.okact{animation:none!important}
-.okc svg path{stroke-dashoffset:0}
-.qr .scan{display:none}
-.plan,.plan.hot:hover{transition:none}
-}
+
 @media (max-width:900px){
 .shero,.duo{grid-template-columns:minmax(0,1fr)}
 .plans{grid-template-columns:minmax(0,1fr);gap:16px}
@@ -414,9 +409,186 @@ table.cmp td{padding-top:10px;padding-bottom:10px}
 .sw,.pix{padding:28px 16px 48px}
 }
 
+/* ===== Pacotes com mais informação ===== */
+.plan .q{font-size:64px;line-height:68px}
+.plan .q span{font-size:22px;color:var(--i2)}
+.plan.hot .q span{color:#fff}
+.app .eq{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font:600 14px/20px 'Geist',sans-serif;color:var(--ink);background:var(--sk);padding:7px 12px;border-radius:9px;align-self:flex-start}
+.eq svg{color:var(--ac)}
+.plan.hot .eq{background:rgba(255,255,255,.15);color:#fff}
+.plan.hot .eq svg{color:#8FE3BC}
+.prw{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.plan .pr{font-size:32px;line-height:38px}
+.app .save{margin-top:10px;font:600 14px/20px 'Geist',sans-serif;color:var(--oi)}
+.plan.hot .save{color:#BFF0D9}
+.save.none{visibility:hidden}
+.feat{list-style:none;margin:20px 0 0;padding:20px 0 0;border-top:1px solid var(--ln);display:grid;gap:11px;font-size:15px;line-height:21px;color:var(--i2)}
+.plan.hot .feat{border-top-color:rgba(255,255,255,.2);color:#E3F3EC}
+.feat li{display:flex;gap:10px;align-items:flex-start}
+.feat svg{color:var(--ac);margin-top:2px}
+.plan.hot .feat svg{color:#8FE3BC}
+.feat b{color:var(--ink);font-weight:600}
+.plan.hot .feat b{color:#fff}
+.bal .eqs{margin-top:6px;font-size:14px;color:var(--mu)}
+@media (max-width:900px){.save.none{display:none}}
+
+.prw{flex-direction:column;align-items:flex-start;gap:2px}
+
+/* ===== Saldo com mais presença ===== */
+.bal{display:flex;gap:18px;align-items:flex-start;padding:24px;border-radius:20px;background:var(--sf);border:1px solid var(--ln);box-shadow:0 20px 40px -28px rgba(0,0,0,.5)}
+.bal.low{background:linear-gradient(0deg,var(--wb),var(--wb)),var(--sf);border-color:rgba(217,138,11,.45)}
+.bal .bic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;flex:none;background:var(--wb);color:var(--wi);border:1px solid rgba(217,138,11,.35)}
+.bal .bic svg{width:26px;height:26px}
+.bal .bx{flex:1;min-width:0}
+.bal .k{font:600 14px/20px 'Geist',sans-serif;color:var(--i2);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bal .st{font:600 12px/16px 'Geist',sans-serif;color:var(--wi);background:var(--wb);border:1px solid rgba(217,138,11,.35);padding:3px 9px;border-radius:999px}
+.bal .n{font:700 64px/66px 'Geist',sans-serif;letter-spacing:-.045em;margin-top:6px;color:var(--ink)}
+.bal .n span{font-size:22px;font-weight:600;color:var(--i2);letter-spacing:-.01em;margin-left:8px}
+.bal .eqs{margin-top:6px;font-size:15px;line-height:22px;color:var(--i2)}
+.bal .eqs b{color:var(--ink)}
+.bal .cta{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font:600 14px/20px 'Geist',sans-serif;color:var(--wi);text-decoration:none}
+.bal .cta:hover{text-decoration:underline}
+
+/* ===== Saldo proporcional ao título ===== */
+.shero{align-items:center}
+.bal{width:100%;max-width:380px;justify-self:end;padding:20px 22px;gap:16px}
+.bal .bic{width:44px;height:44px;border-radius:12px}
+.bal .bic svg{width:22px;height:22px}
+.bal .n{font-size:48px;line-height:52px;margin-top:4px}
+.bal .n span{font-size:18px;margin-left:6px}
+.bal .eqs{font-size:14px;line-height:20px;margin-top:2px}
+.bal .cta{margin-top:10px;font-size:13px;line-height:18px}
+@media (max-width:900px){.bal{max-width:none;justify-self:stretch}}
+
+/* ===== Confirmação: comemoração ===== */
+.okw{max-width:560px;margin:8px auto 0;border-radius:26px;overflow:hidden;border:1px solid var(--ln);background:var(--sf);box-shadow:0 32px 64px -32px rgba(0,0,0,.5)}
+.okh{position:relative;background:#0E6B4F;color:#fff;text-align:center;padding:44px 32px 36px;overflow:hidden}
+.dark .okh{background:#0F5A43}
+.okh::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 220px at 50% 0%,rgba(255,255,255,.14),transparent 70%);pointer-events:none}
+.okh .okc{background:#fff;margin:0 auto;width:88px;height:88px}
+.okh .okc svg{stroke:#0E6B4F;width:44px;height:44px}
+.okh .okc::before,.okh .okc::after{border-color:rgba(255,255,255,.7)}
+.okh h2{font:700 24px/30px 'Geist',sans-serif;letter-spacing:-.02em;margin-top:22px;color:#fff;animation:up .45s ease-out .45s both}
+.app .okh .when{color:#CDE8DD;font-size:14px;line-height:20px;margin-top:2px;animation:up .45s ease-out .55s both}
+.app .big2{margin-top:22px;font:800 84px/84px 'Geist',sans-serif;letter-spacing:-.055em;animation:pop2 .6s cubic-bezier(.2,1.5,.4,1) .7s both}
+.big2 span{font-size:26px;font-weight:600;letter-spacing:-.01em;margin-left:10px;color:#CDE8DD}
+@keyframes pop2{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+.conf{position:absolute;left:50%;top:88px;width:0;height:0;z-index:2}
+.conf i{position:absolute;left:-4px;top:-6px;width:8px;height:12px;border-radius:2px;background:var(--c);opacity:0;animation:boom 1.2s cubic-bezier(.12,.75,.3,1) .35s both}
+@keyframes boom{0%{opacity:1;transform:translate(0,0) rotate(0)}80%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+.okb{padding:24px 28px 28px}
+.sal{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-radius:16px;background:var(--sk);animation:up .45s ease-out .9s both}
+.sal .k{font-size:14px;line-height:20px;color:var(--i2)}
+.sal .fl{display:flex;align-items:baseline;gap:12px;margin-top:4px}
+.sal .old{font:600 22px/28px 'Geist',sans-serif;color:var(--mu)}
+.sal .arr{color:var(--mu);align-self:center}
+.sal .new{font:700 40px/44px 'Geist',sans-serif;letter-spacing:-.035em;color:var(--pos)}
+.sal .new small{font-size:16px;font-weight:600;color:var(--i2);letter-spacing:0;margin-left:6px}
+.sal .bd{flex:none}
+.rc{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;border:1px solid var(--ln);border-radius:14px;overflow:hidden;animation:up .45s ease-out 1s both}
+.rc div{padding:12px 16px;border-top:1px solid var(--ln)}
+.rc div:nth-child(-n+2){border-top:0}
+.rc div:nth-child(odd){border-right:1px solid var(--ln)}
+.rc span{display:block;font-size:12px;line-height:16px;color:var(--mu)}
+.rc b{display:block;font-weight:600;font-size:15px;line-height:22px;margin-top:2px}
+.oka{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:20px;animation:up .45s ease-out 1.1s both}
+.oka .btn.pri{height:56px;font-size:16px;border-radius:14px;width:100%;font-weight:600}
+.oka .lnk{color:var(--i2);font-weight:500;min-height:40px;display:inline-flex;align-items:center;text-decoration:none}
+.oka .lnk:hover{color:var(--ink);text-decoration:underline}
+
+@media (max-width:600px){.big2{font-size:64px;line-height:64px}.okb{padding:20px}.sal{flex-direction:column;align-items:flex-start}.rc{grid-template-columns:1fr}.rc div{border-right:0!important;border-top:1px solid var(--ln)!important}.rc div:first-child{border-top:0!important}}
+
+/* ===== Confirmação mais discreta ===== */
+.okh,.dark .okh{background:var(--sf);color:var(--ink);padding:40px 32px 8px}
+.okh::before{display:none}
+.okh .okc{background:#0E6B4F;width:72px;height:72px}
+.dark .okh .okc{background:#1F9A6C}
+.okh .okc svg{stroke:#fff;width:36px;height:36px}
+.okh .okc::before,.okh .okc::after{border-color:#16A06F}
+.okh h2{color:var(--ink);font-size:24px;margin-top:20px}
+.app .okh .when{color:var(--mu)}
+.okh .added{display:inline-flex;align-items:center;gap:6px;margin-top:14px;height:32px;padding:0 12px;border-radius:999px;background:var(--ob);color:var(--oi);font:600 14px/20px 'Geist',sans-serif;animation:up .45s ease-out .65s both}
+.conf{top:76px}
+.conf i{width:6px;height:9px}
+.sal .new{font-size:32px;line-height:38px}
+
+/* ===== Opções de confirmação de pagamento ===== */
+.pg-wrap{max-width:560px;margin:0 auto;padding:40px 24px 56px;width:100%}
+.chk{width:44px;height:44px;border-radius:50%;background:#0E6B4F;display:grid;place-items:center;flex:none;animation:pop .5s cubic-bezier(.2,1.5,.4,1) both}
+.dark .chk{background:#1F9A6C}
+.chk svg{width:22px;height:22px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.chk svg path{stroke-dasharray:32;stroke-dashoffset:32;animation:draw .45s ease-out .3s forwards}
+.acts2{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:24px}
+.acts2 .btn.pri{width:100%;height:52px;font-size:16px;font-weight:600;border-radius:12px}
+.acts2 .lnk{color:var(--i2);font-weight:500;min-height:40px;display:inline-flex;align-items:center;text-decoration:none}
+.acts2 .lnk:hover{color:var(--ink);text-decoration:underline}
+
+/* A: comprovante */
+.slot{height:12px;border-radius:6px;background:var(--ln);margin:0 -10px;position:relative;z-index:2;box-shadow:inset 0 2px 3px rgba(0,0,0,.25)}
+.print{overflow:hidden;margin-top:-6px;padding:0 4px 18px}
+.rcp{--paper:#FFFFFF;background:var(--paper);color:#151515;padding:30px 28px 34px;animation:print 1.3s cubic-bezier(.3,.7,.3,1) .15s both;-webkit-mask:radial-gradient(circle 7px at 50% 100%,transparent 6px,#000 6.5px) bottom/18px 14px repeat-x,linear-gradient(#000,#000) top/100% calc(100% - 13px) no-repeat;mask:radial-gradient(circle 7px at 50% 100%,transparent 6px,#000 6.5px) bottom/18px 14px repeat-x,linear-gradient(#000,#000) top/100% calc(100% - 13px) no-repeat;filter:drop-shadow(0 18px 24px rgba(0,0,0,.18))}
+@keyframes print{from{transform:translateY(-100%)}to{transform:none}}
+.rcp-h{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.rcp-h h2{font:700 22px/28px 'Geist',sans-serif;letter-spacing:-.02em;color:#151515}
+.rcp-h p{font:500 12px/16px 'Geist Mono',monospace;color:#6B6E75;letter-spacing:.06em;text-transform:uppercase}
+.rcp .tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:24px;padding:16px 0;border-top:2px dashed #D9D8D4;border-bottom:2px dashed #D9D8D4}
+.rcp .tot span{font-size:15px;color:#44474D}
+.rcp .tot b{font:700 30px/34px 'Geist',sans-serif;letter-spacing:-.03em;color:#151515}
+.rcp dl{margin:14px 0 0;display:grid;grid-template-columns:1fr auto;gap:10px 16px;font-size:15px;line-height:22px}
+.rcp dt{color:#5F636A}
+.rcp dd{margin:0;text-align:right;font:500 14px/22px 'Geist Mono',monospace;color:#151515}
+.rcp dd.g{color:#0B5A42;font-weight:600}
+.rcp .fin{margin-top:16px;padding-top:14px;border-top:2px dashed #D9D8D4;display:flex;justify-content:space-between;align-items:baseline}
+.rcp .fin span{font-weight:600;color:#151515}
+.rcp .fin b{font:700 22px/28px 'Geist',sans-serif;color:#0B5A42}
+
+/* B: saldo subindo */
+@property --n{syntax:'<integer>';initial-value:55;inherits:false}
+.sb2{background:var(--sf);border:1px solid var(--ln);border-radius:22px;padding:28px;box-shadow:0 24px 48px -28px rgba(0,0,0,.45)}
+.sb2-h{display:flex;gap:14px;align-items:center}
+.sb2-h h2{font:700 20px/26px 'Geist',sans-serif;letter-spacing:-.02em}
+.sb2-h p{color:var(--mu);font-size:14px;line-height:20px;margin-top:1px}
+.meter{margin-top:26px;padding:22px;border-radius:16px;background:var(--sk)}
+.meter .k{font-size:14px;color:var(--i2)}
+.meter .row{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.cnt{--n:55;counter-reset:n var(--n);font:700 44px/48px 'Geist',sans-serif;letter-spacing:-.035em;font-variant-numeric:tabular-nums;animation:cnt 1.4s cubic-bezier(.2,.7,.2,1) .5s both}
+.cnt::after{content:counter(n)}
+@keyframes cnt{from{--n:5}to{--n:55}}
+.meter .u{font-size:18px;font-weight:600;color:var(--i2)}
+.meter .plus{margin-left:auto;font:600 14px/20px 'Geist',sans-serif;color:var(--oi);background:var(--ob);padding:4px 10px;border-radius:999px;animation:up .4s ease-out 1.6s both}
+.track{display:flex;height:12px;border-radius:6px;background:var(--ln);overflow:hidden;margin-top:16px}
+.track .o{width:9%;background:var(--mu)}
+.track .nw{width:91%;background:#16A06F;transform-origin:left;animation:fill 1.4s cubic-bezier(.2,.7,.2,1) .5s both}
+@keyframes fill{from{transform:scaleX(0)}to{transform:none}}
+.lg2{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:13px;color:var(--mu)}
+.lg2 span{display:inline-flex;align-items:center;gap:6px}
+.lg2 i{width:10px;height:10px;border-radius:3px;background:var(--mu);display:block}
+.lg2 i.g{background:#16A06F}
+.mini{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;margin-top:18px;padding-top:16px;border-top:1px solid var(--ln);font-size:14px;color:var(--mu)}
+.mini b{color:var(--ink);font-weight:600}
+
+/* C: mesma tela concluída */
+.qr.done{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0E6B4F;border-color:#0E6B4F;color:#fff;text-align:center;animation:flipin .5s ease-out both}
+.dark .qr.done{background:#0F5A43;border-color:#0F5A43}
+@keyframes flipin{from{opacity:.4;transform:scale(.94)}to{opacity:1;transform:none}}
+.qr.done .big{width:84px;height:84px;border-radius:50%;background:#fff;display:grid;place-items:center;animation:pop .5s cubic-bezier(.2,1.5,.4,1) .15s both}
+.qr.done .big svg{width:42px;height:42px;stroke:#0E6B4F;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.qr.done .big svg path{stroke-dasharray:32;stroke-dashoffset:32;animation:draw .45s ease-out .45s forwards}
+.qr.done b{font:700 20px/26px 'Geist',sans-serif}
+.qr.done span{font-size:14px;color:#CDE8DD}
+.wait.okk{background:var(--ob);color:var(--oi)}
+.ts.done:last-child .tm{animation:pop .45s cubic-bezier(.2,1.5,.4,1) .9s both}
+
+
+
 body{margin:0}
 .app{min-height:100vh}
 #cod{height:46px;font-family:'Geist Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+
+.ts.now .tm{border-color:transparent;background:transparent}
+.ts.now .tm .spin.s{width:28px;height:28px;border-width:3px;border-color:var(--ln);border-top-color:var(--ac);animation:rot .9s linear infinite!important}
+.plan .pdesc{margin-top:10px;font-size:14px;line-height:20px;color:var(--mu)}
+.plan.hot .pdesc{color:#D3EBE1}
 .msg-st{min-height:22px;margin-top:10px;font-weight:600;font-size:14px}
 .msg-st.ok{color:var(--pos)}.msg-st.erro{color:var(--neg)}
 .aviso-box{max-width:560px;margin:72px auto;text-align:center}
@@ -497,23 +669,44 @@ body{margin:0}
     var lista = e.pacotes || [];
     window.__pacotes = {}; lista.forEach(function (p) { window.__pacotes[p.id] = p; });
     var maiorPorNota = Math.max.apply(null, lista.map(function (p) { return p.preco / p.creditos; }).concat([0]));
+    var saldo = typeof e.saldo === 'number' ? e.saldo : null;
+    var tabela = lista.map(function (p) { return p.preco / p.creditos; });
+    var maiorPorNota = Math.max.apply(null, tabela.concat([0]));
+    var menorPorNota = Math.min.apply(null, tabela.concat([Infinity]));
+    var CHECK = S('<path d="M20 6 9 17l-5-5"/>');
+    var DOC = S('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>');
     var cartoes = lista.map(function (p) {
       var porNota = p.preco / p.creditos;
+      var cheio = maiorPorNota * p.creditos;
       var eco = maiorPorNota > 0 ? Math.round((1 - porNota / maiorPorNota) * 100) : 0;
+      var economiza = cheio - p.preco;
+      var menor = lista.length > 1 && porNota === menorPorNota && eco >= 5;
       return '<article class="plan' + (p.destaque ? ' hot' : '') + '">' + (p.destaque ? '<span class="tag">Mais escolhido</span>' : '')
         + '<p class="cap">' + esc(p.nome) + '</p>'
-        + '<p class="q">' + p.creditos + '<span>' + (p.creditos === 1 ? 'nota' : 'notas') + '</span></p><div class="ln"></div>'
-        + '<p class="pr">' + brl(p.preco) + '</p><p class="un">' + brl(porNota) + ' por nota</p>'
-        + (eco >= 5 ? '<span class="sv">Economize ' + eco + '%</span>' : '<span class="sv none">Preço cheio</span>')
-        + '<div class="go"><button class="btn pri" type="button" data-pacote="' + esc(p.id) + '">Pagar com Pix</button></div></article>';
+        + '<p class="q">' + p.creditos + '<span>' + (p.creditos === 1 ? 'crédito' : 'créditos') + '</span></p>'
+        + '<span class="eq">' + DOC + 'Lança ' + p.creditos + (p.creditos === 1 ? ' nota' : ' notas') + '</span>'
+        + (p.descricao ? '<p class="pdesc">' + esc(p.descricao) + '</p>' : '') + '<div class="ln"></div>'
+        + '<div class="prw"><p class="pr">' + brl(p.preco) + '</p><p class="un">' + brl(porNota) + ' por nota</p></div>'
+        + (eco >= 5 ? '<p class="save">Você economiza ' + brl(economiza) + ' (' + eco + '%)</p>' : '<p class="save none">Preço cheio</p>')
+        + '<ul class="feat"><li>' + CHECK + '<span><b>' + creditos(p.creditos) + '</b> no seu saldo</span></li>'
+        + (saldo === null ? '' : '<li>' + CHECK + '<span>Você fica com <b>' + creditos(saldo + p.creditos) + '</b></span></li>')
+        + '<li>' + CHECK + '<span>' + (menor ? 'Menor preço por nota' : 'Pagamento único por Pix') + '</span></li></ul>'
+        + '<div class="go"><button class="btn pri" type="button" data-pacote="' + esc(p.id) + '">Comprar ' + creditos(p.creditos) + '</button></div></article>';
     }).join('');
-    var saldo = typeof e.saldo === 'number' ? e.saldo : null;
+    var CARTEIRA = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 12h-5a2 2 0 0 0 0 4h5Z"/></svg>';
+    var estado = saldo === null ? '' : saldo <= 0 ? 'zero' : saldo <= 10 ? 'low' : 'ok';
+    var balanco = '';
+    if (saldo !== null) {
+      balanco = '<div class="bal' + (estado === 'ok' ? '' : ' low') + '" aria-label="Seu saldo"><span class="bic">' + CARTEIRA + '</span><div class="bx">'
+        + '<p class="k">Seu saldo agora' + (estado === 'zero' ? '<span class="st">Sem crédito</span>' : estado === 'low' ? '<span class="st">Saldo baixo</span>' : '') + '</p>'
+        + '<p class="n">' + saldo + '<span>' + (saldo === 1 ? 'crédito' : 'créditos') + '</span></p>'
+        + '<p class="eqs">' + (saldo <= 0 ? 'Sem crédito não dá para lançar notas.' : 'Dá para lançar mais <b>' + saldo + (saldo === 1 ? ' nota' : ' notas') + '</b>.') + '</p>'
+        + (estado === 'ok' ? '' : '<a class="cta" href="#pacotes">' + (saldo <= 0 ? 'Compre um pacote para continuar' : 'Recarregue para não parar no meio') + S('<path d="M12 5v14M19 12l-7 7-7-7"/>') + '</a>')
+        + '</div></div>';
+    }
     app.innerHTML = '<main class="sw">'
-      + '<section class="shero"><div><h1>Compre créditos para lançar suas notas</h1><p>Cada nota lançada na planilha usa 1 crédito. Sem mensalidade: você paga só pelo que usar.</p></div>'
-      + (saldo === null ? '' : '<div class="bal" aria-label="Seu saldo"><p class="k">Seu saldo agora</p><p class="n">' + saldo + '<span>' + (saldo === 1 ? 'crédito' : 'créditos') + '</span></p>'
-        + (saldo <= 0 ? '<p class="w">' + ICO.info + 'Compre um pacote para continuar lançando.</p>' : '') + '</div>')
-      + '</section>'
-      + '<section class="plans" aria-label="Pacotes">' + (cartoes || '<p class="mu">Nenhum pacote disponível agora.</p>') + '</section>'
+      + '<section class="shero"><div><h1>Compre créditos para lançar suas notas</h1><p>1 crédito = 1 nota fiscal lançada na planilha. Sem mensalidade: você paga só pelo que usar.</p></div>' + balanco + '</section>'
+      + '<section class="plans" id="pacotes" aria-label="Pacotes">' + (cartoes || '<p class="mu">Nenhum pacote disponível agora.</p>') + '</section>'
       + '<div class="trust"><span>' + ICO.pix + 'Pagamento por Pix</span><span>' + ICO.escudo + 'Cobrança gerada pelo Mercado Pago</span><span>' + ICO.raio + 'Créditos entram sozinhos</span><span>' + ICO.cal + 'Sem cartão e sem mensalidade</span></div>'
       + '<section class="duo"><div class="card"><div class="ch"><h2>Como funciona</h2></div><div class="steps">'
       + '<div class="step"><span class="nb">1</span><div><p class="t">Escolha o pacote</p><p class="d">Quanto maior o pacote, menor o valor por nota.</p></div></div>'
@@ -546,10 +739,10 @@ body{margin:0}
       app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pague com Pix</h1><p>' + esc(nome) + '</p></div></div>'
         + '<section class="pbox"><div class="pl">'
         + '<div class="qr"><img src="data:' + (p.qrBase64.indexOf("PHN2Zy")===0 ? "image/svg+xml" : "image/png") + ';base64,' + p.qrBase64 + '" alt="QR Code do Pix de ' + esc(brl(p.valor)) + '"><span class="scan" aria-hidden="true"></span></div>'
-        + '<div class="cc"><p class="lb">Ou use o Pix copia e cola</p><span class="ccv">' + esc(p.copiaECola) + '</span><button type="button" class="btn pri" id="btCopiar" data-acao="copiar">Copiar código Pix</button></div>'
+        + '<div class="cc"><p class="lb">Ou use o Pix copia e cola</p><span class="ccv" title="O código completo vai junto quando você clicar em Copiar">' + esc(p.copiaECola.slice(0, 34)) + '…</span><button type="button" class="btn pri" id="btCopiar" data-acao="copiar">Copiar código Pix</button></div>'
         + '<p class="exp">' + ICO.relogio + 'Expira em <b id="tempo">' + mmss(fim - Date.now()) + '</b></p></div>'
         + '<div class="pr2"><div><p class="pk">Valor a pagar</p><p class="pamt"><span>R$</span>' + esc(brl(p.valor).replace(/^R\$\s?/, '')) + '</p>' + (sub ? '<p class="psub">' + esc(sub) + '</p>' : '') + '</div>'
-        + '<span class="wait" id="st" role="status"><span class="pg"></span><span id="stTxt">Aguardando pagamento</span></span>'
+        + '<span class="wait" id="st" role="status" style="display:none"><span id="stTxt"></span></span>'
         + '<div class="tl" aria-label="Andamento do pagamento">'
         + '<div class="ts done"><span class="tm">' + ICO.ok + '</span><div><p class="t">Pix gerado</p><p class="d">Cobrança criada às ' + criado + '</p></div></div>'
         + '<div class="ts now"><span class="tm"><span class="spin s"></span></span><div><p class="t">Aguardando seu pagamento</p><p class="d">A confirmação aparece aqui sozinha, não precisa atualizar.</p></div></div>'
@@ -564,7 +757,7 @@ body{margin:0}
         var t = document.getElementById('tempo');
         if (Date.now() > fim) {
           clearInterval(timer);
-          st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';
+          var tm = document.querySelector('.ts.now .tm'); if (tm) tm.innerHTML = ''; var cg = null; st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';
           st.innerHTML = 'Tempo esgotado. Nenhum valor foi cobrado.';
           var bt = document.getElementById('btCopiar'); if (bt) bt.disabled = true;
           return;
@@ -576,16 +769,20 @@ body{margin:0}
           if (s.status === 'pago') {
             clearInterval(timer);
             topoVoltar(true);
-            app.innerHTML = '<main class="pix"><section class="okp" role="status"><div class="okc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>'
-              + '<h2>Pagamento confirmado!</h2>' + (pacoteAtual ? '<span class="plus">+' + creditos(pacoteAtual.creditos) + '</span>' : '')
-              + '<p class="msg">Os créditos já estão no seu saldo. Pode voltar a lançar suas notas.</p>'
-              + '<div class="rec">' + (pacoteAtual ? '<div><span>Pacote</span><b>' + creditos(pacoteAtual.creditos) + '</b></div>' : '')
-              + '<div><span>Valor pago</span><b>' + esc(brl(p.valor)) + '</b></div><div><span>Confirmado às</span><b>' + horaAgora() + '</b></div>'
-              + '<div><span>Novo saldo</span><b style="color:var(--pos)">' + creditos(s.saldo) + '</b></div></div>'
-              + '<div class="okact"><a class="btn pri" href="/">Voltar ao programa</a><a class="btn" href="#" data-acao="voltar">Comprar mais</a></div></section></main>';
+            var ok = ICO.ok, qtd = pacoteAtual ? creditos(pacoteAtual.creditos) : 'Créditos', hora = horaAgora();
+            app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pagamento concluído</h1><p>' + (pacoteAtual ? 'Pacote de ' + qtd : 'Pacote de créditos') + '</p></div></div>'
+              + '<section class="pbox" role="status" aria-live="polite"><div class="pl"><div class="qr done"><span class="big"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></span><b>Pago</b><span>Recebido às ' + hora + '</span></div>'
+              + '<p class="exp" style="text-align:center">Você já pode fechar esta tela.</p></div>'
+              + '<div class="pr2"><div><p class="pk">Valor pago</p><p class="pamt"><span>R$</span>' + esc(brl(p.valor).replace(/^R\$\s?/, '')) + '</p>' + (sub ? '<p class="psub">' + esc(sub) + '</p>' : '') + '</div>'
+              + '<span class="wait okk">' + ok + 'Pagamento confirmado</span>'
+              + '<div class="tl" aria-label="Andamento do pagamento">'
+              + '<div class="ts done"><span class="tm">' + ok + '</span><div><p class="t">Pix gerado</p><p class="d">' + criado + '</p></div></div>'
+              + '<div class="ts done"><span class="tm">' + ok + '</span><div><p class="t">Pagamento recebido</p><p class="d">' + hora + ' · Mercado Pago</p></div></div>'
+              + '<div class="ts done"><span class="tm">' + ok + '</span><div><p class="t">' + qtd + ' liberados</p><p class="d">Seu saldo agora é de <b style="color:var(--ink)">' + creditos(s.saldo) + '</b></p></div></div></div>'
+              + '<div class="acts2" style="margin-top:0;align-items:stretch"><a class="btn pri" href="/">Voltar e lançar notas</a><a class="lnk" href="#" data-acao="voltar">Comprar mais créditos</a></div></div></section></main>';
           } else if (s.status === 'cancelado') {
             clearInterval(timer);
-            st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';
+            var tm = document.querySelector('.ts.now .tm'); if (tm) tm.innerHTML = ''; var cg = null; st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';
             st.innerHTML = 'Esse pagamento foi cancelado. Escolha o pacote de novo.';
           }
         } catch (e) { /* sem internet por um instante: tenta no próximo ciclo */ }
