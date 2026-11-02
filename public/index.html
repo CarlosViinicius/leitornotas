@@ -662,6 +662,9 @@
     #acoes #btReler svg { width: 18px; height: 18px; }
   }
   /* Mensagem do cronômetro: quando não cabe no topo, aparece numa faixa fina no rodapé (fora da barra de botões). */
+  #recado { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-top: 1px solid var(--borda); background: var(--painel); color: var(--suave); font-size: 13px; line-height: 1.35; text-align: center; }
+  #recado[hidden] { display: none; }
+  #recado.alerta { background: var(--amarelo-fundo, #fdf3e1); color: var(--amarelo-texto); font-weight: 600; }
   #avisoRodape { display: none; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 30px; padding: 5px 16px; border-top: 1px solid var(--borda); background: var(--painel); color: var(--suave); font-size: 12.5px; line-height: 1.3; text-align: center; }
   .fila-topo h2 > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   @media (max-width: 1250px) { .fila-topo h2 { letter-spacing: .05em; font-size: 11px; } }
@@ -685,6 +688,24 @@
   .area-soltar h3 { color: var(--texto); }
   .area-soltar p, .atalhos { color: var(--suave); }
   kbd { background: var(--chip); border-color: var(--borda-forte); color: var(--texto); }
+  /* Créditos */
+  .chip[role=button] { cursor: pointer; }
+  .chip[role=button]:hover { border-color: var(--borda-forte); }
+  header .chip.pouco { color: #92400e; background: rgba(245,158,11,.16); border-color: rgba(217,119,6,.55); }
+  @media (prefers-color-scheme: dark) { header .chip.pouco { color: #fcd34d; } }
+  :root[data-tema="escuro"] header .chip.pouco { color: #fcd34d; }
+  :root[data-tema="claro"] header .chip.pouco { color: #92400e; }
+  #dlgCompra .pacote { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; text-align: left; border: 1px solid var(--borda); border-radius: 12px; background: var(--sutil); color: var(--texto); cursor: pointer; font: inherit; }
+  #dlgCompra .pacote:hover, #dlgCompra .pacote.destaque { border-color: var(--verde); }
+  #dlgCompra .pacote span { color: var(--suave); font-size: 13px; }
+  #dlgCompra .qr { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+  #dlgCompra .qr img { width: 224px; height: 224px; background: #fff; padding: 8px; border-radius: 12px; image-rendering: pixelated; }
+  #dlgCompra .copia { display: flex; gap: 8px; width: 100%; }
+  #dlgCompra .copia input { flex: 1; min-width: 0; }
+  #dlgCompra .linha-codigo { display: flex; gap: 8px; }
+  #dlgCompra .linha-codigo input { flex: 1; min-width: 0; }
+  #dlgCompra .linha-codigo input:not(:placeholder-shown) { text-transform: uppercase; }
+  #dlgCompra [hidden] { display: none !important; }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -729,6 +750,7 @@
   <div class="chips">
     <span class="chip" id="chipPlanilha" title="Para onde as notas vão"><svg class="i"><use href="#i-tabela"/></svg><span></span></span>
     <span class="chip" id="chipIA" title="IA que lê as notas"><svg class="i"><use href="#i-ia"/></svg><span></span></span>
+    <span class="chip" id="chipCreditos" role="button" tabindex="0" style="display:none" title="Cada nota lançada gasta 1 crédito · clique para comprar"><svg class="i"><use href="#i-cartao"/></svg><span></span></span>
   </div>
   <div id="avisoPag" hidden role="timer">
     <div class="rel" id="relPag">
@@ -787,6 +809,7 @@
     </div>
   </section>
 </main>
+<div id="recado" hidden role="note"></div>
 <div id="avisoRodape" hidden role="note"></div>
 
 <input type="file" id="arquivos" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
@@ -805,6 +828,33 @@
     <div class="botoes">
       <button type="button" id="btSugCancelar">Cancelar</button>
       <button type="submit" class="primario" id="btSugEnviar"><svg class="i"><use href="#i-check"/></svg>Enviar melhoria</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgCompra">
+  <form method="dialog" onsubmit="return false">
+    <div class="cabeca"><h3>Créditos</h3><p class="ajuda">Cada nota lançada na planilha gasta 1 crédito. Ler, conferir e corrigir as notas não gasta nada.</p></div>
+    <div class="corpo">
+      <div id="compraPacotes">
+        <p id="compraSaldo" class="ajuda" style="margin:0 0 10px"></p>
+        <div id="listaPacotes" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="secao" style="margin-top:14px">
+          <b>Tem um código?</b>
+          <div class="linha-codigo"><input id="inCodigo" maxlength="40" placeholder="Ex.: LEITOR-AB12-CD34" autocomplete="off"><button type="button" id="btCodigo">Usar código</button></div>
+        </div>
+      </div>
+      <div id="compraPix" hidden class="qr">
+        <b id="pixValor"></b>
+        <img id="pixQr" alt="QR Code do Pix">
+        <div class="ajuda">Abra o app do seu banco, escolha pagar com Pix e leia o QR Code. Ou copie o código abaixo.</div>
+        <div class="copia"><input id="pixCopia" readonly><button type="button" id="btPixCopiar">Copiar</button></div>
+        <div class="ajuda" id="pixStatus">Aguardando o pagamento...</div>
+      </div>
+    </div>
+    <div class="botoes">
+      <button type="button" id="btCompraVoltar" hidden>Voltar</button>
+      <button type="button" id="btCompraFechar">Fechar</button>
     </div>
   </form>
 </dialog>
@@ -967,7 +1017,12 @@ async function api(url, corpo) {
     setTimeout(() => location.reload(), 800);
     throw new Error(j.erro || 'Recarregando...');
   }
-  if (!r.ok) throw new Error(j.erro || 'Erro');
+  if (!r.ok) {
+    const e = new Error(j.erro || 'Erro');
+    e.codigo = j.codigo;
+    if (j.codigo === 'SEM_CREDITO') abrirCompra();
+    throw e;
+  }
   return j;
 }
 
@@ -991,6 +1046,7 @@ async function atualizar() {
   $('#chipIA span').textContent = (c.ia === 'claude' ? 'Claude' : 'Gemini') + (temIA ? '' : ' · sem chave');
   $('#chipIA').classList.toggle('ok', temIA);
   desenharLista();
+  atualizarCreditos();
   if (e.problema) { toast(e.problema, true); abrirConfig(); }
   else if (!temIA && !estado.avisouChave) {
     estado.avisouChave = true;
@@ -1666,11 +1722,21 @@ async function inserirUma(nome) {
   const f = estado.forms[nome] || JSON.parse(JSON.stringify(r.formulario));
   const problema = problemaDoFormulario(f);
   if (problema) throw new Error(`NF ${f.nf || '?'}: ${problema}.`);
+  // Sem crédito (ou acesso bloqueado): nem tenta gravar na planilha, já abre a compra.
+  const ce = creditosEstado;
+  if (ce.ligado && ce.cobranca !== false && !ce.offline) {
+    if (ce.bloqueado) throw new Error('Seu acesso está bloqueado. Fale com o suporte.');
+    if (typeof ce.saldo === 'number' && ce.saldo <= 0) {
+      abrirCompra();
+      throw new Error('Você está sem créditos. Compre um pacote para continuar lançando notas.');
+    }
+  }
   estado.inserindo.add(nome);
   desenharLista();
   try {
     const resp = await api('/api/inserir', { nome, formulario: f });
     estado.desfazer = resp.desfazer || null;
+    if (typeof resp.saldo === 'number') mostrarSaldo(resp.saldo);
     registrarLancada(f.nf, resp.linhas, nome);
     estado.pendentes = estado.pendentes.filter((p) => p.nome !== nome);
     delete estado.leituras[nome];
@@ -1947,6 +2013,140 @@ setInterval(verPrazo, 5 * 60 * 1000);
 setInterval(desenharPrazo, 1000);
 verVersaoNova();
 setInterval(verVersaoNova, 3 * 3600 * 1000);
+
+// ---------- Créditos (1 crédito = 1 nota lançada) ----------
+const brl = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const textoCreditos = (n) => `${n} ${n === 1 ? 'crédito' : 'créditos'}`;
+let creditosEstado = { ligado: false };
+const compra = { timer: null, fim: 0 };
+
+function mostrarSaldo(saldo) {
+  creditosEstado.saldo = saldo;
+  if (creditosEstado.cobranca === false) return; // uso liberado: o chip continua dizendo "Grátis"
+  const chip = $('#chipCreditos');
+  chip.style.display = '';
+  chip.querySelector('span').textContent = textoCreditos(saldo);
+  chip.classList.toggle('pouco', saldo <= 3);
+  chip.classList.toggle('ok', saldo > 3);
+}
+
+async function atualizarCreditos() {
+  try {
+    const c = await api('/api/creditos');
+    creditosEstado = c;
+    const chip = $('#chipCreditos');
+    if (!c.ligado) { chip.style.display = 'none'; mostrarRecado(null); return; }
+    mostrarRecado(c.aviso);
+    if (c.cobranca === false) {
+      chip.style.display = '';
+      chip.querySelector('span').textContent = 'Uso liberado: sem gastar créditos';
+      chip.classList.remove('pouco');
+      chip.classList.add('ok');
+      return;
+    }
+    if (c.offline || c.saldo == null) {
+      chip.style.display = '';
+      chip.querySelector('span').textContent = 'Créditos: sem conexão';
+      chip.classList.remove('ok', 'pouco');
+    } else if (c.bloqueado) {
+      chip.style.display = '';
+      chip.querySelector('span').textContent = 'Acesso bloqueado';
+      chip.classList.add('pouco');
+    } else mostrarSaldo(c.saldo);
+  } catch { /* créditos fora do ar não podem travar o resto do programa */ }
+}
+
+// Recado que o Carlos escreve no painel (aba Configurações) e aparece para todos os clientes.
+function mostrarRecado(aviso) {
+  const el = $('#recado');
+  if (!aviso || !aviso.texto) { el.hidden = true; return; }
+  el.textContent = aviso.texto;
+  el.classList.toggle('alerta', aviso.tipo === 'alerta');
+  el.hidden = false;
+}
+
+function pararPix() { clearInterval(compra.timer); compra.timer = null; }
+
+function mostrarPacotes() {
+  pararPix();
+  $('#compraPix').hidden = true;
+  $('#compraPacotes').hidden = false;
+  $('#btCompraVoltar').hidden = true;
+  const c = creditosEstado;
+  $('#compraSaldo').textContent = typeof c.saldo === 'number' ? `Seu saldo: ${textoCreditos(c.saldo)}` : '';
+  $('#listaPacotes').innerHTML = (c.pacotes || []).map((p) => `
+    <button type="button" class="pacote${p.destaque ? ' destaque' : ''}" data-pacote="${esc(p.id)}">
+      <b>${esc(p.nome)}</b><span>${brl(p.preco)} · ${brl(p.preco / p.creditos)} por nota</span>
+    </button>`).join('') || '<p class="ajuda">Não consegui carregar os pacotes. Confira a internet e abra de novo.</p>';
+}
+
+async function abrirCompra() {
+  const dlg = $('#dlgCompra');
+  if (dlg.open) return;
+  await atualizarCreditos();
+  if (creditosEstado.cobranca === false) { toast('Por enquanto o uso está liberado: nenhuma nota gasta crédito.'); return; }
+  mostrarPacotes();
+  if (!dlg.open) dlg.showModal();
+}
+
+async function comprarPacote(id) {
+  const botoes = document.querySelectorAll('#listaPacotes button');
+  botoes.forEach((b) => (b.disabled = true));
+  try {
+    const p = await api('/api/creditos/comprar', { pacoteId: id });
+    if (!/^[A-Za-z0-9+/=]+$/.test(p.qrBase64 || '')) throw new Error('O QR Code não veio certo. Tente de novo.');
+    $('#pixValor').textContent = `${brl(p.valor)} · pague com Pix`;
+    $('#pixQr').src = 'data:image/png;base64,' + p.qrBase64;
+    $('#pixCopia').value = p.copiaECola || '';
+    $('#pixStatus').textContent = 'Aguardando o pagamento...';
+    $('#compraPacotes').hidden = true;
+    $('#compraPix').hidden = false;
+    $('#btCompraVoltar').hidden = false;
+    compra.fim = Date.now() + (p.expiraMin || 30) * 60000;
+    pararPix();
+    compra.timer = setInterval(async () => {
+      if (Date.now() > compra.fim) { pararPix(); $('#pixStatus').textContent = 'O QR Code expirou. Volte e gere outro.'; return; }
+      try {
+        const s = await api('/api/creditos/pagamento?id=' + encodeURIComponent(p.id));
+        if (s.status === 'pago') {
+          pararPix();
+          mostrarSaldo(s.saldo);
+          $('#dlgCompra').close();
+          toast(`Pagamento confirmado! Você tem ${textoCreditos(s.saldo)}.`);
+        } else if (s.status === 'cancelado') {
+          pararPix();
+          $('#pixStatus').textContent = 'Esse pagamento foi cancelado. Volte e gere outro.';
+        }
+      } catch { /* sem internet por um instante: tenta de novo no próximo ciclo */ }
+    }, 3000);
+  } catch (e) {
+    toast(e.message, true);
+  } finally {
+    botoes.forEach((b) => (b.disabled = false));
+  }
+}
+
+$('#listaPacotes').onclick = (e) => { const b = e.target.closest('[data-pacote]'); if (b) comprarPacote(b.dataset.pacote); };
+$('#btCompraVoltar').onclick = mostrarPacotes;
+$('#btCompraFechar').onclick = () => $('#dlgCompra').close();
+$('#dlgCompra').addEventListener('close', pararPix);
+$('#chipCreditos').onclick = abrirCompra;
+$('#chipCreditos').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirCompra(); } };
+$('#btPixCopiar').onclick = async () => {
+  try { await navigator.clipboard.writeText($('#pixCopia').value); toast('Código Pix copiado.'); }
+  catch { $('#pixCopia').select(); toast('Selecionei o código: aperte Ctrl+C.'); }
+};
+$('#btCodigo').onclick = async () => {
+  const codigo = $('#inCodigo').value.trim();
+  if (!codigo) return;
+  try {
+    const r = await api('/api/creditos/resgatar', { codigo });
+    $('#inCodigo').value = '';
+    mostrarSaldo(r.saldo);
+    mostrarPacotes();
+    toast(`+${textoCreditos(r.creditos)}. Agora você tem ${textoCreditos(r.saldo)}.`);
+  } catch (e) { toast(e.message, true); }
+};
 </script>
 </body>
 </html>

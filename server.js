@@ -14,6 +14,7 @@ const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtua
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
 const { usarCodigo } = require('./lib/liberar');
+const creditos = require('./lib/creditos').criarCreditos(__dirname);
 const PORTA = Number(process.env.LEITOR_PORTA) || 3210;
 let tentativasCodigo = [];
 // Sugestões dos usuários chegam por e-mail (serviço gratuito FormSubmit; no primeiro envio ele manda um e-mail para ativar).
@@ -313,7 +314,7 @@ function referencia(config) {
   return carregarReferencia(config, (nomes) => lerAbasGoogle(config, nomes));
 }
 
-async function inserirNota(config, nome, formulario) {
+async function inserirNota(config, nome, formulario, creditoRef = null) {
   const caminho = arquivoPendente(config, nome);
   if (!formulario || !Array.isArray(formulario.itens) || !formulario.itens.length) throw new Error('Nenhum item para inserir.');
   esquecerReferencia();
@@ -372,6 +373,7 @@ async function inserirNota(config, nome, formulario) {
     conferencias: numeros.map((n, i) => ({ linha: n, nf: digitos(linhas[i] && linhas[i].C), cnpj: digitos(linhas[i] && linhas[i].G) })),
     leituraIA,
     formulario,
+    creditoRef,
   });
   return numeros;
 }
@@ -419,6 +421,7 @@ async function desfazerInsercao(config, id) {
   }
   esquecerReferencia();
   salvarHistorico(historico.slice(1));
+  if (r.creditoRef && creditos.ligado()) await creditos.devolver(r.creditoRef, config.auditor).catch((e) => console.error('Não devolvi o crédito:', e.message));
 
   // A nota volta para a fila já lida (sem gastar IA de novo) e com as correções feitas na tela.
   let nome = null;
@@ -488,9 +491,10 @@ function json(res, status, obj) {
 const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const config = lerConfig();
-  const bloqueio = await verificarBloqueio(RAIZ);
+  // Sem trava por prazo: o único bloqueio agora é a falta de créditos (tratada em /api/inserir).
+  const bloqueio = { bloqueado: false, aviso: '' };
   // /planos fica aberta mesmo bloqueado: é a página de planos que a tela de bloqueio oferece (ela só mostra preços, não libera nada).
-  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/liberar', '/planos', '/api/pix'].includes(url.pathname)) {
+  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/liberar', '/planos', '/api/pix', '/api/creditos', '/api/creditos/comprar', '/api/creditos/pagamento', '/api/creditos/resgatar'].includes(url.pathname)) {
     // Bloqueado, mas com versão nova no ar: atualiza primeiro (a tela de atualização se resolve sozinha).
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova && !url.pathname.startsWith('/api/')) {
@@ -625,6 +629,16 @@ const servidor = http.createServer(async (req, res) => {
       if (msg.length < 5) return json(res, 400, { erro: 'Escreva um pouco mais para eu entender.' });
       if (Date.now() - ultimaSugestao < 20 * 1000) return json(res, 429, { erro: 'Aguarde alguns segundos para enviar outra.' });
       ultimaSugestao = Date.now();
+      // Com o servidor de créditos ligado, a sugestão cai no painel do Carlos (aba Sugestões) em vez de e-mail.
+      if (creditos.ligado()) {
+        try {
+          await creditos.sugestao(msg, String(nome || '').trim().slice(0, 80), lerVersaoLocal(RAIZ).versao);
+          return json(res, 200, { ok: true });
+        } catch (e) {
+          ultimaSugestao = 0;
+          return json(res, 502, { erro: e.message || 'Não consegui enviar agora. Confira a internet e tente de novo.' });
+        }
+      }
       try {
         const r = await fetch(`https://formsubmit.co/ajax/${EMAIL_SUGESTOES}`, {
           method: 'POST',
@@ -665,8 +679,18 @@ const servidor = http.createServer(async (req, res) => {
       const { nome, formulario } = await lerCorpo(req);
       const problema = problemaConfig(config);
       if (problema) return json(res, 400, { erro: problema });
-      const linhas = await emFila(() => inserirNota(config, nome, formulario));
-      return json(res, 200, { ok: true, linhas, desfazer: resumoDesfazer() });
+      // 1 crédito por nota: gasta antes de gravar e devolve se a inserção falhar.
+      const creditoRef = creditos.ligado() ? crypto.randomBytes(8).toString('hex') : null;
+      let saldo;
+      if (creditoRef) saldo = (await creditos.consumir(creditoRef, config.auditor)).saldo;
+      let linhas;
+      try {
+        linhas = await emFila(() => inserirNota(config, nome, formulario, creditoRef));
+      } catch (e) {
+        if (creditoRef) await creditos.devolver(creditoRef, config.auditor).then((d) => { saldo = d.saldo; }).catch(() => {});
+        throw e;
+      }
+      return json(res, 200, { ok: true, linhas, saldo, desfazer: resumoDesfazer() });
     }
     if (req.method === 'POST' && url.pathname === '/api/desfazer') {
       const { id } = await lerCorpo(req);
@@ -675,8 +699,22 @@ const servidor = http.createServer(async (req, res) => {
       const r = await emFila(() => desfazerInsercao(config, id));
       return json(res, 200, { ok: true, ...r, desfazer: resumoDesfazer() });
     }
+    if (req.method === 'GET' && url.pathname === '/api/creditos') return json(res, 200, await creditos.estado(config.auditor));
+    if (req.method === 'POST' && url.pathname === '/api/creditos/comprar') {
+      const { pacoteId } = await lerCorpo(req);
+      return json(res, 200, await creditos.comprar(pacoteId, config.auditor));
+    }
+    if (req.method === 'GET' && url.pathname === '/api/creditos/pagamento') {
+      return json(res, 200, await creditos.statusPagamento(url.searchParams.get('id') || '', config.auditor));
+    }
+    if (req.method === 'POST' && url.pathname === '/api/creditos/resgatar') {
+      const { codigo } = await lerCorpo(req);
+      return json(res, 200, await creditos.resgatar(codigo, config.auditor));
+    }
     json(res, 404, { erro: 'Não encontrado' });
   } catch (e) {
+    // Erros de crédito levam um "codigo" para a tela saber o que fazer (ex.: abrir a compra quando acabar o saldo).
+    if (e.codigo) return json(res, e.status || 500, { erro: e.message, codigo: e.codigo });
     console.error(e);
     json(res, 500, { erro: e.message || String(e) });
   }

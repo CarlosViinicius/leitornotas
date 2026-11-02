@@ -3,471 +3,621 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Planos · Leitor de Notas</title>
+<meta name="robots" content="noindex">
+<title>Comprar créditos · Leitor de Notas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400..600&family=Geist:wght@400..700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
-  body { margin: 0; background: #0A110E; color: #F2F7F4; font-family: Inter, system-ui, sans-serif; }
-  a { color: #A3B5AD; text-decoration: none; }
-  a:hover { color: #F2F7F4; }
-  button { font: inherit; cursor: pointer; }
-  input, textarea { font: inherit; }
-  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #3DDC84; outline-offset: 3px; }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .pagina { min-height: 100vh; position: relative; overflow: hidden; }
-  .brilho { position: absolute; left: 50%; top: -240px; width: 1000px; height: 600px; margin-left: -500px; border-radius: 50%; background: radial-gradient(closest-side, rgba(61,220,132,0.14), rgba(61,220,132,0)); pointer-events: none; }
-  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
-  @media (max-width: 880px) { .plans { grid-template-columns: minmax(0, 1fr); } }
-  @media (min-width: 881px) { .feat { transform: scale(1.06); z-index: 2; } }
-  .btn:hover { filter: brightness(1.1); }
-  .faq:hover { background: #121E19 !important; }
-  .field::placeholder { color: #6E827A; }
-  @media (prefers-reduced-motion: no-preference) { .btn, .tg, .faq { transition: all .16s ease; } }
-  .field { min-height: 50px; padding: 0 16px; border: 1px solid #2B3E36; border-radius: 12px; background: #0A110E; color: #F2F7F4; font-size: 15px; width: 100%; }
-  textarea.field { padding: 14px 16px; resize: vertical; }
-  label { font-size: 14px; font-weight: 600; }
-  .campo { display: flex; flex-direction: column; gap: 8px; }
+*{box-sizing:border-box}
+.app{
+--bg:#FAFAF9;--sf:#FFFFFF;--sk:#F4F4F2;--ln:#E7E6E3;--ln2:#F0EFEC;--ink:#151515;--i2:#55585E;--mu:#6B6E75;
+--br:#0E6B4F;--bi:#FFFFFF;--bs:#E7F3EE;--bsi:#0B5A42;--ac:#0E6B4F;--acs:rgba(14,107,79,.14);
+--pos:#0E6B4F;--neg:#B42318;--wb:#FDF3E1;--wi:#8A5300;--db:#FCEBEA;--di:#B42318;--ob:#E7F3EE;--oi:#0B5A42;--ds:#B42318;--dsi:#FFFFFF;
+--cb:#BFDFCF;--cz:#E7E6E3;--tst:#151515;--tsi:#FFFFFF;
+--sc:rgba(21,21,21,.32);--sh2:0 24px 48px -12px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.04);
+--serif:'Geist',ui-sans-serif,system-ui,sans-serif;
+display:flex;flex-wrap:wrap;align-items:stretch;background:var(--bg);color:var(--ink);font:400 14px/20px 'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.app.dark{
+--bg:#0B0C0D;--sf:#121314;--sk:#1A1B1D;--ln:#26282B;--ln2:#1E2022;--ink:#EDEDEC;--i2:#A6A8AD;--mu:#8A8D93;
+--br:#34B37F;--bi:#04130C;--bs:rgba(52,179,127,.14);--bsi:#6FD3A8;--ac:#34B37F;--acs:rgba(52,179,127,.2);
+--pos:#6FD3A8;--neg:#F28B82;--wb:rgba(245,166,35,.14);--wi:#F5C469;--db:rgba(240,82,72,.14);--di:#F7A39C;--ob:rgba(52,179,127,.14);--oi:#6FD3A8;--ds:#F28B82;--dsi:#2A0805;
+--cb:#1D4F3B;--cz:#26282B;--tst:#EDEDEC;--tsi:#121314;
+--sc:rgba(0,0,0,.55);--sh2:0 24px 48px -12px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)}
+.app h1,.app h2,.app h3,.app p{margin:0}
+.app a{color:inherit}
+.app svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.app svg.s{width:16px;height:16px}
+.app button,.app input,.app textarea{font-family:inherit}
+.app :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.mono{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;line-height:16px;color:var(--mu)}
+.mu{color:var(--mu)}.t2{color:var(--i2)}.pos{color:var(--pos)}.neg{color:var(--neg)}
+
+/* estrutura */
+.side{flex:0 0 232px;display:flex;flex-direction:column;padding:16px 12px;background:var(--sf);border-right:1px solid var(--ln)}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 4px 6px;min-height:40px}
+.logo{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;flex:none;background:var(--br);color:var(--bi)}
+.logo svg.i{width:16px;height:16px;stroke-width:2}
+.bn{display:flex;flex-direction:column;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.01em}
+.bn small{font-weight:400;font-size:12px;line-height:16px;color:var(--mu);letter-spacing:0}
+.nav{display:flex;flex-direction:column;gap:1px;margin-top:20px}
+.nav a{display:flex;align-items:center;gap:10px;min-height:36px;padding:0 10px;border-radius:7px;color:var(--i2);text-decoration:none;font-weight:500;font-size:14px}
+.nav a svg{color:var(--mu)}
+.nav a:hover{color:var(--ink);background:var(--sk)}
+.nav a.on{background:var(--sk);color:var(--ink);font-weight:600}
+.nav a.on svg{color:var(--ac)}
+.nav .n{margin-left:auto;font:500 12px/16px 'Geist Mono',monospace;color:var(--mu)}
+.nav .n.al{color:var(--wi)}
+.sfoot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 4px;border-top:1px solid var(--ln)}
+.sfoot .who{flex:1;min-width:0;font-size:13px;line-height:16px;font-weight:500}
+.sfoot .who small{display:block;font-weight:400;font-size:12px;color:var(--mu)}
+.main{flex:999 1 560px;min-width:0;padding:28px 40px 56px}
+.wrap{max-width:1120px;margin:0 auto}
+.top{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:space-between;margin-bottom:24px}
+.top h1{font:600 24px/32px 'Geist',sans-serif;letter-spacing:-.02em}
+.top .sub{color:var(--mu);margin-top:2px;font-size:13px}
+.acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+
+/* botões e campos */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);font:500 14px/20px 'Geist',sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .12s,border-color .12s}
+.btn:hover{background:var(--sk)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px;border-radius:7px}
+.btn.pri{background:var(--br);border-color:var(--br);color:var(--bi)}
+.btn.pri:hover{background:var(--br);filter:brightness(1.1)}
+.btn.dng{background:var(--ds);border-color:var(--ds);color:var(--dsi)}
+.btn.gh{border-color:transparent;background:transparent;color:var(--i2)}
+.btn.gh:hover{background:var(--sk);color:var(--ink)}
+.btn.out-d{color:var(--neg)}
+.btn.blk{width:100%}
+.btn.ibtn,.ibtn{width:36px;height:36px;padding:0}
+.in{height:36px;width:100%;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:8px;padding:0 12px;font:400 14px/20px 'Geist',sans-serif;transition:border-color .12s,box-shadow .12s}
+.in::placeholder{color:var(--mu)}
+.in:focus,.in:focus-visible{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}
+textarea.in{height:auto;min-height:84px;padding:8px 12px;resize:vertical}
+.srch{position:relative;flex:1 1 260px;max-width:360px}
+.srch svg{position:absolute;left:11px;top:10px;color:var(--mu)}
+.srch .in{padding-left:36px}
+.srch kbd{position:absolute;right:8px;top:8px;font:500 11px/18px 'Geist Mono',monospace;color:var(--mu);border:1px solid var(--ln);border-radius:5px;padding:0 5px;background:var(--sk)}
+.lb{display:block;font:500 13px/16px 'Geist',sans-serif;margin-bottom:6px;color:var(--ink)}
+.hint{font-size:12px;line-height:16px;color:var(--mu);margin-top:6px}
+.fld{margin-bottom:16px}
+.frow{display:flex;gap:8px}
+.seg{display:inline-flex;gap:0;padding:2px;background:var(--sk);border-radius:9px;max-width:100%;overflow-x:auto}
+.seg button{height:30px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:var(--i2);font:500 13px/16px 'Geist',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.seg button.on{background:var(--sf);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--ln)}
+.dark .seg button.on{background:#232527;box-shadow:none}
+.seg .c{font:500 12px/16px 'Geist Mono',monospace;color:var(--mu)}
+.seg .c.al{color:var(--wi)}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips button{height:28px;padding:0 10px;border-radius:7px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);font:500 12px/16px 'Geist Mono',monospace;cursor:pointer}
+.chips button:hover{background:var(--sk)}
+
+/* cartões */
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:12px;min-width:0}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--ln)}
+.ch h2{font:600 14px/20px 'Geist',sans-serif;display:flex;align-items:center;gap:8px}
+.ch h2 .ct{font:500 12px/16px 'Geist Mono',monospace;color:var(--mu)}
+.ch a{font-size:13px;font-weight:500;color:var(--i2);text-decoration:none;display:inline-flex;align-items:center;gap:2px}
+.ch a:hover{color:var(--ink)}
+.pp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr));gap:20px}
+
+/* receita */
+.rev{margin-bottom:20px}
+.rev-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px 22px 8px}
+.lab{font:500 13px/16px 'Geist',sans-serif;color:var(--i2)}
+.rv{font:600 40px/48px 'Geist',sans-serif;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:6px}
+.rv .cur{font-size:20px;font-weight:500;color:var(--mu);letter-spacing:-.01em;margin-right:4px}
+.rv .cents{color:var(--mu);font-weight:500}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:4px;font-size:13px;color:var(--mu)}
+.meta b{color:var(--pos);font-weight:600}
+.lg{display:flex;gap:16px;font-size:12px;color:var(--mu);align-items:center}
+.lg span{display:inline-flex;align-items:center;gap:6px}
+.lg i{width:10px;height:10px;border-radius:2px;background:var(--cb);display:block}
+.lg i.h{background:var(--ac)}
+.plot{display:flex;gap:12px;padding:16px 22px 20px}
+.yax{display:flex;flex-direction:column;justify-content:space-between;height:180px;width:48px;flex:none;font:400 11px/14px 'Geist Mono',monospace;color:var(--mu);text-align:right}
+.yax span{height:0;display:flex;align-items:center;justify-content:flex-end}
+.pa{flex:1;min-width:0}
+.bars{display:flex;align-items:flex-end;gap:5px;height:180px;background-image:linear-gradient(to top,var(--ln2) 1px,transparent 1px);background-size:100% 33.333%;background-position:bottom;border-bottom:1px solid var(--ln)}
+.bars i{flex:1;min-height:2px;background:var(--cb);border-radius:3px 3px 0 0;position:relative}
+.bars i.z{background:var(--cz)}
+.bars i.hj{background:var(--ac)}
+.bars i.hj::after{content:attr(data-v);position:absolute;bottom:calc(100% + 6px);right:0;white-space:nowrap;font:600 11px/14px 'Geist Mono',monospace;color:var(--bi);background:var(--br);padding:3px 6px;border-radius:5px}
+.xax{display:flex;justify-content:space-between;margin-top:8px;font:400 11px/14px 'Geist Mono',monospace;color:var(--mu)}
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--ln)}
+.cell{padding:14px 22px;border-left:1px solid var(--ln)}
+.cell:first-child{border-left:0}
+.cell .k{font-size:12px;line-height:16px;color:var(--mu)}
+.cell .n{font:600 20px/28px 'Geist',sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}
+.cell .n a{text-decoration:none}
+.cell .s{font-size:12px;line-height:16px;color:var(--mu)}
+
+/* selos e marcadores */
+.bd{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 7px;border-radius:6px;font:500 12px/16px 'Geist',sans-serif;white-space:nowrap;background:var(--sk);color:var(--i2)}
+.bd::before{content:"";width:6px;height:6px;border-radius:2px;background:currentColor}
+.bd.ok{background:var(--ob);color:var(--oi)}
+.bd.wr{background:var(--wb);color:var(--wi)}
+.bd.dg{background:var(--db);color:var(--di)}
+.dt{display:inline-block;width:6px;height:6px;border-radius:2px;background:var(--mu);margin-right:6px;vertical-align:1px}
+.dt.w{background:#D98A0B}.dt.r{background:var(--neg)}.dt.g{background:var(--ac)}
+
+/* listas */
+.lrow{display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--ln2);min-height:60px}
+.ch + .lrow,.ch + sc-for > .lrow:first-child{border-top:0}
+.lrow:hover{background:var(--sk)}
+.lrow .tx{flex:1;min-width:0}
+.lrow .tt{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .st{font-size:13px;line-height:18px;color:var(--mu);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .rt{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.lrow .amt{font-weight:600;font-variant-numeric:tabular-nums}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:600 11px/14px 'Geist',sans-serif;flex:none;color:var(--i2);background:var(--sk);border:1px solid var(--ln)}
+.av.lg2{width:44px;height:44px;font-size:14px}
+
+/* tabela */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font:500 12px/16px 'Geist',sans-serif;color:var(--mu);padding:10px 14px;white-space:nowrap;border-bottom:1px solid var(--ln);background:var(--sf)}
+th:first-child,td:first-child{padding-left:18px}
+th:last-child,td:last-child{padding-right:18px}
+th.num{text-align:right}
+td{padding:12px 14px;border-top:1px solid var(--ln2);vertical-align:middle}
+tbody tr:first-child td{border-top:0}
+tbody tr:hover td{background:var(--sk)}
+td .nm{font-weight:500}
+td a.row{color:inherit;text-decoration:none;display:block}
+.rowav{display:flex;align-items:center;gap:10px}
+.cr0{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;font-variant-numeric:tabular-nums}
+.foot{padding:10px 18px;border-top:1px solid var(--ln);font-size:12px;color:var(--mu);display:flex;justify-content:space-between;align-items:center}
+table.cmp td{padding-top:10px;padding-bottom:10px}
+
+/* gaveta do cliente */
+.stage{position:relative;overflow:hidden;width:100%}
+.scrim{position:absolute;inset:0;background:var(--sc)}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:480px;max-width:100%;background:var(--sf);border-left:1px solid var(--ln);display:flex;flex-direction:column;box-shadow:var(--sh2)}
+.dh{padding:18px 20px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--ln)}
+.dh .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dh h2{font:600 18px/24px 'Geist',sans-serif;letter-spacing:-.015em}
+.dstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--ln)}
+.dstats>div{padding:14px 20px;border-left:1px solid var(--ln)}
+.dstats>div:first-child{border-left:0}
+.dstats .k{font-size:12px;color:var(--mu)}
+.dstats .n{font:600 15px/22px 'Geist',sans-serif;margin-top:2px}
+.dstats .n.big{font-size:28px;line-height:34px;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.dact{display:flex;flex-wrap:wrap;gap:8px}
+.saldo{margin:0 20px 16px;padding:14px 16px;border-radius:10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background:var(--sk)}
+.saldo .v{font:600 32px/38px 'Geist',sans-serif;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.saldo .l{font-size:13px;color:var(--mu)}
+.db{padding:0 20px 24px;overflow:auto;flex:1}
+.mv{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--ln2)}
+.ph + sc-for > .mv:first-child,.ph + .mv{border-top:0}
+.mv .tx{flex:1;min-width:0}
+.mv .tt{font-weight:500}
+.mv .st{font-size:12px;line-height:16px;color:var(--mu);margin-top:1px}
+.mv .d{font:500 13px/18px 'Geist Mono',monospace;font-variant-numeric:tabular-nums}
+.ph{font:500 12px/16px 'Geist',sans-serif;color:var(--mu);margin:18px 0 4px}
+.sec{border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--sf)}
+.sec h3{font:600 14px/20px 'Geist',sans-serif;margin-bottom:10px}
+.sec.dz{border-color:var(--db)}
+.sec.on{border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}
+.cl{display:flex;gap:10px;padding:12px 14px;border-radius:10px;align-items:flex-start}
+.cl.dg{background:var(--db);color:var(--di)}
+.cl.ok{background:var(--ob);color:var(--oi)}
+.cl.wr{background:var(--wb);color:var(--wi)}
+.cl .ct{font-weight:600}
+.cl p{font-size:13px;line-height:18px}
+
+/* estados */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:44px 24px}
+.empty .ic{width:40px;height:40px;border-radius:10px;background:var(--sk);color:var(--i2);display:grid;place-items:center;margin-bottom:12px;border:1px solid var(--ln)}
+.empty h3{font:600 15px/22px 'Geist',sans-serif}
+.empty p{color:var(--mu);max-width:320px;margin-bottom:14px;font-size:13px;line-height:18px}
+.sb{background:linear-gradient(90deg,var(--sk) 0%,var(--ln2) 50%,var(--sk) 100%);background-size:200% 100%;animation:sh 1.4s ease-in-out infinite;border-radius:5px;display:block}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.sb{animation:none}}
+.toast{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--tst);color:var(--tsi);font-weight:500;font-size:13px;box-shadow:var(--sh2)}
+.toast svg{color:inherit}
+
+/* códigos */
+.uso{display:flex;flex-direction:column;gap:6px;min-width:100px;font-size:13px;font-variant-numeric:tabular-nums}
+.uso .b{height:4px;border-radius:2px;background:var(--sk);overflow:hidden}
+.uso .b i{display:block;height:100%;background:var(--ac)}
+.cd{display:inline-flex;align-items:center;gap:8px;font:500 13px/16px 'Geist Mono',monospace;color:var(--ink);background:var(--sk);border-radius:6px;padding:4px 8px;letter-spacing:.02em}
+.cols{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+
+/* celular */
+.bnav{display:none}
+.mtop{flex:0 0 100%;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--sf);border-bottom:1px solid var(--ln)}
+.mcard{padding:12px 16px;border-top:1px solid var(--ln2);display:flex;gap:12px;align-items:center;min-height:68px}
+.mcard .tx{flex:1;min-width:0}
+.mcard .tt{font-weight:500}
+.mcard .rt{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.mcard .cv{font:600 17px/22px 'Geist',sans-serif;font-variant-numeric:tabular-nums}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--sf);border-top:1px solid var(--ln);border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:var(--sh2)}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--ln);margin:8px auto 0}
+
+@media (max-width:1100px){.cols{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(3,minmax(0,1fr))}.cell:nth-child(4){border-left:0}.cell:nth-child(n+4){border-top:1px solid var(--ln)}}
+@media (max-width:860px){
+.side{display:none}
+.main{padding:20px 16px 96px}
+.bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--sf);border-top:1px solid var(--ln);padding:4px 8px}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;font:500 11px/14px 'Geist',sans-serif;color:var(--mu);text-decoration:none}
+.bnav a.on{color:var(--ink)}
+.bnav a.on svg{color:var(--ac)}
+.btn,.in{height:44px}
+.btn.ibtn,.ibtn{width:44px;height:44px}
+.btn.sm{height:36px}
+.seg button{height:36px}
+.top{margin-bottom:16px}
+.rev-h{padding:16px 16px 4px}
+.rv{font-size:34px;line-height:40px}
+.plot{padding:12px 16px 16px;gap:8px}
+.yax{width:40px;height:140px}
+.bars{height:140px;gap:3px}
+.strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+.cell{padding:12px 16px}
+.cell:nth-child(n){border-left:1px solid var(--ln);border-top:1px solid var(--ln)}
+.cell:nth-child(odd){border-left:0}
+.cell:nth-child(-n+2){border-top:0}
+.lrow{padding:12px 16px}
+}
+
+/* ===== Loja: planos e pagamento Pix (usa as variáveis do admin) ===== */
+.shop{flex-direction:column;flex-wrap:nowrap}
+.stop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 32px;background:var(--sf);border-bottom:1px solid var(--ln)}
+.stop .back{display:inline-flex;align-items:center;gap:6px;color:var(--i2);text-decoration:none;font-weight:500;min-height:40px;padding:0 8px;border-radius:8px}
+.stop .back:hover{background:var(--sk);color:var(--ink)}
+.sw{max-width:1040px;margin:0 auto;padding:48px 24px 64px;width:100%}
+
+/* planos */
+.shero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px;align-items:end;margin-bottom:44px}
+.shero h1{font:700 44px/50px 'Geist',sans-serif;letter-spacing:-.035em;text-wrap:balance}
+.shero p{font-size:17px;line-height:26px;color:var(--i2);margin-top:14px;max-width:520px}
+.bal{padding:20px 22px;border-radius:16px;background:var(--sf);border:1px solid var(--ln)}
+.bal .k{font-size:14px;color:var(--i2)}
+.bal .n{font:700 40px/46px 'Geist',sans-serif;letter-spacing:-.03em;margin-top:2px}
+.bal .n span{font-size:18px;font-weight:500;color:var(--mu);letter-spacing:0;margin-left:4px}
+.bal .w{margin-top:8px;font-size:14px;line-height:20px;color:var(--wi);display:flex;gap:8px;align-items:flex-start}
+.bal .w svg{margin-top:1px}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.plan{position:relative;display:flex;flex-direction:column;padding:28px;border-radius:20px;background:var(--sf);border:1px solid var(--ln);transition:transform .18s,box-shadow .18s}
+.plan:hover{transform:translateY(-2px);box-shadow:0 16px 32px -20px rgba(0,0,0,.25)}
+.plan .cap{font:600 14px/20px 'Geist',sans-serif;color:var(--i2)}
+.plan .q{font:700 60px/64px 'Geist',sans-serif;letter-spacing:-.045em;margin-top:12px}
+.plan .q span{font-size:20px;font-weight:500;color:var(--mu);letter-spacing:0;margin-left:6px}
+.plan .ln{height:1px;background:var(--ln);margin:20px 0 18px}
+.plan .pr{font:700 28px/34px 'Geist',sans-serif;letter-spacing:-.02em}
+.plan .un{font-size:14px;line-height:20px;color:var(--mu);margin-top:2px}
+.plan .sv{margin-top:12px;align-self:flex-start;font:600 13px/18px 'Geist',sans-serif;padding:4px 10px;border-radius:999px;background:var(--ob);color:var(--oi)}
+.plan .sv.none{visibility:hidden}
+.plan .go{margin-top:auto;padding-top:24px}
+.plan .btn{width:100%;height:52px;font-size:16px;border-radius:12px;font-weight:600}
+.plan.hot{background:#0E6B4F;border-color:#0E6B4F;color:#fff;transform:translateY(-10px);box-shadow:0 28px 56px -24px rgba(14,107,79,.6)}
+.plan.hot:hover{transform:translateY(-12px)}
+.dark .plan.hot{background:#0F5A43;border-color:#0F5A43}
+.plan.hot .cap,.plan.hot .q span,.plan.hot .un{color:#D3EBE1}
+.plan.hot .ln{background:rgba(255,255,255,.2)}
+.plan.hot .sv{background:rgba(255,255,255,.16);color:#fff}
+.plan.hot .btn{background:#fff;color:#0B5A42;border-color:#fff}
+.plan.hot .btn:hover{background:#F1F8F5}
+.tag{position:absolute;top:-13px;left:28px;height:26px;padding:0 12px;border-radius:999px;background:#151515;color:#fff;font:600 12px/26px 'Geist',sans-serif}
+.dark .tag{background:#EDEDEC;color:#121314}
+.trust{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:center;margin:36px 0 48px;color:var(--i2);font-size:14px}
+.trust span{display:inline-flex;align-items:center;gap:8px}
+.trust svg{color:var(--ac)}
+.duo{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start}
+.duo h2{font:600 17px/24px 'Geist',sans-serif}
+.steps{display:grid;gap:18px;padding:24px}
+.step{display:flex;gap:14px}
+.step .nb{width:28px;height:28px;border-radius:50%;background:var(--bs);color:var(--bsi);display:grid;place-items:center;font:600 13px/16px 'Geist',sans-serif;flex:none}
+.step .t{font-weight:600}
+.step .d{color:var(--mu);font-size:14px;line-height:20px;margin-top:2px}
+.app .help{text-align:center;margin-top:40px;color:var(--mu);font-size:14px}
+.help a{color:var(--bsi);font-weight:600}
+
+/* pagamento Pix */
+.pix{max-width:940px;margin:0 auto;padding:36px 24px 56px;width:100%}
+.ptitle{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px}
+.ptitle h1{font:700 32px/40px 'Geist',sans-serif;letter-spacing:-.03em}
+.ptitle p{color:var(--i2);margin-top:2px}
+.pbox{display:grid;grid-template-columns:minmax(0,356px) minmax(0,1fr);background:var(--sf);border:1px solid var(--ln);border-radius:22px;overflow:hidden}
+.pl{padding:32px 28px;border-right:1px solid var(--ln);display:flex;flex-direction:column;align-items:center;gap:18px;background:var(--bg)}
+.qr{position:relative;width:268px;height:268px;padding:18px;background:#fff;border-radius:18px;border:1px solid var(--ln);overflow:hidden;box-shadow:0 12px 32px -18px rgba(0,0,0,.3)}
+.qr img{width:100%;height:100%;display:block;animation:qrIn .55s cubic-bezier(.2,.8,.2,1) both}
+.qr .scan{position:absolute;left:12px;right:12px;top:0;height:46px;border-bottom:2px solid #16A06F;background:linear-gradient(180deg,rgba(22,160,111,0),rgba(22,160,111,.22));animation:scan 2.6s ease-in-out .6s infinite;pointer-events:none;opacity:0}
+@keyframes scan{0%{transform:translateY(-40px);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateY(250px);opacity:0}}
+@keyframes qrIn{from{opacity:0;transform:scale(.9);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.qr.load{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--sk);color:var(--i2);font-weight:500}
+.dark .qr.load{border-color:var(--ln)}
+.qr.dim img{filter:grayscale(1) blur(3px);opacity:.25;animation:none}
+.qr .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#151515;font-weight:600;text-align:center;padding:24px}
+.spin{width:38px;height:38px;border-radius:50%;border:3px solid var(--ln);border-top-color:var(--ac);animation:rot .8s linear infinite}
+.spin.s{width:16px;height:16px;border-width:2px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.cc{width:100%}
+.cc .lb{text-align:left}
+.ccv{display:block;width:100%;font:500 12px/18px 'Geist Mono',monospace;color:var(--i2);background:var(--sf);border:1px dashed var(--ln);border-radius:10px;padding:10px 12px;word-break:break-all;max-height:58px;overflow:hidden;margin-bottom:10px}
+.cc .btn{width:100%;height:48px;font-size:15px;font-weight:600;border-radius:12px}
+.btn.done{background:var(--ob);border-color:var(--ob);color:var(--oi)}
+.exp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mu)}
+.exp b{font:600 13px/18px 'Geist Mono',monospace;color:var(--ink)}
+.pr2{padding:32px;display:flex;flex-direction:column;gap:24px;min-width:0}
+.pk{font-size:14px;color:var(--i2)}
+.app .pamt{margin-top:2px;font:700 44px/50px 'Geist',sans-serif;letter-spacing:-.035em;margin-top:2px}
+.pamt span{font-size:20px;font-weight:600;color:var(--mu);margin-right:4px;letter-spacing:0}
+.app .psub{color:var(--mu);font-size:14px;margin-top:2px}
+.wait{display:inline-flex;align-items:center;gap:12px;min-height:40px;padding:0 16px;border-radius:999px;background:var(--wb);color:var(--wi);font-weight:600;font-size:15px;align-self:flex-start}
+.wait.gen{background:var(--sk);color:var(--i2)}
+.wait .pg{width:8px;height:8px;border-radius:50%;background:currentColor;position:relative;flex:none}
+.wait .pg::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;animation:ping 1.5s ease-out infinite}
+@keyframes ping{from{transform:scale(.5);opacity:.9}to{transform:scale(1.7);opacity:0}}
+.tl{display:flex;flex-direction:column;gap:0}
+.ts{display:flex;gap:14px;position:relative;padding-bottom:18px}
+.ts:last-child{padding-bottom:0}
+.ts::before{content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--ln)}
+.ts:last-child::before{display:none}
+.ts.done::before{background:var(--ac)}
+.tm{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none;border:2px solid var(--ln);background:var(--sf);color:var(--mu)}
+.ts.done .tm{background:var(--ac);border-color:var(--ac);color:#fff}
+.dark .ts.done .tm{color:#04130C}
+.ts.now .tm{border-color:var(--ac)}
+.ts .t{font-weight:600;line-height:28px}
+.ts .d{font-size:14px;line-height:20px;color:var(--mu)}
+.ts.next .t{color:var(--mu);font-weight:500}
+.how{border-top:1px solid var(--ln);padding-top:20px}
+.how h3{font:600 15px/22px 'Geist',sans-serif;margin-bottom:10px}
+.how ol{margin:0;padding-left:20px;color:var(--i2);display:grid;gap:6px}
+.pfoot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;font-size:13px;color:var(--mu)}
+.pfoot a{color:var(--i2);font-weight:500}
+
+/* confirmado */
+.okp{background:var(--sf);border:1px solid var(--ln);border-radius:22px;padding:56px 32px 40px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.okc{width:104px;height:104px;border-radius:50%;background:#0E6B4F;display:grid;place-items:center;position:relative;animation:pop .55s cubic-bezier(.2,1.5,.4,1) both}
+.okc::before,.okc::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid #16A06F;animation:ring 1.3s ease-out .25s both}
+.okc::after{animation-delay:.55s}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(2);opacity:0}}
+@keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+.okc svg{width:52px;height:52px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.okc svg path{stroke-dasharray:32;stroke-dashoffset:32;animation:draw .5s ease-out .4s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.okp h2{font:700 34px/40px 'Geist',sans-serif;letter-spacing:-.03em;margin-top:28px;animation:up .45s ease-out .5s both}
+.okp .plus{display:inline-flex;align-items:center;margin-top:12px;height:40px;padding:0 18px;border-radius:999px;background:var(--ob);color:var(--oi);font:700 18px/22px 'Geist',sans-serif;animation:up .45s ease-out .7s both}
+.okp .msg{color:var(--i2);margin-top:12px;animation:up .45s ease-out .8s both}
+.rec{width:100%;max-width:420px;margin:28px 0 28px;border:1px solid var(--ln);border-radius:14px;text-align:left;animation:up .45s ease-out .9s both}
+.rec div{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid var(--ln2);font-size:15px}
+.rec div:first-child{border-top:0}
+.rec span{color:var(--mu)}
+.rec b{font-weight:600;font-variant-numeric:tabular-nums}
+.okact{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;animation:up .45s ease-out 1s both}
+.okact .btn{height:50px;padding:0 22px;font-size:16px;font-weight:600;border-radius:12px}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* controle do protótipo */
+.demo{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:28px;padding:10px;border:1px dashed var(--ln);border-radius:12px;font-size:13px;color:var(--mu)}
+
+@media (prefers-reduced-motion:reduce){
+.qr img,.qr .scan,.spin,.wait .pg::after,.okc,.okc::before,.okc::after,.okc svg path,.okp h2,.okp .plus,.okp .msg,.rec,.okact{animation:none!important}
+.okc svg path{stroke-dashoffset:0}
+.qr .scan{display:none}
+.plan,.plan.hot:hover{transition:none}
+}
+@media (max-width:900px){
+.shero,.duo{grid-template-columns:minmax(0,1fr)}
+.plans{grid-template-columns:minmax(0,1fr);gap:16px}
+.plan.hot{transform:none;order:-1}
+.plan .sv.none{display:none}
+.shero h1{font-size:34px;line-height:40px}
+.pbox{grid-template-columns:minmax(0,1fr)}
+.pl{border-right:0;border-bottom:1px solid var(--ln)}
+.stop{padding:10px 16px}
+.sw,.pix{padding:28px 16px 48px}
+}
+
+body{margin:0}
+.app{min-height:100vh}
+#cod{height:46px;font-family:'Geist Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+.msg-st{min-height:22px;margin-top:10px;font-weight:600;font-size:14px}
+.msg-st.ok{color:var(--pos)}.msg-st.erro{color:var(--neg)}
+.aviso-box{max-width:560px;margin:72px auto;text-align:center}
+.aviso-box h1{font:700 30px/38px 'Geist',sans-serif;letter-spacing:-.03em}
+.aviso-box p{color:var(--i2);margin-top:10px}
+.aviso-box .btn{margin-top:22px}
+.carregando{padding:80px 0;text-align:center;color:var(--mu)}
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
-<div class="pagina">
-  <div class="brilho" aria-hidden="true"></div>
-
-  <header style="position: relative; border-bottom: 1px solid #1A2722">
-    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
-      <div style="display: flex; align-items: center; gap: 10px">
-        <span style="width: 32px; height: 32px; border-radius: 9px; background: #3DDC84; color: #04170C; display: flex; align-items: center; justify-content: center">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>
-        </span>
-        <span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px">Leitor de Notas</span>
-      </div>
-      <a href="/" style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; min-height: 44px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
-        Voltar ao programa
-      </a>
+<div class="app shop" id="raiz">
+  <header class="stop">
+    <div class="brand" style="padding:0">
+      <span class="logo"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9 15 2 2 4-4"/></svg></span>
+      <span class="bn">Leitor de Notas</span>
     </div>
+    <a class="back" href="/" id="voltarTopo"><svg class="i s" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Voltar ao programa</a>
   </header>
-
-  <div id="app"></div>
+  <div id="app" aria-live="polite"></div>
 </div>
 
 <script>
 (function () {
-  // Preços mensais (R$) e desconto do plano anual: ajuste aqui.
-  var PRECOS = [29, 59, 119];
-  var DESCONTO = 20;
-
-  // Recursos na mesma ordem para os três planos: [Básico, Profissional, Equipe]
-  var RECURSOS = [
-    ['Leitura de PDF e foto', [1, 1, 1]],
-    ['Excel e Google Planilhas', [0, 1, 1]],
-    ['Carta de correção', [0, 1, 1]],
-    ['Desfazer lançamento', [0, 1, 1]],
-    ['Backup automático da planilha', [0, 1, 1]],
-    ['Várias planilhas', [0, 0, 1]],
-    ['Até 5 auditores', [0, 0, 1]],
-    ['Relatório de produtividade', [0, 0, 1]],
-    ['Suporte prioritário', [0, 0, 1]]
-  ];
-
-  var PLANOS = [
-    { nome: 'Básico', desc: 'Para quem lança poucas notas por mês.', cota: 'Até 100 notas por mês', cta: 'Começar no Básico' },
-    { nome: 'Profissional', desc: 'Para o auditor que lança notas todos os dias.', cota: 'Até 500 notas por mês', cta: 'Assinar Profissional', destaque: true },
-    { nome: 'Equipe', desc: 'Para escritórios com vários auditores.', cota: 'Notas ilimitadas', cta: 'Falar no WhatsApp', equipe: true }
-  ];
-
-  var FAQ = [
-    ['Posso trocar de plano depois?', 'Pode. Você troca de plano quando quiser, para cima ou para baixo, conforme o volume de notas do seu mês.'],
-    ['Em que formato eu envio as notas?', 'Você arrasta o PDF ou a foto da nota fiscal para a tela (ou cola com Ctrl+V). O Leitor de Notas lê os dados, você confere e ele lança direto na sua planilha.'],
-    ['Quais planilhas funcionam?', 'No Básico, você lança em 1 planilha de destino. No Profissional, em Excel e Google Planilhas. No Equipe, em várias planilhas ao mesmo tempo.'],
-    ['Como funciona o plano anual?', 'No plano anual você paga uma vez por ano e ganha ' + DESCONTO + '% de desconto em relação ao valor mensal.'],
-    ['O que acontece se eu passar do limite de notas?', 'Suas notas e sua planilha continuam guardadas, nada é apagado. Ao chegar perto do limite do mês, você pode trocar de plano na hora para seguir lançando.']
-  ];
-
+  var raiz = document.getElementById('raiz');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function aplicar() { var esc = !!(mq && mq.matches); raiz.classList.toggle('dark', esc); document.documentElement.style.background = esc ? '#0B0C0D' : ''; }
+  aplicar();
+  if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
+})();
+</script>
+<script>
+(function () {
+  var app = document.getElementById('app');
+  var voltarTopo = document.getElementById('voltarTopo');
+  var timer = null;
   var WHATSAPP = '5544997474225';
-  var MSG_EQUIPE = 'Olá Carlos! Tenho um escritório com vários auditores e quero saber do plano Equipe do Leitor de Notas.';
-
-  var METODOS = [['card', 'Cartão'], ['pix', 'Pix'], ['boleto', 'Boleto'], ['flash', 'Flash']];
-
-  var s = {
-    cobranca: 'mensal', sel: null, etapa: 'pay', metodo: 'card', copiado: false, faqAberta: 0,
-    num: '', titular: '', val: '', cvv: '', pix: null
+  var brl = function (v) { return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
+  var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var creditos = function (n) { return n + (n === 1 ? ' crédito' : ' créditos'); };
+  var S = function (d, extra) { return '<svg class="i s" viewBox="0 0 24 24" aria-hidden="true"' + (extra || '') + '>' + d + '</svg>'; };
+  var ICO = {
+    pix: S('<path d="M12 2 22 12 12 22 2 12Z"/><path d="m8 12 4-4 4 4-4 4Z"/>'),
+    escudo: S('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>'),
+    raio: S('<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>'),
+    cal: S('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
+    info: S('<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>'),
+    relogio: S('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+    ok: S('<path d="M20 6 9 17l-5-5"/>')
   };
 
-  var $ = function (id) { return document.getElementById(id); };
-  var fmt = function (n) { return n.toLocaleString('pt-BR'); };
-  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  var anual = function () { return s.cobranca === 'anual'; };
-  var mensalDe = function (p) { return anual() ? Math.floor(p * (100 - DESCONTO) / 100) : p; };
-  var notaDe = function (m) { return anual() ? 'R$ ' + fmt(m * 12) + ' cobrados por ano' : 'Cobrado todo mês'; };
-
-  var ICONE = {
-    ok: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>',
-    okP: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>',
-    no: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>',
-    voltar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>',
-    seta: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>',
-    mais: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>',
-    estrela: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"></path></svg>',
-    info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>',
-    cadeado: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>',
-    boleto: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5v14"></path><path d="M8 5v14"></path><path d="M11 5v14"></path><path d="M15 5v14"></path><path d="M17 5v14"></path><path d="M20 5v14"></path></svg>',
-    escudo: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"></path><path d="M9 12l2.2 2.2L15.5 10"></path></svg>',
-    pix: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"></path><path d="M9 12l3 3 3-3-3-3z"></path></svg>',
-    zap: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5A8.5 8.5 0 1 1 21 11.5z"></path></svg>',
-    cartao: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="M2.5 10h19M6.5 15h4"></path></svg>',
-    check: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>'
-  };
-
-  // Estilos que dependem do estado
-  var BASE = 'display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 600;';
-  var LIGADO = BASE + ' background: #3DDC84; color: #04170C;';
-  var DESLIGADO = BASE + ' background: transparent; color: #A3B5AD;';
-
-  function seletorCobranca(cheio) {
-    var m = !anual();
-    var extra = cheio ? ' flex: 1; padding: 0 12px;' : '';
-    var pill = anual()
-      ? 'padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(4,23,12,0.2); color: #04170C'
-      : 'padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(61,220,132,0.16); color: #3DDC84';
-    var grupo = cheio
-      ? 'margin-top: 18px; display: flex; padding: 4px; gap: 4px; border-radius: 999px; background: #0A110E'
-      : 'margin-top: 14px; display: inline-flex; padding: 5px; gap: 4px; border: 1px solid #21322B; border-radius: 999px; background: #0F1915';
-    return '<div role="group" aria-label="Período de cobrança" style="' + grupo + '">'
-      + '<button class="tg" type="button" data-cobranca="mensal" aria-pressed="' + m + '" style="' + (m ? LIGADO : DESLIGADO) + extra + '">Mensal</button>'
-      + '<button class="tg" type="button" data-cobranca="anual" aria-pressed="' + anual() + '" style="' + (anual() ? LIGADO : DESLIGADO) + extra + '">Anual '
-      + (cheio ? '-' + DESCONTO + '%' : '<span style="' + pill + '">-' + DESCONTO + '%</span>') + '</button></div>';
+  async function api(caminho, corpo) {
+    var r = await fetch(caminho, corpo ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) } : undefined);
+    var j = await r.json().catch(function () { return {}; });
+    if (!r.ok) throw new Error(j.erro || 'Erro ' + r.status);
+    return j;
+  }
+  function aviso(titulo, texto) {
+    app.innerHTML = '<main class="sw"><div class="aviso-box"><h1>' + esc(titulo) + '</h1><p>' + esc(texto) + '</p><a class="btn pri" href="/">Voltar ao programa</a></div></main>';
+  }
+  var suporte = '<p class="help">Dúvida ou problema com um pagamento? <a href="https://wa.me/' + WHATSAPP + '" target="_blank" rel="noopener">Fale com o Carlos no WhatsApp</a></p>';
+  function topoVoltar(inicio) {
+    voltarTopo.innerHTML = '<svg class="i s" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>' + (inicio ? 'Voltar ao programa' : 'Escolher outro pacote');
+    voltarTopo.setAttribute('href', inicio ? '/' : '#');
+    voltarTopo.dataset.acao = inicio ? '' : 'voltar';
   }
 
-  // Prévia visual do boleto (não é um documento pagável: sem código real, só para o cliente ver como será).
-  function barrasBoleto() {
-    var html = '', x = 7;
-    for (var k = 0; k < 130; k++) {
-      x = (x * 31 + 11) % 97;
-      var larg = 1 + (x % 3);
-      html += '<span style="flex: ' + larg + ' 1 0; min-width: 0; height: 100%; background: #111;"></span><span style="flex: ' + (1 + (x % 2)) + ' 1 0; min-width: 0"></span>';
-    }
-    return html;
+  async function inicio() {
+    clearInterval(timer);
+    topoVoltar(true);
+    app.innerHTML = '<p class="carregando">Carregando os pacotes...</p>';
+    var e;
+    try { e = await api('/api/creditos'); } catch (er) { return aviso('Não consegui abrir os pacotes', er.message); }
+    if (!e.ligado) return aviso('Compra de créditos indisponível', 'O servidor de créditos ainda não está configurado neste programa.');
+    if (e.offline) return aviso('Sem conexão', 'Confira a internet e abra esta página de novo.');
+    if (e.bloqueado) return aviso('Acesso bloqueado', 'Fale com o Carlos para entender o motivo.');
+    if (e.cobranca === false) return aviso('Uso liberado', 'Por enquanto nenhuma nota gasta crédito. Pode usar à vontade.');
+    var lista = e.pacotes || [];
+    window.__pacotes = {}; lista.forEach(function (p) { window.__pacotes[p.id] = p; });
+    var maiorPorNota = Math.max.apply(null, lista.map(function (p) { return p.preco / p.creditos; }).concat([0]));
+    var cartoes = lista.map(function (p) {
+      var porNota = p.preco / p.creditos;
+      var eco = maiorPorNota > 0 ? Math.round((1 - porNota / maiorPorNota) * 100) : 0;
+      return '<article class="plan' + (p.destaque ? ' hot' : '') + '">' + (p.destaque ? '<span class="tag">Mais escolhido</span>' : '')
+        + '<p class="cap">' + esc(p.nome) + '</p>'
+        + '<p class="q">' + p.creditos + '<span>' + (p.creditos === 1 ? 'nota' : 'notas') + '</span></p><div class="ln"></div>'
+        + '<p class="pr">' + brl(p.preco) + '</p><p class="un">' + brl(porNota) + ' por nota</p>'
+        + (eco >= 5 ? '<span class="sv">Economize ' + eco + '%</span>' : '<span class="sv none">Preço cheio</span>')
+        + '<div class="go"><button class="btn pri" type="button" data-pacote="' + esc(p.id) + '">Pagar com Pix</button></div></article>';
+    }).join('');
+    var saldo = typeof e.saldo === 'number' ? e.saldo : null;
+    app.innerHTML = '<main class="sw">'
+      + '<section class="shero"><div><h1>Compre créditos para lançar suas notas</h1><p>Cada nota lançada na planilha usa 1 crédito. Sem mensalidade: você paga só pelo que usar.</p></div>'
+      + (saldo === null ? '' : '<div class="bal" aria-label="Seu saldo"><p class="k">Seu saldo agora</p><p class="n">' + saldo + '<span>' + (saldo === 1 ? 'crédito' : 'créditos') + '</span></p>'
+        + (saldo <= 0 ? '<p class="w">' + ICO.info + 'Compre um pacote para continuar lançando.</p>' : '') + '</div>')
+      + '</section>'
+      + '<section class="plans" aria-label="Pacotes">' + (cartoes || '<p class="mu">Nenhum pacote disponível agora.</p>') + '</section>'
+      + '<div class="trust"><span>' + ICO.pix + 'Pagamento por Pix</span><span>' + ICO.escudo + 'Cobrança gerada pelo Mercado Pago</span><span>' + ICO.raio + 'Créditos entram sozinhos</span><span>' + ICO.cal + 'Sem cartão e sem mensalidade</span></div>'
+      + '<section class="duo"><div class="card"><div class="ch"><h2>Como funciona</h2></div><div class="steps">'
+      + '<div class="step"><span class="nb">1</span><div><p class="t">Escolha o pacote</p><p class="d">Quanto maior o pacote, menor o valor por nota.</p></div></div>'
+      + '<div class="step"><span class="nb">2</span><div><p class="t">Pague o Pix</p><p class="d">Leia o QR Code ou use o Pix copia e cola no app do seu banco.</p></div></div>'
+      + '<div class="step"><span class="nb">3</span><div><p class="t">Pronto</p><p class="d">Assim que o pagamento é confirmado, os créditos aparecem no programa.</p></div></div>'
+      + '</div></div>'
+      + '<form class="card" id="formCod" style="padding:24px"><h2>Tem um código?</h2><p class="mu" style="font-size:14px;margin:4px 0 16px">Códigos de teste ou de presente viram créditos na hora.</p>'
+      + '<label class="lb" for="cod">Código</label><div class="frow"><input id="cod" class="in" type="text" placeholder="LEITOR-XXXX-XXXX" autocomplete="off"><button class="btn" type="submit" style="height:46px">Usar código</button></div>'
+      + '<p id="msgCod" class="msg-st" role="status"></p></form></section>'
+      + suporte + '</main>';
   }
 
-  function boletoPrevia(total, p) {
-    var venc = new Date(); venc.setDate(venc.getDate() + 3);
-    var dataVenc = venc.toLocaleDateString('pt-BR');
-    var rot = 'font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6761; font-weight: 600';
-    var cel = function (titulo, valor, extra) {
-      return '<div style="padding: 8px 10px; border: 1px solid #C9D2CD; ' + (extra || '') + '"><div style="' + rot + '">' + titulo + '</div><div style="margin-top: 3px; font-size: 14px; font-weight: 600; color: #111">' + valor + '</div></div>';
-    };
-    return '<div style="margin-top: 24px">'
-      + '<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.25); color: #F5DE8A; font-size: 13px; line-height: 1.4">' + ICONE.info + 'Esta é só uma prévia de como o boleto aparece. O boleto de verdade é enviado pelo Carlos, pelo WhatsApp.</div>'
-      + '<div style="position: relative; margin-top: 16px; overflow: hidden; border-radius: 6px; background: #FFFFFF; color: #111; box-shadow: 0 24px 50px -24px rgba(0,0,0,0.8)">'
-      + '<div style="display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-bottom: 2px solid #111">'
-      + '<span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px">Leitor de Notas</span>'
-      + '<span style="margin-left: auto; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #444">Boleto de cobrança</span></div>'
-      + '<div style="padding: 10px 12px"><div style="padding: 8px 10px; border: 1px solid #C9D2CD"><div style="' + rot + '">Linha digitável (exemplo)</div><div style="margin-top: 3px; font-family: Consolas, monospace; font-weight: 700; font-size: clamp(10px, 2.6vw, 15px); letter-spacing: 0.02em; color: #111; word-break: break-all">00000.00000 00000.000000 00000.000000 0 00000000000000</div></div></div>'
-      + '<div style="padding: 0 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0">'
-      + cel('Beneficiário', esc(s.pix ? s.pix.nome : 'Carlos Vinicius'))
-      + cel('Vencimento', dataVenc)
-      + cel('Valor do documento', 'R$ ' + total, 'background: #F3F6F4')
-      + cel('Plano', esc(p.nome) + ' · ' + (anual() ? 'anual' : 'mensal'))
-      + cel('Pagador', 'Você')
-      + cel('Nosso número', '0000000000')
-      + '</div>'
-      + '<div style="padding: 14px 12px 16px"><div aria-hidden="true" style="display: flex; align-items: stretch; height: 56px; overflow: hidden">' + barrasBoleto() + '</div></div>'
-      + '</div></div>';
-  }
+  function mmss(ms) { var s = Math.max(0, Math.round(ms / 1000)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
+  function horaAgora() { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
 
-  // Faixa de confiança: o que acontece com as notas e como o pagamento funciona.
-  function confianca() {
-    var itens = [
-      [ICONE.escudo, 'Suas notas ficam guardadas', 'Nada é apagado: suas notas e sua planilha continuam do jeito que estão.'],
-      [ICONE.pix, 'Pagamento por Pix', 'Cai direto na conta do Carlos, sem intermediário e sem cadastro de cartão.'],
-      [ICONE.zap, 'Liberação com código', 'Você paga, o Carlos confere e manda o código pelo WhatsApp.']
-    ];
-    return '<div style="margin: 56px auto 0; max-width: 1000px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">'
-      + itens.map(function (it) {
-        return '<div style="display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; border: 1px solid #1E2C26; border-radius: 16px; background: #0E1713">'
-          + '<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: rgba(61,220,132,0.12); color: #3DDC84; display: flex; align-items: center; justify-content: center">' + it[0] + '</span>'
-          + '<div><p style="margin: 0; font-size: 15px; font-weight: 700">' + it[1] + '</p><p style="margin: 4px 0 0; font-size: 13.5px; line-height: 1.5; color: #A3B5AD">' + it[2] + '</p></div></div>';
-      }).join('') + '</div>';
-  }
-
-  // ---------- Tela dos planos ----------
-  function telaPlanos() {
-    var cartoes = PLANOS.map(function (p, i) {
-      var m = mensalDe(PRECOS[i]);
-      var base = 'position: relative; display: flex; flex-direction: column; padding: 32px 28px; border-radius: 22px;';
-      var btn = 'margin-top: 22px; min-height: 50px; border-radius: 12px; font-weight: 700; font-size: 15px;';
-      var cardStyle = p.destaque
-        ? base + ' border: 2px solid #3DDC84; background: radial-gradient(120% 70% at 50% 0%, rgba(61,220,132,0.22) 0%, rgba(61,220,132,0) 60%), #0F1B16; box-shadow: 0 0 0 6px rgba(61,220,132,0.08), 0 40px 90px -30px rgba(61,220,132,0.6);'
-        : base + ' border: 1px solid #1E2C26; background: #0E1713;';
-      var priceStyle = p.destaque
-        ? 'font-family: Manrope, sans-serif; font-weight: 800; font-size: 84px; line-height: 1; letter-spacing: -0.05em; color: #3DDC84; text-shadow: 0 0 40px rgba(61,220,132,0.45);'
-        : 'font-family: Manrope, sans-serif; font-weight: 800; font-size: 72px; line-height: 1; letter-spacing: -0.05em; color: #F2F7F4;';
-      var btnStyle = p.destaque
-        ? btn + ' border: 0; background: #3DDC84; color: #04170C;'
-        : btn + ' border: 1px solid #2B3E36; background: transparent; color: #F2F7F4;';
-      var selo = p.destaque
-        ? '<span style="position: absolute; top: -17px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px; background: #3DDC84; color: #04170C; font-size: 13px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; box-shadow: 0 8px 24px -6px rgba(61,220,132,0.7)">' + ICONE.estrela + 'Recomendado</span>'
-        : '';
-      var itens = RECURSOS.map(function (r) {
-        var tem = !!r[1][i];
-        if (tem) {
-          return '<li style="display: flex; align-items: center; gap: 12px; color: #E3ECE7;"><span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: rgba(61,220,132,0.16); color: #3DDC84; display: flex; align-items: center; justify-content: center">' + ICONE.ok + '</span><span>' + r[0] + '</span></li>';
+  var pacoteAtual = null;
+  async function pagar(id, botao) {
+    botao.disabled = true;
+    pacoteAtual = (window.__pacotes || {})[id] || null;
+    topoVoltar(false);
+    app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pague com Pix</h1><p>Gerando seu Pix…</p></div></div><section class="pbox"><div class="pl"><div class="qr load" role="status"><span class="spin"></span>Gerando seu Pix…</div></div><div class="pr2"><span class="wait gen"><span class="spin s"></span>Gerando a cobrança no Mercado Pago</span></div></section></main>';
+    try {
+      var p = await api('/api/creditos/comprar', { pacoteId: id });
+      if (!/^[A-Za-z0-9+/=]+$/.test(p.qrBase64 || '')) throw new Error('O QR Code não veio certo. Tente de novo.');
+      var fim = Date.now() + (p.expiraMin || 30) * 60000;
+      var criado = horaAgora();
+      var nome = pacoteAtual ? 'Pacote de ' + creditos(pacoteAtual.creditos) : 'Pacote de créditos';
+      var sub = pacoteAtual ? creditos(pacoteAtual.creditos) + ' · ' + brl(pacoteAtual.preco / pacoteAtual.creditos) + ' por nota' : '';
+      var partes = brl(p.valor).replace(/\s/g, ' ').split(' ');
+      app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pague com Pix</h1><p>' + esc(nome) + '</p></div></div>'
+        + '<section class="pbox"><div class="pl">'
+        + '<div class="qr"><img src="data:' + (p.qrBase64.indexOf("PHN2Zy")===0 ? "image/svg+xml" : "image/png") + ';base64,' + p.qrBase64 + '" alt="QR Code do Pix de ' + esc(brl(p.valor)) + '"><span class="scan" aria-hidden="true"></span></div>'
+        + '<div class="cc"><p class="lb">Ou use o Pix copia e cola</p><span class="ccv">' + esc(p.copiaECola) + '</span><button type="button" class="btn pri" id="btCopiar" data-acao="copiar">Copiar código Pix</button></div>'
+        + '<p class="exp">' + ICO.relogio + 'Expira em <b id="tempo">' + mmss(fim - Date.now()) + '</b></p></div>'
+        + '<div class="pr2"><div><p class="pk">Valor a pagar</p><p class="pamt"><span>R$</span>' + esc(brl(p.valor).replace(/^R\$\s?/, '')) + '</p>' + (sub ? '<p class="psub">' + esc(sub) + '</p>' : '') + '</div>'
+        + '<span class="wait" id="st" role="status"><span class="pg"></span><span id="stTxt">Aguardando pagamento</span></span>'
+        + '<div class="tl" aria-label="Andamento do pagamento">'
+        + '<div class="ts done"><span class="tm">' + ICO.ok + '</span><div><p class="t">Pix gerado</p><p class="d">Cobrança criada às ' + criado + '</p></div></div>'
+        + '<div class="ts now"><span class="tm"><span class="spin s"></span></span><div><p class="t">Aguardando seu pagamento</p><p class="d">A confirmação aparece aqui sozinha, não precisa atualizar.</p></div></div>'
+        + '<div class="ts next"><span class="tm"></span><div><p class="t">Créditos liberados no programa</p></div></div></div>'
+        + '<div class="how"><h3>Como pagar</h3><ol><li>Abra o app do seu banco e entre na área Pix.</li><li>Escolha <b>Ler QR Code</b> ou <b>Pix copia e cola</b>.</li><li>Confira o valor de ' + esc(brl(p.valor)) + ' e confirme.</li></ol></div></div></section>'
+        + '<div class="pfoot"><span>Pagamento processado pelo Mercado Pago</span><a href="#" data-acao="voltar">Cancelar e voltar</a></div></main>';
+      var copia = p.copiaECola, ciclo = 0;
+      app.__copia = copia;
+      timer = setInterval(async function () {
+        var st = document.getElementById('st');
+        if (!st) return clearInterval(timer);
+        var t = document.getElementById('tempo');
+        if (Date.now() > fim) {
+          clearInterval(timer);
+          st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';
+          st.innerHTML = 'Tempo esgotado. Nenhum valor foi cobrado.';
+          var bt = document.getElementById('btCopiar'); if (bt) bt.disabled = true;
+          return;
         }
-        return '<li style="display: flex; align-items: center; gap: 12px; color: #6E827A; text-decoration: line-through; text-decoration-color: rgba(110,130,122,0.5);"><span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: #18231F; color: #6E827A; display: flex; align-items: center; justify-content: center">' + ICONE.no + '</span><span>' + r[0] + '<span class="sr"> (não incluso)</span></span></li>';
-      }).join('');
-      return '<section class="' + (p.destaque ? 'feat' : '') + '" style="' + cardStyle + '">' + selo
-        + '<h2 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 700; font-size: 20px">' + p.nome + '</h2>'
-        + '<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.45; color: #A3B5AD; min-height: 40px">' + p.desc + '</p>'
-        + '<div style="margin-top: 22px; display: flex; align-items: flex-start; gap: 4px">'
-        + '<span style="margin-top: 10px; font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #A3B5AD">R$</span>'
-        + '<span style="' + priceStyle + '">' + fmt(m) + '</span>'
-        + '<span style="align-self: flex-end; margin-bottom: 10px; font-size: 16px; font-weight: 500; color: #A3B5AD">/mês</span></div>'
-        + '<p style="margin: 8px 0 0; font-size: 13px; color: #869A91">' + notaDe(m) + '</p>'
-        + (p.equipe
-          ? '<a class="btn" href="https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(MSG_EQUIPE) + '" target="_blank" rel="noopener" style="' + btnStyle + ' display: flex; align-items: center; justify-content: center; gap: 8px">' + ICONE.zap + p.cta + '</a>'
-          : '<button class="btn" type="button" data-escolher="' + i + '" style="' + btnStyle + '">' + p.cta + '</button>')
-        + '<div style="margin-top: 24px; padding: 12px 14px; border-radius: 12px; background: #13201B; font-size: 14px; font-weight: 600; color: #F2F7F4; text-align: center">' + p.cota + '</div>'
-        + '<ul style="list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 13px; font-size: 14px">' + itens + '</ul>'
-        + '</section>';
-    }).join('');
-
-    var perguntas = FAQ.map(function (f, i) {
-      var aberta = s.faqAberta === i;
-      var icone = 'flex: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; '
-        + (aberta ? 'background: #3DDC84; color: #04170C; transform: rotate(45deg);' : 'background: #18231F; color: #3DDC84;');
-      return '<div style="border: 1px solid #1E2C26; border-radius: 16px; background: #0E1713; overflow: hidden">'
-        + '<button class="faq" type="button" data-faq="' + i + '" aria-expanded="' + aberta + '" style="width: 100%; min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; border: 0; background: transparent; color: #F2F7F4; text-align: left; font-size: 16px; font-weight: 600">'
-        + '<span>' + f[0] + '</span><span style="' + icone + '">' + ICONE.mais + '</span></button>'
-        + (aberta ? '<p style="margin: 0; padding: 0 22px 20px; font-size: 15px; line-height: 1.6; color: #A3B5AD">' + f[1] + '</p>' : '')
-        + '</div>';
-    }).join('');
-
-    return '<main style="position: relative; max-width: 1120px; margin: 0 auto; padding: 64px 24px 64px">'
-      + '<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">'
-      + '<h1 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: clamp(34px, 5vw, 52px); line-height: 1.08; letter-spacing: -0.03em">Escolha o plano ideal</h1>'
-      + '<p style="margin: 0; font-size: 17px; line-height: 1.5; color: #A3B5AD">Menos digitação, mais notas lançadas. Troque de plano quando quiser.</p>'
-      + seletorCobranca(false) + '</div>'
-      + '<div class="plans" style="margin-top: 64px">' + cartoes + '</div>'
-      + confianca()
-      + '<section style="margin: 80px auto 0; max-width: 760px">'
-      + '<h2 style="margin: 0; text-align: center; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Perguntas frequentes</h2>'
-      + '<div style="margin-top: 32px; display: flex; flex-direction: column; gap: 12px">' + perguntas + '</div></section>'
-      + '</main>';
-  }
-
-  // ---------- Cadastro / pagamento ----------
-  function qrCelulas() {
-    var N = 25, html = '';
-    function finder(x, y) {
-      var cantos = [[0, 0], [N - 7, 0], [0, N - 7]];
-      for (var k = 0; k < cantos.length; k++) {
-        var a = x - cantos[k][0], b = y - cantos[k][1];
-        if (a >= 0 && a < 7 && b >= 0 && b < 7) {
-          var borda = a === 0 || a === 6 || b === 0 || b === 6;
-          var miolo = a >= 2 && a <= 4 && b >= 2 && b <= 4;
-          return borda || miolo ? 1 : 0;
-        }
-        if (a >= -1 && a <= 7 && b >= -1 && b <= 7) return 0;
-      }
-      return -1;
+        if (t) t.textContent = mmss(fim - Date.now());
+        if (++ciclo % 3 !== 0) return;
+        try {
+          var s = await api('/api/creditos/pagamento?id=' + encodeURIComponent(p.id));
+          if (s.status === 'pago') {
+            clearInterval(timer);
+            topoVoltar(true);
+            app.innerHTML = '<main class="pix"><section class="okp" role="status"><div class="okc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>'
+              + '<h2>Pagamento confirmado!</h2>' + (pacoteAtual ? '<span class="plus">+' + creditos(pacoteAtual.creditos) + '</span>' : '')
+              + '<p class="msg">Os créditos já estão no seu saldo. Pode voltar a lançar suas notas.</p>'
+              + '<div class="rec">' + (pacoteAtual ? '<div><span>Pacote</span><b>' + creditos(pacoteAtual.creditos) + '</b></div>' : '')
+              + '<div><span>Valor pago</span><b>' + esc(brl(p.valor)) + '</b></div><div><span>Confirmado às</span><b>' + horaAgora() + '</b></div>'
+              + '<div><span>Novo saldo</span><b style="color:var(--pos)">' + creditos(s.saldo) + '</b></div></div>'
+              + '<div class="okact"><a class="btn pri" href="/">Voltar ao programa</a><a class="btn" href="#" data-acao="voltar">Comprar mais</a></div></section></main>';
+          } else if (s.status === 'cancelado') {
+            clearInterval(timer);
+            st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';
+            st.innerHTML = 'Esse pagamento foi cancelado. Escolha o pacote de novo.';
+          }
+        } catch (e) { /* sem internet por um instante: tenta no próximo ciclo */ }
+      }, 1000);
+    } catch (er) {
+      await inicio();
+      var m = document.getElementById('msgCod');
+      if (m) { m.className = 'msg-st erro'; m.textContent = er.message; m.scrollIntoView({ block: 'center' }); }
     }
-    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
-      var f = finder(x, y);
-      var bit = f === -1 ? ((x * 31 + y * 17 + x * y * 7 + (x ^ y) * 3) % 5 < 2) : f === 1;
-      html += '<span style="background: ' + (bit ? '#04170C' : 'transparent') + ';"></span>';
-    }
-    return html;
   }
 
-  function numeroNoCartao() {
-    return s.num.padEnd(16, '•').replace(/(.{4})/g, '$1 ').trim();
-  }
-  function numeroFormatado() { return s.num.replace(/(.{4})(?=.)/g, '$1 '); }
-
-  function telaCadastro() {
-    var p = PLANOS[s.sel];
-    var m = mensalDe(PRECOS[s.sel]);
-    var total = fmt(anual() ? m * 12 : m);
-
-    var etapas = '';
-    {
-      var atual = s.etapa === 'done' ? 1 : 0;
-      etapas = '<ol aria-label="Etapas" style="list-style: none; margin: 0 0 28px; padding: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap">'
-        + [['1', 'Pagamento'], ['2', 'Pronto']].map(function (e, k, arr) {
-          var ativo = k === atual, passou = k < atual;
-          return '<li style="display: flex; align-items: center; gap: 10px">'
-            + '<span style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; ' + (ativo || passou ? 'background: #3DDC84; color: #04170C;' : 'background: #18231F; color: #869A91;') + '">' + (passou ? '✓' : e[0]) + '</span>'
-            + '<span style="font-size: 14px; font-weight: 600; ' + (ativo ? 'color: #F2F7F4;' : 'color: #869A91;') + '">' + e[1] + '</span>'
-            + (k < arr.length - 1 ? '<span aria-hidden="true" style="width: 28px; height: 2px; border-radius: 2px; background: #24382F"></span>' : '')
-            + '</li>';
-        }).join('') + '</ol>';
-    }
-
-    var corpo = '';
-    if (s.etapa === 'pay') {
-      var metodos = METODOS.map(function (mt) {
-        var on = s.metodo === mt[0];
-        return '<button type="button" data-metodo="' + mt[0] + '" aria-pressed="' + on + '" style="min-height: 50px; border-radius: 12px; font-size: 15px; font-weight: 700; ' + (on ? 'border: 2px solid #3DDC84; background: rgba(61,220,132,0.12); color: #F2F7F4;' : 'border: 1px solid #2B3E36; background: transparent; color: #A3B5AD;') + '">' + mt[1] + '</button>';
-      }).join('');
-      var bloco = '';
-      if (s.metodo === 'card') {
-        bloco = '<div style="margin-top: 24px; max-width: 360px; aspect-ratio: 1.586; border-radius: 18px; padding: 22px 24px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #F2F7F4; background: radial-gradient(120% 120% at 100% 0%, rgba(61,220,132,0.55) 0%, rgba(61,220,132,0) 55%), linear-gradient(135deg, #12382A 0%, #0A1A13 100%); box-shadow: 0 24px 50px -20px rgba(61,220,132,0.45), inset 0 0 0 1px rgba(255,255,255,0.08)">'
-          + '<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 42px; height: 30px; border-radius: 6px; background: linear-gradient(135deg, #E8D58C, #B99A45)"></span><span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.04em; opacity: 0.85">Leitor de Notas</span></div>'
-          + '<div id="cartaoNum" style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 0.12em">' + numeroNoCartao() + '</div>'
-          + '<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; font-size: 12px">'
-          + '<div style="min-width: 0"><div style="opacity: 0.6; font-size: 10px; letter-spacing: 0.08em">NOME</div><div id="cartaoNome" style="margin-top: 3px; font-weight: 600; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">' + esc(s.titular ? s.titular.toUpperCase() : 'SEU NOME') + '</div></div>'
-          + '<div><div style="opacity: 0.6; font-size: 10px; letter-spacing: 0.08em">VALIDADE</div><div id="cartaoVal" style="margin-top: 3px; font-weight: 600">' + esc(s.val || 'MM/AA') + '</div></div></div></div>'
-          + '<div style="margin-top: 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">'
-          + '<div class="campo" style="grid-column: 1 / -1"><label for="cnum">Número do cartão</label><input class="field" id="cnum" type="text" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="0000 0000 0000 0000" style="letter-spacing: 0.06em" value="' + esc(numeroFormatado()) + '"></div>'
-          + '<div class="campo" style="grid-column: 1 / -1"><label for="cname">Nome impresso no cartão</label><input class="field" id="cname" type="text" autocomplete="off" placeholder="Como está no cartão" value="' + esc(s.titular) + '"></div>'
-          + '<div class="campo"><label for="cexp">Validade</label><input class="field" id="cexp" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="MM/AA" value="' + esc(s.val) + '"></div>'
-          + '<div class="campo"><label for="ccvv">CVV</label><input class="field" id="ccvv" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="123" value="' + esc(s.cvv) + '"></div>'
-          + '</div>';
-        bloco += '<p style="margin: 16px 0 0; font-size: 13px; line-height: 1.5; color: #869A91">Os dados do cartão ficam só no seu computador: nada é enviado nem guardado. O pagamento é combinado com o Carlos pelo WhatsApp.</p>';
-      } else if (s.metodo === 'pix') {
-        bloco = '<div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">'
-          + '<div style="flex: none; padding: 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 20px 40px -20px rgba(61,220,132,0.5)">' + (s.pix ? '<img src="' + s.pix.qr + '" alt="QR Code do Pix de ' + esc(s.pix.nome) + '" width="175" height="175" style="display: block; image-rendering: pixelated">' : '<div style="width: 175px; height: 175px; display: grid; grid-template-columns: repeat(25, minmax(0, 1fr))" role="img" aria-label="QR Code de exemplo">' + qrCelulas() + '</div>') + '</div>'
-          + '<div style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 12px">'
-          + '<p style="margin: 0; font-size: 15px; font-weight: 600">Pague com Pix pelo app do seu banco</p>'
-          + '<ol style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.5; color: #A3B5AD"><li>Abra o app do banco e escolha Pix.</li><li>Escaneie o QR Code ou cole o código.</li><li>Digite o valor de R$ ' + total + ' e confirme' + (s.pix ? ' para ' + esc(s.pix.nome) : '') + '.</li></ol>'
-          + '<div style="display: flex; gap: 8px; align-items: center; padding: 6px 6px 6px 14px; border: 1px solid #2B3E36; border-radius: 12px; background: #0A110E"><span style="flex: 1; min-width: 0; font-size: 13px; color: #869A91; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">' + esc(s.pix ? s.pix.codigo : 'Carregando o código Pix...') + '</span>'
-          + '<button class="btn" type="button" data-acao="copiar" style="flex: none; min-height: 40px; padding: 0 14px; border: 0; border-radius: 9px; background: #18231F; color: #3DDC84; font-weight: 600; font-size: 13px">' + (s.copiado ? 'Copiado' : 'Copiar') + '</button></div>'
-          + '</div></div>';
-      } else if (s.metodo === 'flash') {
-        bloco = '<div style="margin-top: 24px; padding: 22px; border: 1px solid rgba(255,45,135,0.28); border-radius: 16px; background: rgba(255,45,135,0.07); display: flex; gap: 16px; align-items: flex-start">'
-          + (s.pix && s.pix.flashLogo ? '<img src="' + s.pix.flashLogo + '" alt="Flash" width="48" height="48" style="flex: none; border-radius: 12px">' : '')
-          + '<div><p style="margin: 0; font-size: 15px; font-weight: 600">Pague com o cartão Flash, num lanche no iFood</p>'
-          + '<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: #C9B6BF">Prefere pagar com o Flash? Combine com o Carlos pelo WhatsApp: ele escolhe um lanche no iFood no valor de R$ ' + total + ' e você paga com o seu cartão Flash.</p></div></div>';
-      } else {
-        bloco = boletoPrevia(total, p);
-      }
-      var rotulo = s.metodo === 'pix' ? 'Já paguei' : s.metodo === 'boleto' ? 'Pedir boleto de R$ ' + total : s.metodo === 'flash' ? 'Combinar pelo Flash' : 'Enviar pedido de R$ ' + total;
-      corpo = '<h1 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Pagamento</h1>'
-        + '<p style="margin: 8px 0 0; font-size: 15px; line-height: 1.5; color: #A3B5AD">Escolha como prefere pagar.</p>'
-        + (s.metodo === 'pix' && s.pix ? '<div style="margin-top: 18px; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.25); color: #F5DE8A; font-size: 13px; line-height: 1.4">' + ICONE.info + 'O Pix é real: o pagamento cai direto na conta de ' + esc(s.pix.nome) + '. Depois de pagar, peça o código de liberação.</div>' : '')
-        + '<div role="group" aria-label="Forma de pagamento" style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px">' + metodos + '</div>'
-        + bloco
-        + '<button class="btn" type="button" data-acao="pagar" style="margin-top: 26px; width: 100%; min-height: 56px; border: 0; border-radius: 12px; background: #3DDC84; color: #04170C; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 16px 40px -16px rgba(61,220,132,0.7)">' + ICONE.cadeado + rotulo + '</button>';
-    } else {
-      var FORMAS = { card: 'Cartão', pix: 'Pix', boleto: 'Boleto', flash: 'Cartão Flash (iFood)' };
-      var linhas = [['Plano', p.nome], ['Cobrança', anual() ? 'Anual' : 'Mensal'], ['Valor', 'R$ ' + total]];
-      linhas.push(['Forma de pagamento', FORMAS[s.metodo]]);
-      var tit = s.metodo === 'pix' ? 'Pagamento enviado para conferência'
-        : s.metodo === 'boleto' ? 'Pedido de boleto enviado'
-        : 'Pedido enviado';
-      var txt = s.metodo === 'pix' ? 'O Carlos vai conferir se o Pix chegou certinho e, estando tudo certo, libera o seu acesso com o código.'
-        : s.metodo === 'flash' ? 'O Carlos combina com você o lanche no iFood pelo cartão Flash e, depois de confirmar, libera o seu acesso com o código.'
-        : s.metodo === 'boleto' ? 'O Carlos gera o boleto e envia para você. Assim que o pagamento for confirmado, ele libera o seu acesso com o código.'
-        : 'Nenhum dado do cartão foi enviado. O Carlos combina o pagamento com você e, depois de confirmar, libera o seu acesso com o código.';
-      var tabela = linhas.map(function (l, k) {
-        return '<div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0;' + (k ? ' border-top: 1px solid #1E2C26;' : '') + ' font-size: 14px"><span style="color: #869A91">' + l[0] + '</span><span style="font-weight: 600; text-align: right">' + esc(l[1]) + '</span></div>';
-      }).join('');
-      var botaoZap = s.pix
-        ? '<a class="btn" href="' + esc(zapLink(p, total)) + '" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 12px; background: #25D366; color: #04170C; font-weight: 800; font-size: 16px">' + ICONE.zap + 'Avisar o Carlos no WhatsApp</a>'
-        : '';
-      corpo = '<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 8px 0">'
-        + '<span style="width: 72px; height: 72px; border-radius: 50%; background: rgba(61,220,132,0.14); color: #3DDC84; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 8px rgba(61,220,132,0.06), 0 20px 50px -18px rgba(61,220,132,0.6)">' + ICONE.check + '</span>'
-        + '<h1 style="margin: 8px 0 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 30px; line-height: 1.15; letter-spacing: -0.02em">' + tit + '</h1>'
-        + '<p style="margin: 0; max-width: 460px; font-size: 15px; line-height: 1.6; color: #A3B5AD">' + txt + '</p>'
-        + '<div style="width: 100%; max-width: 420px; margin-top: 10px; padding: 4px 18px; border: 1px solid #1E2C26; border-radius: 16px; background: #0A110E; text-align: left">' + tabela + '</div>'
-        + '<div style="width: 100%; max-width: 420px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px">'
-        + botaoZap
-        + '<a class="btn" href="/" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 12px; background: #3DDC84; color: #04170C; font-weight: 700; font-size: 15px">Voltar ao programa</a>'
-        + '<button class="btn" type="button" data-acao="planos" style="min-height: 46px; border: 0; border-radius: 12px; background: transparent; color: #A3B5AD; font-weight: 600; font-size: 14px">Voltar aos planos</button>'
-        + '</div></div>';
-    }
-
-    var incluidos = RECURSOS.filter(function (r) { return r[1][s.sel]; }).map(function (r) {
-      return '<li style="display: flex; align-items: center; gap: 10px"><span style="flex: none; width: 20px; height: 20px; border-radius: 50%; background: rgba(61,220,132,0.16); color: #3DDC84; display: flex; align-items: center; justify-content: center">' + ICONE.okP + '</span>' + r[0] + '</li>';
-    }).join('');
-
-    return '<main style="position: relative; max-width: 1040px; margin: 0 auto; padding: 40px 24px 72px">'
-      + '<button type="button" data-acao="planos" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #A3B5AD; font-size: 14px; font-weight: 500">' + ICONE.voltar + 'Voltar aos planos</button>'
-      + '<div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">'
-      + '<section style="flex: 999 1 420px; min-width: 0; padding: 36px 32px; border: 1px solid #1E2C26; border-radius: 22px; background: #0E1713">' + etapas + corpo + '</section>'
-      + '<aside style="flex: 1 1 300px; min-width: 0; padding: 32px 28px; border: 2px solid #3DDC84; border-radius: 22px; background: radial-gradient(120% 70% at 50% 0%, rgba(61,220,132,0.18) 0%, rgba(61,220,132,0) 60%), #0F1B16">'
-      + '<p style="margin: 0; font-size: 13px; font-weight: 600; color: #3DDC84; letter-spacing: 0.04em">PLANO ESCOLHIDO</p>'
-      + '<h2 style="margin: 8px 0 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 26px">' + p.nome + '</h2>'
-      + seletorCobranca(true)
-      + '<div style="margin-top: 22px; display: flex; align-items: flex-start; gap: 4px"><span style="margin-top: 8px; font-family: Manrope, sans-serif; font-size: 20px; font-weight: 700; color: #A3B5AD">R$</span>'
-      + '<span style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 64px; line-height: 1; letter-spacing: -0.05em; color: #3DDC84">' + fmt(m) + '</span>'
-      + '<span style="align-self: flex-end; margin-bottom: 8px; font-size: 15px; color: #A3B5AD">/mês</span></div>'
-      + '<p style="margin: 8px 0 0; font-size: 13px; color: #869A91">' + notaDe(m) + '</p>'
-      + '<div style="margin-top: 20px; padding: 12px 14px; border-radius: 12px; background: #13201B; font-size: 14px; font-weight: 600; text-align: center">' + p.cota + '</div>'
-      + '<ul style="list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 11px; font-size: 14px; color: #E3ECE7">' + incluidos + '</ul>'
-      + '<div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid #24382F; display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><span style="font-size: 15px; color: #A3B5AD">' + (anual() ? 'Total por ano' : 'Total por mês') + '</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 800">R$ ' + total + '</span></div>'
-      + '</aside></div></main>';
-  }
-
-  // ---------- Desenho e eventos ----------
-  var app = $('app');
-
-  function desenhar(foco) {
-    app.innerHTML = s.sel == null ? telaPlanos() : telaCadastro();
-    if (foco && $(foco)) { var el = $(foco); el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} }
-  }
-
-  app.addEventListener('click', function (e) {
-    var alvo = e.target.closest('[data-cobranca],[data-escolher],[data-faq],[data-metodo],[data-acao]');
-    if (!alvo) return;
-    if (alvo.dataset.cobranca) { s.cobranca = alvo.dataset.cobranca; desenhar(); return; }
-    if (alvo.dataset.escolher != null) {
-      s.sel = Number(alvo.dataset.escolher);
-      s.etapa = 'pay';
-      desenhar(); window.scrollTo(0, 0); return;
-    }
-    if (alvo.dataset.faq != null) { var i = Number(alvo.dataset.faq); s.faqAberta = s.faqAberta === i ? null : i; desenhar(); return; }
-    if (alvo.dataset.metodo) { s.metodo = alvo.dataset.metodo; desenhar(); return; }
-    var acao = alvo.dataset.acao;
-    if (acao === 'planos') { s.sel = null; s.etapa = 'pay'; s.copiado = false; desenhar(); window.scrollTo(0, 0); }
-    else if (acao === 'copiar') { copiarPix(); }
-    else if (acao === 'pagar') { s.etapa = 'done'; desenhar(); }
-  });
-
-  function zapLink(p, total) {
-    var plano = p.nome + ' (' + (anual() ? 'anual' : 'mensal') + ', R$ ' + total + ')';
-    var msg = s.metodo === 'pix' ? 'Olá Carlos! Acabei de pagar o plano ' + plano + ' do Leitor de Notas por Pix. Pode conferir?'
-      : s.metodo === 'flash' ? 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas com o cartão Flash, num lanche no iFood. Como combinamos?'
-      : s.metodo === 'boleto' ? 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas por boleto. Pode me enviar?'
-      : 'Olá Carlos! Quero pagar o plano ' + plano + ' do Leitor de Notas no cartão. Como combinamos?';
-    return 'https://wa.me/' + s.pix.whatsapp + '?text=' + encodeURIComponent(msg);
-  }
-
-  function copiarPix() {
-    if (!s.pix) return;
-    var t = s.pix.codigo;
-    var ok = function () { s.copiado = true; desenhar(); setTimeout(function () { s.copiado = false; if (s.sel != null && s.etapa === 'pay') desenhar(); }, 2500); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, ok);
-    else { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); ok(); }
-  }
-
-  // Pix real (o mesmo da tela de bloqueio)
-  fetch('/api/pix').then(function (r) { return r.json(); }).then(function (p) { s.pix = p; if (s.sel != null && s.etapa === 'pay' && s.metodo === 'pix') desenhar(); }).catch(function () {});
-
-  // Campos do cartão: atualizam só o desenho do cartão, sem refazer a tela (para não perder o cursor).
-  app.addEventListener('input', function (e) {
-    var id = e.target.id;
-    if (id === 'cnum') {
-      s.num = e.target.value.replace(/\D/g, '').slice(0, 16);
-      e.target.value = numeroFormatado();
-      $('cartaoNum').textContent = numeroNoCartao();
-    } else if (id === 'cname') {
-      s.titular = e.target.value.slice(0, 26);
-      $('cartaoNome').textContent = s.titular ? s.titular.toUpperCase() : 'SEU NOME';
-    } else if (id === 'cexp') {
-      var v = e.target.value.replace(/\D/g, '').slice(0, 4);
-      if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
-      e.target.value = v; s.val = v;
-      $('cartaoVal').textContent = v || 'MM/AA';
-    } else if (id === 'ccvv') {
-      s.cvv = e.target.value.replace(/\D/g, '').slice(0, 4);
-      e.target.value = s.cvv;
+  document.addEventListener('click', async function (ev) {
+    var b = ev.target.closest('[data-pacote],[data-acao]');
+    if (!b) return;
+    if (b.dataset.pacote) return pagar(b.dataset.pacote, b);
+    var a = b.dataset.acao;
+    if (a === 'voltar') { ev.preventDefault(); return inicio(); }
+    if (a === 'copiar') {
+      try { await navigator.clipboard.writeText(app.__copia); b.textContent = 'Código copiado'; b.classList.add('done'); setTimeout(function () { b.textContent = 'Copiar código Pix'; b.classList.remove('done'); }, 2200); }
+      catch (e) { b.textContent = 'Selecione o código acima e copie'; }
     }
   });
-
-  desenhar();
+  document.addEventListener('submit', async function (ev) {
+    if (ev.target.id !== 'formCod') return;
+    ev.preventDefault();
+    var msg = document.getElementById('msgCod');
+    try {
+      var r = await api('/api/creditos/resgatar', { codigo: document.getElementById('cod').value.trim() });
+      msg.className = 'msg-st ok'; msg.textContent = '+' + creditos(r.creditos) + '. Agora você tem ' + creditos(r.saldo) + '.';
+    } catch (e) { msg.className = 'msg-st erro'; msg.textContent = e.message; }
+  });
+  inicio();
 })();
 </script>
 </body>

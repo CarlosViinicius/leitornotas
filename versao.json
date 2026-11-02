@@ -1,14 +1,17 @@
 {
-  "versao": "1.1.24",
+  "versao": "1.1.25",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Liberação por senha agora dura 20 minutos, com cronômetro na tela"
+    "Compra de créditos por Pix automático: cada nota lançada usa 1 crédito",
+    "Nova tela de planos e de pagamento com QR Code",
+    "Sugestões de melhoria agora chegam direto ao Carlos",
+    "O bloqueio por prazo foi removido: só bloqueia quando acabar o crédito"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "9f5cac76c7d25699fb404f1971634cc36e8a0203b4409ff9cb589c6655c52d55"
+      "sha256": "9a849cbd203399dca579cabf58408e50ed113ade579318177417514516d7ac40"
     },
     {
       "arquivo": "package.json",
@@ -20,7 +23,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "bb4393cb5307b80829f221a86671d43f52b9a299964742832294bad20fbab16f"
+      "sha256": "e5a6ba71eff9e3901fcc90e2f8ef6e9a17ab902744b952e8ba71a16cf9655ab0"
     },
     {
       "arquivo": "lib/bloqueio.js",
@@ -29,6 +32,10 @@
     {
       "arquivo": "lib/chave.js",
       "sha256": "775d8969a56aef171a7d08c3201306b4701bb88bd6c5672037ae0a4bc7bae2f6"
+    },
+    {
+      "arquivo": "lib/creditos.js",
+      "sha256": "942397be7705c0b572bbbb38713e98653065d4eb969541a81becb4c8be309d22"
     },
     {
       "arquivo": "lib/excel-aberto.ps1",
@@ -60,11 +67,11 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "7934128c85b9ad1fb98b4ddaad438f0cab4a18bbd46d43a6155cea1b5e97340d"
+      "sha256": "a7657a9982acf702e67aa976685cc34b7ed2fa31f17f32d9236e488e45dcea49"
     },
     {
       "arquivo": "public/planos.html",
-      "sha256": "a6226553c82fcc133984d7c2f3edc94ca10cb5161497467075212d4aaf619b9d"
+      "sha256": "9f9cf9d6536b00076aa085c6df3442d68873c6ab6548118a2479515228259eff"
     }
   ]
 }
