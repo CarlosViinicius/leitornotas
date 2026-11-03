@@ -1,10 +1,11 @@
 {
-  "versao": "1.1.27",
+  "versao": "1.1.28",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Plano mensal: uso livre das notas por 30 dias, sem gastar créditos",
-    "Cartões da tela de planos alinhados",
-    "Textos da compra mais claros"
+    "Nova tela de planos: plano mensal em destaque, cartões alinhados e comparação de preço por nota",
+    "Régua \"quantas notas você lança por mês\" para ajudar a escolher",
+    "A tela de compra e de Pix segue o tema claro ou escuro do programa",
+    "Melhor encaixe em notebooks e telas menores"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -70,7 +71,7 @@
     },
     {
       "arquivo": "public/planos.html",
-      "sha256": "3c6dc82e3b0c9b67ffff952fc20b817d91fb703e33b29d75fceb9bc94413171a"
+      "sha256": "ac6b8f660479688b7ddb7d5a4205f12714c09b6f8049f917198632d3ca027303"
     }
   ],
   "servidorCreditos": "https://leitor-notas-servidor.vercel.app"
