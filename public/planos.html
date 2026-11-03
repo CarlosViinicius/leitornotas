@@ -588,7 +588,27 @@ body{margin:0}
 .ts.now .tm{border-color:transparent;background:transparent}
 .ts.now .tm .spin.s{width:28px;height:28px;border-width:3px;border-color:var(--ln);border-top-color:var(--ac);animation:rot .9s linear infinite!important}
 .plan .pdesc{margin-top:10px;font-size:14px;line-height:20px;color:var(--mu)}
+.plan .pdesc:empty{margin:0}
+/* os cartões dividem as mesmas linhas: título, preço, economia, itens e botão ficam alinhados */
+@media (min-width:901px){
+.plans{grid-auto-rows:auto;align-items:stretch}
+.plan{display:grid;grid-template-rows:subgrid;grid-row:span 9;row-gap:0;align-content:start}
+.plan .eq{justify-self:start}
+.plan .save{justify-self:start;align-self:start}
+.plan .go{align-self:end}
+.plan .feat{align-self:start}
+}
 .plan.hot .pdesc{color:#D3EBE1}
+.mensal{margin-top:20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) auto;gap:28px;align-items:center;padding:28px 32px;border-radius:20px;background:var(--sf);border:1px solid var(--ln);position:relative}
+.mensal .etq{display:inline-flex;align-items:center;gap:6px;font:600 12px/16px 'Geist',sans-serif;padding:4px 10px;border-radius:999px;background:var(--ob);color:var(--oi)}
+.mensal .cap{font:600 14px/20px 'Geist',sans-serif;color:var(--i2);margin-top:12px}
+.mensal .big{font:700 34px/40px 'Geist',sans-serif;letter-spacing:-.03em;margin-top:2px}
+.mensal .big span{font-size:16px;font-weight:500;color:var(--mu);letter-spacing:0;margin-left:6px}
+.mensal .sub{color:var(--mu);font-size:14px;line-height:20px;margin-top:4px}
+.mensal .feat{margin:0;padding:0;border:0}
+.mensal .go .btn{height:52px;padding:0 26px;font-size:16px;font-weight:600;border-radius:12px;white-space:nowrap}
+.mensal .nota{grid-column:1/-1;font-size:13px;color:var(--mu);margin-top:-8px}
+@media (max-width:900px){.mensal{grid-template-columns:minmax(0,1fr);padding:22px;gap:18px}.mensal .go .btn{width:100%}}
 .msg-st{min-height:22px;margin-top:10px;font-weight:600;font-size:14px}
 .msg-st.ok{color:var(--pos)}.msg-st.erro{color:var(--neg)}
 .aviso-box{max-width:560px;margin:72px auto;text-align:center}
@@ -628,6 +648,7 @@ body{margin:0}
   var WHATSAPP = '5544997474225';
   var brl = function (v) { return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var dataBr = function (iso) { return new Date(iso).toLocaleDateString('pt-BR'); };
   var creditos = function (n) { return n + (n === 1 ? ' crédito' : ' créditos'); };
   var S = function (d, extra) { return '<svg class="i s" viewBox="0 0 24 24" aria-hidden="true"' + (extra || '') + '>' + d + '</svg>'; };
   var ICO = {
@@ -668,6 +689,8 @@ body{margin:0}
     if (e.cobranca === false) return aviso('Uso liberado', 'Por enquanto nenhuma nota gasta crédito. Pode usar à vontade.');
     var lista = e.pacotes || [];
     window.__pacotes = {}; lista.forEach(function (p) { window.__pacotes[p.id] = p; });
+    var M = e.mensal || null;
+    if (M) window.__pacotes.mensal = { id: 'mensal', mensal: true, nome: M.nome, preco: M.preco, dias: M.dias, descricao: M.descricao || '' };
     var maiorPorNota = Math.max.apply(null, lista.map(function (p) { return p.preco / p.creditos; }).concat([0]));
     var saldo = typeof e.saldo === 'number' ? e.saldo : null;
     var tabela = lista.map(function (p) { return p.preco / p.creditos; });
@@ -685,7 +708,7 @@ body{margin:0}
         + '<p class="cap">' + esc(p.nome) + '</p>'
         + '<p class="q">' + p.creditos + '<span>' + (p.creditos === 1 ? 'crédito' : 'créditos') + '</span></p>'
         + '<span class="eq">' + DOC + 'Lança ' + p.creditos + (p.creditos === 1 ? ' nota' : ' notas') + '</span>'
-        + (p.descricao ? '<p class="pdesc">' + esc(p.descricao) + '</p>' : '') + '<div class="ln"></div>'
+        + '<p class="pdesc">' + esc(p.descricao || '') + '</p><div class="ln"></div>'
         + '<div class="prw"><p class="pr">' + brl(p.preco) + '</p><p class="un">' + brl(porNota) + ' por nota</p></div>'
         + (eco >= 5 ? '<p class="save">Você economiza ' + brl(economiza) + ' (' + eco + '%)</p>' : '<p class="save none">Preço cheio</p>')
         + '<ul class="feat"><li>' + CHECK + '<span><b>' + creditos(p.creditos) + '</b> no seu saldo</span></li>'
@@ -696,7 +719,13 @@ body{margin:0}
     var CARTEIRA = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 12h-5a2 2 0 0 0 0 4h5Z"/></svg>';
     var estado = saldo === null ? '' : saldo <= 0 ? 'zero' : saldo <= 10 ? 'low' : 'ok';
     var balanco = '';
-    if (saldo !== null) {
+    if (e.mensalAte) {
+      balanco = '<div class="bal" aria-label="Seu plano"><span class="bic">' + CARTEIRA + '</span><div class="bx">'
+        + '<p class="k">Seu plano<span class="st" style="color:var(--oi);background:var(--ob);border-color:transparent">Ativo</span></p>'
+        + '<p class="n" style="font-size:40px;line-height:46px">Mensal<span>até ' + esc(dataBr(e.mensalAte)) + '</span></p>'
+        + '<p class="eqs">Lance quantas notas quiser, sem gastar créditos.' + (saldo > 0 ? ' Seus <b>' + creditos(saldo) + '</b> ficam guardados.' : '') + '</p>'
+        + '</div></div>';
+    } else if (saldo !== null) {
       balanco = '<div class="bal' + (estado === 'ok' ? '' : ' low') + '" aria-label="Seu saldo"><span class="bic">' + CARTEIRA + '</span><div class="bx">'
         + '<p class="k">Seu saldo agora' + (estado === 'zero' ? '<span class="st">Sem crédito</span>' : estado === 'low' ? '<span class="st">Saldo baixo</span>' : '') + '</p>'
         + '<p class="n">' + saldo + '<span>' + (saldo === 1 ? 'crédito' : 'créditos') + '</span></p>'
@@ -705,9 +734,18 @@ body{margin:0}
         + '</div></div>';
     }
     app.innerHTML = '<main class="sw">'
-      + '<section class="shero"><div><h1>Compre créditos para lançar suas notas</h1><p>1 crédito = 1 nota fiscal lançada na planilha. Sem mensalidade: você paga só pelo que usar.</p></div>' + balanco + '</section>'
+      + '<section class="shero"><div><h1>Compre créditos para lançar suas notas</h1><p>1 crédito = 1 nota fiscal lançada na planilha. Compre só o que for usar ou lance sem limite com o plano mensal.</p></div>' + balanco + '</section>'
       + '<section class="plans" id="pacotes" aria-label="Pacotes">' + (cartoes || '<p class="mu">Nenhum pacote disponível agora.</p>') + '</section>'
-      + '<div class="trust"><span>' + ICO.pix + 'Pagamento por Pix</span><span>' + ICO.escudo + 'Cobrança gerada pelo Mercado Pago</span><span>' + ICO.raio + 'Créditos entram sozinhos</span><span>' + ICO.cal + 'Sem cartão e sem mensalidade</span></div>'
+      + (M ? '<section class="mensal" aria-label="Plano mensal"><div><span class="etq">' + S('<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>') + 'Uso livre</span>'
+        + '<p class="cap">' + esc(M.nome) + '</p><p class="big">' + brl(M.preco) + '<span>por ' + M.dias + ' dias</span></p>'
+        + '<p class="sub">' + esc(M.descricao || 'Lance quantas notas quiser durante o período') + '</p></div>'
+        + '<ul class="feat"><li>' + CHECK + '<span><b>Sem limite de notas</b> por ' + M.dias + ' dias</span></li>'
+        + '<li>' + CHECK + '<span>Não gasta créditos</span></li>'
+        + '<li>' + CHECK + '<span>Pagamento único por Pix, não renova sozinho</span></li></ul>'
+        + '<div class="go"><button class="btn pri" type="button" data-pacote="mensal">' + (e.mensalAte ? 'Somar mais ' + M.dias + ' dias' : 'Assinar por ' + brl(M.preco)) + '</button></div>'
+        + (e.mensalAte ? '<p class="nota">Você já tem o plano até ' + esc(dataBr(e.mensalAte)) + '. Pagar de novo soma os dias ao que sobrou.</p>' : '')
+        + '</section>' : '')
+      + '<div class="trust"><span>' + ICO.pix + 'Pagamento por Pix</span><span>' + ICO.escudo + 'Cobrança gerada pelo Mercado Pago</span><span>' + ICO.raio + 'Créditos entram sozinhos</span><span>' + ICO.cal + 'Sem cartão e sem renovação automática</span></div>'
       + '<section class="duo"><div class="card"><div class="ch"><h2>Como funciona</h2></div><div class="steps">'
       + '<div class="step"><span class="nb">1</span><div><p class="t">Escolha o pacote</p><p class="d">Quanto maior o pacote, menor o valor por nota.</p></div></div>'
       + '<div class="step"><span class="nb">2</span><div><p class="t">Pague o Pix</p><p class="d">Leia o QR Code ou use o Pix copia e cola no app do seu banco.</p></div></div>'
@@ -733,8 +771,9 @@ body{margin:0}
       if (!/^[A-Za-z0-9+/=]+$/.test(p.qrBase64 || '')) throw new Error('O QR Code não veio certo. Tente de novo.');
       var fim = Date.now() + (p.expiraMin || 30) * 60000;
       var criado = horaAgora();
-      var nome = pacoteAtual ? 'Pacote de ' + creditos(pacoteAtual.creditos) : 'Pacote de créditos';
-      var sub = pacoteAtual ? creditos(pacoteAtual.creditos) + ' · ' + brl(pacoteAtual.preco / pacoteAtual.creditos) + ' por nota' : '';
+      var ehMensal = !!(pacoteAtual && pacoteAtual.mensal);
+      var nome = ehMensal ? pacoteAtual.nome : pacoteAtual ? 'Pacote de ' + creditos(pacoteAtual.creditos) : 'Pacote de créditos';
+      var sub = ehMensal ? 'Uso livre por ' + pacoteAtual.dias + ' dias' : pacoteAtual ? creditos(pacoteAtual.creditos) + ' · ' + brl(pacoteAtual.preco / pacoteAtual.creditos) + ' por nota' : '';
       var partes = brl(p.valor).replace(/\s/g, ' ').split(' ');
       app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pague com Pix</h1><p>' + esc(nome) + '</p></div></div>'
         + '<section class="pbox"><div class="pl">'
@@ -746,7 +785,7 @@ body{margin:0}
         + '<div class="tl" aria-label="Andamento do pagamento">'
         + '<div class="ts done"><span class="tm">' + ICO.ok + '</span><div><p class="t">Pix gerado</p><p class="d">Cobrança criada às ' + criado + '</p></div></div>'
         + '<div class="ts now"><span class="tm"><span class="spin s"></span></span><div><p class="t">Aguardando seu pagamento</p><p class="d">A confirmação aparece aqui sozinha, não precisa atualizar.</p></div></div>'
-        + '<div class="ts next"><span class="tm"></span><div><p class="t">Créditos liberados no programa</p></div></div></div>'
+        + '<div class="ts next"><span class="tm"></span><div><p class="t">' + (ehMensal ? 'Plano mensal liberado no programa' : 'Créditos liberados no programa') + '</p></div></div></div>'
         + '<div class="how"><h3>Como pagar</h3><ol><li>Abra o app do seu banco e entre na área Pix.</li><li>Escolha <b>Ler QR Code</b> ou <b>Pix copia e cola</b>.</li><li>Confira o valor de ' + esc(brl(p.valor)) + ' e confirme.</li></ol></div></div></section>'
         + '<div class="pfoot"><span>Pagamento processado pelo Mercado Pago</span><a href="#" data-acao="voltar">Cancelar e voltar</a></div></main>';
       var copia = p.copiaECola, ciclo = 0;
@@ -769,8 +808,8 @@ body{margin:0}
           if (s.status === 'pago') {
             clearInterval(timer);
             topoVoltar(true);
-            var ok = ICO.ok, qtd = pacoteAtual ? creditos(pacoteAtual.creditos) : 'Créditos', hora = horaAgora();
-            app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pagamento concluído</h1><p>' + (pacoteAtual ? 'Pacote de ' + qtd : 'Pacote de créditos') + '</p></div></div>'
+            var ok = ICO.ok, qtd = ehMensal ? 'Plano mensal' : pacoteAtual ? creditos(pacoteAtual.creditos) : 'Créditos', hora = horaAgora();
+            app.innerHTML = '<main class="pix"><div class="ptitle"><div><h1>Pagamento concluído</h1><p>' + (ehMensal ? pacoteAtual.nome : pacoteAtual ? 'Pacote de ' + qtd : 'Pacote de créditos') + '</p></div></div>'
               + '<section class="pbox" role="status" aria-live="polite"><div class="pl"><div class="qr done"><span class="big"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></span><b>Pago</b><span>Recebido às ' + hora + '</span></div>'
               + '<p class="exp" style="text-align:center">Você já pode fechar esta tela.</p></div>'
               + '<div class="pr2"><div><p class="pk">Valor pago</p><p class="pamt"><span>R$</span>' + esc(brl(p.valor).replace(/^R\$\s?/, '')) + '</p>' + (sub ? '<p class="psub">' + esc(sub) + '</p>' : '') + '</div>'
@@ -778,8 +817,10 @@ body{margin:0}
               + '<div class="tl" aria-label="Andamento do pagamento">'
               + '<div class="ts done"><span class="tm">' + ok + '</span><div><p class="t">Pix gerado</p><p class="d">' + criado + '</p></div></div>'
               + '<div class="ts done"><span class="tm">' + ok + '</span><div><p class="t">Pagamento recebido</p><p class="d">' + hora + ' · Mercado Pago</p></div></div>'
-              + '<div class="ts done"><span class="tm">' + ok + '</span><div><p class="t">' + qtd + ' liberados</p><p class="d">Seu saldo agora é de <b style="color:var(--ink)">' + creditos(s.saldo) + '</b></p></div></div></div>'
-              + '<div class="acts2" style="margin-top:0;align-items:stretch"><a class="btn pri" href="/">Voltar e lançar notas</a><a class="lnk" href="#" data-acao="voltar">Comprar mais créditos</a></div></div></section></main>';
+              + '<div class="ts done"><span class="tm">' + ok + '</span><div>' + (ehMensal
+                ? '<p class="t">Plano mensal ativado</p><p class="d">Uso livre até <b style="color:var(--ink)">' + esc(s.mensalAte ? dataBr(s.mensalAte) : '') + '</b></p>'
+                : '<p class="t">' + qtd + ' liberados</p><p class="d">Seu saldo agora é de <b style="color:var(--ink)">' + creditos(s.saldo) + '</b></p>') + '</div></div></div>'
+              + '<div class="acts2" style="margin-top:0;align-items:stretch"><a class="btn pri" href="/">Voltar e lançar notas</a><a class="lnk" href="#" data-acao="voltar">' + (ehMensal ? 'Ver os planos' : 'Comprar mais créditos') + '</a></div></div></section></main>';
           } else if (s.status === 'cancelado') {
             clearInterval(timer);
             var tm = document.querySelector('.ts.now .tm'); if (tm) tm.innerHTML = ''; var cg = null; st.className = 'wait'; st.style.cssText = 'background:var(--db);color:var(--di)';

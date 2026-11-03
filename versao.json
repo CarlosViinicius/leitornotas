@@ -1,11 +1,10 @@
 {
-  "versao": "1.1.26",
+  "versao": "1.1.27",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Sem créditos, o programa não lê nem lança notas: a nota fica embaçada até comprar",
-    "Aviso com botão para adicionar créditos quando acabar o saldo",
-    "Nova tela de planos e de pagamento por Pix, com descrição dos planos vinda do servidor",
-    "O desbloqueio é automático quando o pagamento é confirmado"
+    "Plano mensal: uso livre das notas por 30 dias, sem gastar créditos",
+    "Cartões da tela de planos alinhados",
+    "Textos da compra mais claros"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -35,7 +34,7 @@
     },
     {
       "arquivo": "lib/creditos.js",
-      "sha256": "6a6aa3b0b4507ecb5469654aac4beded06748ef57da6101e67e03c26818b0049"
+      "sha256": "36fd6a3dc21783ea8f5520c5f0702bd9c8b6921174c013d571801187be9e685e"
     },
     {
       "arquivo": "lib/excel-aberto.ps1",
@@ -67,11 +66,11 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "a7cb156413bb3b661d56ae4a537a734cf77457c4c5e1a16862f91e6d7d2af030"
+      "sha256": "c320dbde5a302dbcea44edc2f74d947c5fa9bc3bb9087bb2f1d414cb1f1e5daa"
     },
     {
       "arquivo": "public/planos.html",
-      "sha256": "1c438b19d583a809b079198c32b19ee6d0b24ab52938860be2a1b56edec5f356"
+      "sha256": "3c6dc82e3b0c9b67ffff952fc20b817d91fb703e33b29d75fceb9bc94413171a"
     }
   ],
   "servidorCreditos": "https://leitor-notas-servidor.vercel.app"

@@ -1023,7 +1023,7 @@ function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp
 
 function semCredito() {
   const c = creditosEstado;
-  return !!(c && c.ligado && c.cobranca !== false && !c.offline && typeof c.saldo === 'number' && c.saldo <= 0);
+  return !!(c && c.ligado && c.cobranca !== false && !c.offline && !c.mensalAte && typeof c.saldo === 'number' && c.saldo <= 0);
 }
 const MSG_SEM_CREDITO = 'Você está sem créditos. Compre um pacote para continuar lançando notas.';
 
@@ -1791,7 +1791,7 @@ async function inserirUma(nome) {
   const ce = creditosEstado;
   if (ce.ligado && ce.cobranca !== false && !ce.offline) {
     if (ce.bloqueado) throw new Error('Seu acesso está bloqueado. Fale com o suporte.');
-    if (typeof ce.saldo === 'number' && ce.saldo <= 0) {
+    if (!ce.mensalAte && typeof ce.saldo === 'number' && ce.saldo <= 0) {
       throw new Error(MSG_SEM_CREDITO);
     }
   }
@@ -2084,11 +2084,19 @@ const textoCreditos = (n) => `${n} ${n === 1 ? 'crédito' : 'créditos'}`;
 let creditosEstado = { ligado: false };
 const compra = { timer: null, fim: 0 };
 
+const dataCurta = (iso) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
 function mostrarSaldo(saldo) {
   creditosEstado.saldo = saldo;
   if (creditosEstado.cobranca === false) return; // uso liberado: o chip continua dizendo "Grátis"
   const chip = $('#chipCreditos');
   chip.style.display = '';
+  if (creditosEstado.mensalAte) { // plano mensal: uso livre até a data
+    chip.querySelector('span').textContent = 'Plano mensal · até ' + dataCurta(creditosEstado.mensalAte);
+    chip.classList.remove('pouco');
+    chip.classList.add('ok');
+    return;
+  }
   chip.querySelector('span').textContent = textoCreditos(saldo);
   chip.classList.toggle('pouco', saldo <= 3);
   chip.classList.toggle('ok', saldo > 3);
