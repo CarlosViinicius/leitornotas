@@ -4,11 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const { exec, execFile } = require('child_process');
 const crypto = require('crypto');
-const { extrairNota, extrairNotaGemini, lerChaveGemini, VERSAO_LEITURA } = require('./lib/extrair');
-const { analisar: exatoDoArquivo, textoParaIA, corrigirComExato } = require('./lib/exato');
+const { extrairNota, extrairNotaGemini, lerChaveGemini, lerPesosGemini, lerPesosClaude, VERSAO_LEITURA } = require('./lib/extrair');
+const { analisar: exatoDoArquivo, textoParaIA, corrigirComExato, conferirPesos } = require('./lib/exato');
 const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require('./lib/referencia');
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
-const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar } = require('./lib/montar');
+const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar, pesoFecha } = require('./lib/montar');
 const { criarAprendizado } = require('./lib/aprender');
 const { conferirNota, saldoPorGrupo, LIMITE_QUEBRA_PADRAO } = require('./lib/conferencias');
 const { gerarRelatorio } = require('./lib/relatorio');
@@ -246,6 +246,52 @@ function moverSemSobrescrever(origem, pasta) {
   return destino;
 }
 
+// Pesos exatos:
+// - PDF com texto: confere se cada quantidade (e o peso líquido) está escrita no PDF. Não gasta IA.
+// - Foto ou PDF escaneado: se a soma dos itens não fecha com o peso líquido, a IA relê SÓ os pesos.
+//   O resultado só é aceito se a conta fechar; senão fica a primeira leitura (e o aviso amarelo).
+// Nunca impede a nota de aparecer.
+async function conferirPesosDaNota(dados, exato, caminho, config, seg) {
+  try {
+    if (exato.texto) {
+      dados.pesos_pdf = conferirPesos(dados, exato.texto);
+      const faltam = dados.pesos_pdf.itens.filter((x) => x.achado === false).length;
+      console.log(`[leitura] ${path.basename(caminho)}: pesos ${faltam ? `NÃO achados no PDF: ${faltam}` : 'conferidos no texto do PDF'}`);
+      return;
+    }
+    if (pesoFecha(dados) !== false || !(dados.itens || []).length) return;
+    let r;
+    if (process.env.LEITOR_TESTE) {
+      // Modo de teste: a releitura vem de "<nota>.pesos.json", se existir.
+      const arq = path.join(process.env.LEITOR_TESTE, path.basename(caminho) + '.pesos.json');
+      if (!fs.existsSync(arq)) return;
+      r = JSON.parse(fs.readFileSync(arq, 'utf8'));
+    } else if (config.ia === 'claude') {
+      r = await lerPesosClaude(caminho, { apiKey: config.apiKey, modelo: config.modelo, dados });
+    } else {
+      r = await lerPesosGemini(caminho, { apiKey: config.geminiKey, modelo: config.modeloGemini, dados });
+    }
+    const antes = { itens: dados.itens.map((it) => Number(it.quantidade_kg) || 0), peso: Number(dados.peso_liquido_kg) || 0 };
+    const quantidades = Array.isArray(r && r.quantidades) ? r.quantidades.map(Number) : [];
+    const novo = {
+      ...dados,
+      peso_liquido_kg: Number(r && r.peso_liquido_kg) || 0,
+      itens: dados.itens.map((it, i) => ({ ...it, quantidade_kg: quantidades[i] })),
+    };
+    const valido = quantidades.length === dados.itens.length && quantidades.every((q) => Number.isFinite(q) && q >= 0);
+    if (valido && pesoFecha(novo) === true) {
+      dados.itens = novo.itens;
+      dados.peso_liquido_kg = novo.peso_liquido_kg;
+      dados.pesos_relidos = { tentou: true, fechou: true, antes };
+    } else {
+      dados.pesos_relidos = { tentou: true, fechou: false };
+    }
+    console.log(`[leitura] ${path.basename(caminho)}: soma não fechava, releitura dos pesos em ${seg()} (${dados.pesos_relidos.fechou ? 'agora fecha' : 'continua não fechando'})`);
+  } catch (e) {
+    console.log(`[leitura] ${path.basename(caminho)}: não consegui reler os pesos (${e.message})`);
+  }
+}
+
 async function lerNota(config, nome, forcar) {
   const caminho = arquivoPendente(config, nome);
   const carta = cartaDe(config, nome);
@@ -323,6 +369,7 @@ async function lerNota(config, nome, forcar) {
         }
       }
     }
+    await conferirPesosDaNota(dados, exato, caminho, config, seg);
   }
   dados._versaoLeitura = VERSAO_LEITURA;
   fs.mkdirSync(PASTA_CACHE, { recursive: true });

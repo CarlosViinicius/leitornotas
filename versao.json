@@ -1,18 +1,16 @@
 {
-  "versao": "1.1.29",
+  "versao": "1.1.30",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Chave e CNPJs exatos: lidos do texto do PDF ou do código de barras da foto (menos erro de leitura)",
-    "Aprende com as suas correções: depois de 2 notas iguais, pergunta se pode corrigir sozinho",
-    "Novas conferências: remessa citada no retorno, volta mais do que entrou, quebra alta, data/UF/CNPJ",
-    "Painel de saldo por licenciado e cultivar, com relatório do mês em Excel para o cliente",
-    "Ícone \"Leitor de Notas\" na área de trabalho: abre numa janela própria, sem a janela preta"
+    "Peso conferido no PDF: cada quantidade lida pela IA é procurada no texto do próprio PDF (✓ quando confere, aviso quando não)",
+    "Foto: quando a soma dos itens não fecha com o peso líquido, a IA relê só os pesos e fica com a leitura que fecha",
+    "Campos de peso ficam em amarelo sempre que o peso não pôde ser confirmado"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "7a5fdfc24a808731bd79a840e5471a8635fab63e656a71f49f187e1e8b18e413"
+      "sha256": "3af58a5ef8746796bffeccb46d445823d6d70843e3b2c5b3853e10fb6a37e381"
     },
     {
       "arquivo": "package.json",
@@ -44,7 +42,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "087d272f4292701d60a8a8261b9a6d8a93b57e52f11f87dd459202b8cb225e6e"
+      "sha256": "ba295ff7fe273e9f16b137cf003540ba0826e673cf092b5bb436d7c9c78d9d4e"
     },
     {
       "arquivo": "lib/google.js",
@@ -56,7 +54,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "ff1b2294589c55efc80e62c738a0a5515284e8683a08118159b636f456538c32"
+      "sha256": "386deb8886c315a1e1e70c8399fe2f714a365354a6360547081c332c23f19602"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -76,7 +74,7 @@
     },
     {
       "arquivo": "lib/exato.js",
-      "sha256": "b5f0aa25f5f89a637591f7a017d8b952dcc1c0d14e028aaf210782583c78de3d"
+      "sha256": "6862fac2cce1a007d168f4fa6ca85ca0d21ec4fc67e5a8116a880cdbfffc4624"
     },
     {
       "arquivo": "lib/aprender.js",
