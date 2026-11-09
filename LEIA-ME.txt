@@ -69,3 +69,7 @@ IMPORTANTE
 - O programa aprende com as suas correções: quando você corrige a mesma coisa
   em 2 notas, ele pergunta se pode fazer sozinho. Nada muda sem o seu "Sim".
   As regras ficam em Configurações > Correções aprendidas.
+- O programa abre sempre numa janela própria (sem barra de endereço). Se der erro
+  ao abrir, o motivo fica em "registro-do-programa.txt" na pasta do programa.
+- Para melhorar o programa, ele envia ao desenvolvedor só contagens: mensagens de
+  erro e quais campos você mais corrige. Nunca envia dados das notas nem da planilha.

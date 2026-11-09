@@ -1070,7 +1070,8 @@
       </div>
       <div class="secao">
         <b>Programa</b>
-        <div class="ajuda">O atalho "Leitor de Notas" (na área de trabalho e no menu Iniciar) abre o programa numa janela própria, sem a janela preta.</div>
+        <div class="ajuda">O programa abre numa janela própria. O atalho "Leitor de Notas" (na área de trabalho e no menu Iniciar) abre sem a janela preta.</div>
+        <div class="ajuda">Para melhorar o programa, ele envia ao desenvolvedor só contagens: as mensagens de erro e quais campos você mais corrige (por exemplo, "Cultivar"). Nunca envia dados das notas, das empresas nem da planilha.</div>
         <div class="linha-programa">
           <button type="button" id="btAtalho"><svg class="i"><use href="#i-upload"/></svg>Criar atalho na área de trabalho</button>
           <button type="button" id="btSair" title="Fecha o programa. Para abrir de novo, use o atalho.">Fechar o programa</button>
@@ -2474,7 +2475,7 @@ $('#btAtualizar').onclick = async () => {
     for (let i = 0; i < 30; i++) {
       try { await api('/api/estado'); location.reload(); return; } catch { await new Promise((ok) => setTimeout(ok, 1000)); }
     }
-    $('#atuTitulo').textContent = 'Atualizado. Feche a janela preta e abra o "Abrir Leitor de Notas.bat" de novo.';
+    $('#atuTitulo').textContent = 'Atualizado. Feche o programa e abra de novo pelo ícone "Leitor de Notas".';
   } catch (e) {
     toast(e.message, true);
     bt.disabled = false;

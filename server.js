@@ -10,6 +10,7 @@ const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require(
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar, pesoFecha } = require('./lib/montar');
 const { criarAprendizado } = require('./lib/aprender');
+const { criarTelemetria } = require('./lib/telemetria');
 const { conferirNota, saldoPorGrupo, LIMITE_QUEBRA_PADRAO } = require('./lib/conferencias');
 const { gerarRelatorio } = require('./lib/relatorio');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
@@ -477,6 +478,7 @@ async function inserirNota(config, nome, formulario, creditoRef = null, proposta
   } catch (e) {
     console.error('Não consegui anotar as correções desta nota:', e.message);
   }
+  try { telemetria.registrarNota(proposta, formulario); } catch { /* telemetria nunca atrapalha o lançamento */ }
   return numeros;
 }
 
@@ -485,6 +487,14 @@ async function inserirNota(config, nome, formulario, creditoRef = null, proposta
 // Desfaz sempre a mais recente primeiro, para não deixar buraco no meio da planilha.
 const ARQ_HISTORICO = path.join(path.dirname(ARQ_CONFIG), '.insercoes.json');
 const aprendizado = criarAprendizado(path.join(path.dirname(ARQ_CONFIG), '.aprendizado.json'));
+// Contagens de erros e de campos corrigidos, enviadas ao desenvolvedor (sem nenhum dado de nota). Ver lib/telemetria.js.
+const telemetria = criarTelemetria(path.join(path.dirname(ARQ_CONFIG), '.telemetria.json'));
+async function enviarTelemetria() {
+  try {
+    if (!creditos.ligado()) return;
+    await telemetria.enviar((payload) => creditos.telemetria(payload, lerConfig().auditor), lerVersaoLocal(RAIZ).versao);
+  } catch { /* sem internet ou servidor antigo: guarda e tenta de novo mais tarde */ }
+}
 const MAX_HISTORICO = 20;
 
 function lerHistorico() {
@@ -892,6 +902,7 @@ const servidor = http.createServer(async (req, res) => {
   } catch (e) {
     // Erros de crédito levam um "codigo" para a tela saber o que fazer (ex.: abrir a compra quando acabar o saldo).
     if (e.codigo) return json(res, e.status || 500, { erro: e.message, codigo: e.codigo });
+    try { telemetria.registrarErro(url.pathname, e.message); } catch { /* idem */ }
     console.error(e);
     json(res, 500, { erro: e.message || String(e) });
   }
@@ -900,7 +911,7 @@ const servidor = http.createServer(async (req, res) => {
 // Abre a página. Procura o Chrome (depois o Edge) direto: em alguns Windows 10 o "start" não abre nada.
 // Aberto pelo atalho (LEITOR_JANELA=1): abre como programa, numa janela própria sem barra de endereço.
 function argsNavegador(endereco) {
-  return process.env.LEITOR_JANELA === '1' ? [`--app=${endereco}`] : [endereco];
+  return [`--app=${endereco}`]; // sempre como programa (janela própria, sem barra de endereço), pelo ícone ou pelo .bat
 }
 function abrirNavegador(endereco) {
   const bases = [process.env['ProgramFiles'], process.env['ProgramFiles(x86)'], process.env.LOCALAPPDATA].filter(Boolean);
@@ -983,6 +994,8 @@ servidor.listen(PORTA, '127.0.0.1', () => {
   console.log('Deixe esta janela aberta enquanto estiver usando. Para sair, feche a janela.');
   if (!process.env.LEITOR_SEM_NAVEGADOR) abrirNavegador(endereco);
   atalhosNaPrimeiraVez();
+  setTimeout(enviarTelemetria, 45 * 1000);
+  setInterval(enviarTelemetria, 3 * 3600 * 1000);
 });
 servidor.on('error', (e) => {
   if (e.code === 'EADDRINUSE') {

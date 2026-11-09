@@ -1,16 +1,18 @@
 {
-  "versao": "1.1.30",
+  "versao": "1.1.31",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Peso conferido no PDF: cada quantidade lida pela IA é procurada no texto do próprio PDF (✓ quando confere, aviso quando não)",
-    "Foto: quando a soma dos itens não fecha com o peso líquido, a IA relê só os pesos e fica com a leitura que fecha",
-    "Campos de peso ficam em amarelo sempre que o peso não pôde ser confirmado"
+    "Abre sempre como programa, numa janela própria (sem barra de endereço), pelo ícone ou pelo .bat",
+    "Cultivar fora da base não apaga mais o peso: o item vem com o peso preenchido e só a cultivar em branco",
+    "Se der erro ao abrir pelo ícone, o programa não fica preso e o motivo fica em registro-do-programa.txt",
+    "Textos da atualização sem falar de \"janela preta\"",
+    "Envia ao desenvolvedor só contagens (erros e campos mais corrigidos), nunca dados das notas"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "3af58a5ef8746796bffeccb46d445823d6d70843e3b2c5b3853e10fb6a37e381"
+      "sha256": "821fab8b40745a77a01cd6bf3ca8551c318d42995f4467e8de85dd3209ed65d2"
     },
     {
       "arquivo": "package.json",
@@ -18,11 +20,11 @@
     },
     {
       "arquivo": "LEIA-ME.txt",
-      "sha256": "8b4525fcbb2b4780788dd222064e5c3c554197882a60baeb963c420ed92a836a"
+      "sha256": "d77b6f8c87e2baad64cc97aab5c0145a64fa0b00aed2faed6152eb4f801ae2e1"
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "e5a6ba71eff9e3901fcc90e2f8ef6e9a17ab902744b952e8ba71a16cf9655ab0"
+      "sha256": "d8ce1247ac6bddf44ed698d40a4b2f51f319dab58c17cb5295676637ea01d579"
     },
     {
       "arquivo": "lib/bloqueio.js",
@@ -34,7 +36,7 @@
     },
     {
       "arquivo": "lib/creditos.js",
-      "sha256": "36fd6a3dc21783ea8f5520c5f0702bd9c8b6921174c013d571801187be9e685e"
+      "sha256": "f25fbb346edc7b13e61d37d333e01eaefdd7149b210c52cf85a80c8b40d19c99"
     },
     {
       "arquivo": "lib/excel-aberto.ps1",
@@ -54,7 +56,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "386deb8886c315a1e1e70c8399fe2f714a365354a6360547081c332c23f19602"
+      "sha256": "c6e6e69d3c000500b002433079dd1fa21fef1384c9e1452d5837b37023dc34cd"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -66,7 +68,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "800bbf32418bc3e1ccbaaeaf4bcd81d38ca4ce794bbcae4fa82b6bba7b844442"
+      "sha256": "253b548ae2f76b64a5af7a65498a669169db26c27705532d5830e03fdb25fa9f"
     },
     {
       "arquivo": "public/planos.html",
@@ -90,7 +92,7 @@
     },
     {
       "arquivo": "lib/iniciar.vbs",
-      "sha256": "22dc2135a767c3f9e0de6539da364e8c6de220c36ea39f1bc9c0e62fa8920e8f"
+      "sha256": "a42997d1b52d583ad52e0460c708efe4fcd7b186ef489523992c47c7cbfbaa7d"
     },
     {
       "arquivo": "public/icone.ico",
@@ -123,6 +125,10 @@
     {
       "arquivo": "lib/terceiros/zxing/zxing_reader.wasm",
       "sha256": "85d46f55d7c86a4d09bb04273367408b19c324f582d040d018aecb25a9a82942"
+    },
+    {
+      "arquivo": "lib/telemetria.js",
+      "sha256": "bc1c3a3b7fa7cfd3ef6a41e364876e42699f9eb510d51293b5383fa0308ad201"
     }
   ],
   "servidorCreditos": "https://leitor-notas-servidor.vercel.app"
