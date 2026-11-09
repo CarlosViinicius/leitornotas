@@ -482,9 +482,9 @@
   header .contador-hoje b { color: var(--verde-texto); }
   header button.fantasma { color: var(--suave); }
   header button.fantasma:hover { background: var(--hover); color: var(--texto); }
-  header #btConfig, header #btSugestao, header #btTema, header #btPlanos { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 10px; border-radius: 10px; }
+  header #btConfig, header #btSugestao, header #btTema, header #btPlanos, header #btSaldo { border: 1px solid var(--borda); background: var(--sutil); color: var(--texto); padding: 8px 10px; border-radius: 10px; }
   header #btTema { padding: 8px 10px; }
-  header #btConfig:hover, header #btSugestao:hover, header #btTema:hover, header #btPlanos:hover { border-color: var(--borda-forte); background: var(--hover); }
+  header #btConfig:hover, header #btSugestao:hover, header #btTema:hover, header #btPlanos:hover, header #btSaldo:hover { border-color: var(--borda-forte); background: var(--hover); }
 
   /* Prazo: sem caixa colorida em volta, só uma divisória */
   #avisoPag { height: auto; margin-left: 4px; padding: 0 0 0 18px; gap: 14px; border: 0; border-left: 1px solid var(--borda); border-radius: 0; background: none; animation: none; }
@@ -726,6 +726,92 @@
   #dlgCompra .linha-codigo input { flex: 1; min-width: 0; }
   #dlgCompra .linha-codigo input:not(:placeholder-shown) { text-transform: uppercase; }
   #dlgCompra [hidden] { display: none !important; }
+
+  /* ---- Painel de saldo ---- */
+  #dlgSaldo { width: min(1200px, 96vw); }
+  #dlgSaldo form { max-height: 92vh; }
+  #dlgSaldo .cabeca .ajuda { margin: 4px 0 0; }
+  .saldo-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+  .saldo-kpis .kpi { padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; background: var(--sutil); min-width: 0; }
+  .saldo-kpis .kpi small { display: block; font-size: 11.5px; color: var(--suave); text-transform: uppercase; letter-spacing: .05em; }
+  .saldo-kpis .kpi b { display: block; margin-top: 4px; font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .saldo-kpis .kpi span { display: block; font-size: 12px; color: var(--suave); }
+  .saldo-kpis .kpi.atencao { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); }
+  .saldo-kpis .kpi.atencao b { display: flex; align-items: center; gap: 6px; }
+  .saldo-kpis .kpi.atencao svg { color: var(--vermelho-texto); width: 17px; height: 17px; }
+  @media (max-width: 900px) { .saldo-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .saldo-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .saldo-filtros input[type=search] { flex: 1 1 280px; min-width: 0; }
+  .saldo-filtros label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--texto); white-space: nowrap; text-transform: none; letter-spacing: 0; }
+  .saldo-filtros .limite input { width: 52px; text-align: center; padding: 6px; }
+  .saldo-tabela { overflow: auto; border: 1px solid var(--borda); border-radius: 12px; max-height: 52vh; }
+  .saldo-tabela table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .saldo-tabela th { position: sticky; top: 0; z-index: 1; background: var(--sutil); color: var(--suave); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--borda); white-space: nowrap; }
+  .saldo-tabela td { padding: 9px 10px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  .saldo-tabela .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .saldo-tabela tr.grupo { cursor: pointer; }
+  .saldo-tabela tr.grupo:hover td { background: var(--hover); }
+  .saldo-tabela tr.grupo td:first-child .emp::before { content: '▸'; display: inline-block; width: 14px; color: var(--fraco); transition: transform .15s; }
+  .saldo-tabela tr.grupo.aberto td:first-child .emp::before { transform: rotate(90deg); }
+  .saldo-tabela tr.grupo td:first-child .doc { padding-left: 14px; }
+  .saldo-tabela:focus-visible { outline: 2px solid var(--anel); outline-offset: 1px; }
+  .saldo-tabela .emp { display: block; font-weight: 600; min-width: 220px; }
+  .saldo-tabela .doc { display: block; color: var(--suave); font-size: 12px; }
+  .saldo-tabela .zero { color: var(--fraco); }
+  .saldo-tabela th:last-child, .saldo-tabela td:last-child { min-width: 200px; }
+  .saldo-tabela .negativo { color: var(--vermelho-texto); font-weight: 650; }
+  .saldo-tabela .selo-s { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; border: 1px solid; }
+  .saldo-tabela .selo-s svg { width: 13px; height: 13px; }
+  .saldo-tabela .selo-s.ruim { color: var(--vermelho-texto); background: var(--vermelho-fundo); border-color: var(--vermelho-borda); }
+  .saldo-tabela .selo-s.alto { color: var(--amarelo-texto); background: var(--amarelo); border-color: var(--amarelo-borda); }
+  .saldo-tabela .selo-s.ok { color: var(--suave); background: transparent; border-color: var(--borda); }
+  .saldo-tabela .situacao { display: flex; flex-wrap: wrap; gap: 4px; }
+  .saldo-tabela tr.detalhe td { background: var(--sutil); padding: 6px 10px 12px 34px; }
+  .saldo-tabela tr.detalhe table { font-size: 12.5px; width: auto; min-width: min(640px, 100%); }
+  .saldo-tabela tr.detalhe th { position: static; background: none; border-bottom: 1px solid var(--borda); padding: 6px 8px; }
+  .saldo-tabela tr.detalhe td td { background: none; padding: 5px 8px; border-bottom: 1px dashed var(--borda); }
+  .saldo-tabela tfoot td { position: sticky; bottom: 0; background: var(--painel); font-weight: 650; border-top: 1px solid var(--borda-forte); border-bottom: 0; }
+  .saldo-vazio { padding: 28px; text-align: center; color: var(--suave); font-size: 13.5px; }
+  #dlgSaldo .botoes { flex-wrap: wrap; align-items: center; }
+  .linha-programa { display: flex; flex-wrap: wrap; gap: 8px; }
+  #btSair.confirmar { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); color: var(--vermelho-texto); }
+  .programa-fechado { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--fundo); color: var(--texto); text-align: center; padding: 24px; }
+  .programa-fechado h2 { margin: 0 0 8px; font-size: 20px; }
+  .programa-fechado p { margin: 0; color: var(--suave); }
+  .relatorio-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; border: 1px solid var(--verde-borda); border-radius: 12px; background: var(--verde-claro); }
+  .relatorio-linha b { font-size: 13px; color: var(--verde-texto); margin-right: 2px; }
+  .relatorio-linha select { width: auto; max-width: 220px; padding: 6px 8px; }
+
+  /* ---- Aprender com as correções ---- */
+  .obs-campo.obs-regra { color: var(--azul-texto); }
+  .obs-campo.obs-regra svg { color: var(--azul); }
+  .obs-campo.obs-regra.desfeita { color: var(--suave); }
+  .obs-campo.obs-regra.desfeita svg { color: var(--fraco); }
+  .obs-campo .link { font-size: 12px; padding: 0 2px; }
+  #cartaoAprender { position: fixed; left: 20px; bottom: 20px; z-index: 45; width: min(380px, calc(100vw - 32px)); padding: 16px; border-radius: 16px; border: 1px solid var(--borda); background: var(--painel); color: var(--texto); box-shadow: var(--sombra-alta); animation: subirCartao .25s ease-out; }
+  #cartaoAprender[hidden] { display: none; }
+  @keyframes subirCartao { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  #cartaoAprender .topo-ca { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  #cartaoAprender .ic { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--verde-claro); color: var(--verde-texto); }
+  #cartaoAprender .ic.aviso-ic { background: var(--amarelo); color: var(--amarelo-texto); }
+  #cartaoAprender .ic svg { width: 18px; height: 18px; }
+  #cartaoAprender h4 { margin: 0; font-size: 14.5px; font-weight: 650; }
+  #cartaoAprender .mais { margin-left: auto; font-size: 11.5px; color: var(--suave); white-space: nowrap; }
+  #cartaoAprender p { margin: 0 0 6px; font-size: 13.5px; line-height: 1.45; }
+  #cartaoAprender .pergunta { font-weight: 600; }
+  #cartaoAprender .vale { margin: 0 0 12px; font-size: 12px; color: var(--suave); }
+  #cartaoAprender .botoes-ca { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  #cartaoAprender .botoes-ca .link { margin-left: auto; }
+  @media (max-width: 700px) { #cartaoAprender { left: 16px; right: 16px; width: auto; bottom: 16px; } }
+  #listaRegras { display: flex; flex-direction: column; gap: 8px; }
+  #listaRegras .vazio { font-size: 12.5px; color: var(--suave); }
+  #listaRegras .regra { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--borda); border-radius: 11px; background: var(--painel); }
+  #listaRegras .regra.pausada { opacity: .65; }
+  #listaRegras .regra .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  #listaRegras .regra .txt b { font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+  #listaRegras .regra .txt small { font-size: 12px; color: var(--suave); overflow-wrap: anywhere; }
+  #listaRegras .regra button { flex: none; padding: 5px 11px; font-size: 12px; }
+  #listaRegras .regra button.confirmar { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); color: var(--vermelho-texto); }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -744,6 +830,7 @@
   <symbol id="i-caixa" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></symbol>
   <symbol id="i-lapis" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-saldo" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 17V11M11 17V5M16 17v-8M21 17v-3"/></symbol>
   <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
   <symbol id="i-trocar" viewBox="0 0 24 24"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></symbol>
@@ -784,6 +871,7 @@
   </div>
   <span class="espaco"></span>
   <span class="contador-hoje" id="contadorHoje"></span>
+  <button class="fantasma icone" id="btSaldo" title="Saldo por licenciado e cultivar (o que entrou, voltou e ainda está na deslintadora)" aria-label="Saldo"><svg class="i"><use href="#i-saldo"/></svg></button>
   <button class="fantasma icone" id="btPlanos" title="Ver os planos" aria-label="Planos" onclick="location.href='/planos'"><svg class="i"><use href="#i-cartao"/></svg></button>
   <button class="fantasma icone" id="btSugestao" title="Melhoria: envie uma ideia ou aponte um problema" aria-label="Melhoria"><svg class="i"><use href="#i-lampada"/></svg></button>
   <button class="fantasma icone" id="btTema" title="Tema"><svg class="i"><use href="#i-auto"/></svg></button>
@@ -836,6 +924,7 @@
 <input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <div id="sobrepor"><div class="caixa"><svg class="i"><use href="#i-upload"/></svg><h3>Solte as notas aqui</h3></div></div>
 <div id="toast"></div>
+<div id="cartaoAprender" hidden role="dialog" aria-live="polite" aria-label="Sugestão de correção automática"></div>
 
 <dialog id="dlgSugestao">
   <form method="dialog" id="formSugestao">
@@ -875,6 +964,33 @@
     <div class="botoes">
       <button type="button" id="btCompraVoltar" hidden>Voltar</button>
       <button type="button" id="btCompraFechar">Fechar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgSaldo">
+  <form method="dialog" onsubmit="return false">
+    <div class="cabeca"><h3>Saldo por licenciado e cultivar</h3>
+      <p class="ajuda" id="saldoAjuda">Calculado direto da planilha. <b>Na deslintadora</b> = entrada − saída − sem deslintar − quebra.</p></div>
+    <div class="corpo">
+      <div class="saldo-kpis" id="saldoKpis"></div>
+      <div class="saldo-filtros">
+        <input type="search" id="saldoBusca" placeholder="Buscar licenciado, deslintadora ou cultivar" autocomplete="off">
+        <label class="check"><input type="checkbox" id="saldoAtencao"> Só o que precisa de atenção</label>
+        <label class="limite">Quebra alta acima de <input id="saldoLimite" inputmode="decimal" size="3"> %</label>
+      </div>
+      <div class="saldo-tabela" id="saldoTabela"></div>
+    </div>
+    <div class="botoes">
+      <div class="relatorio-linha">
+        <b>Relatório para o cliente</b>
+        <select id="relCliente" aria-label="Cliente do relatório"></select>
+        <select id="relMes" aria-label="Período do relatório"></select>
+        <button type="button" id="btRelatorio" class="primario"><svg class="i"><use href="#i-doc"/></svg>Baixar relatório (Excel)</button>
+      </div>
+      <span style="flex:1"></span>
+      <button type="button" id="btSaldoCopiar" title="Copia a tabela como está na tela, para colar no Excel">Copiar tabela</button>
+      <button type="button" id="btSaldoFechar">Fechar</button>
     </div>
   </form>
 </dialog>
@@ -936,10 +1052,29 @@
         <div class="grade-colunas" id="gradeColunas"></div>
       </div>
       <div class="secao">
+        <b>Conferências</b>
+        <label>Avisar quando a quebra técnica passar de (%)
+          <input name="limiteQuebra" inputmode="decimal" placeholder="3"></label>
+        <div class="ajuda">Vale para o aviso na nota e para o painel de saldo.</div>
+      </div>
+      <div class="secao">
+        <b>Correções aprendidas</b>
+        <div class="ajuda">Quando você corrige a mesma coisa em 2 notas, o programa pergunta se pode fazer isso sozinho. As que você aprovou ficam aqui. Pausar ou apagar vale na hora.</div>
+        <div id="listaRegras"></div>
+      </div>
+      <div class="secao">
         <b>Pasta das notas</b>
         <label>Pasta onde ficam as notas para lançar</label>
         <div class="com-botao"><input name="pastaNotas">
           <button type="button" data-escolher="pasta"><svg class="i"><use href="#i-pasta"/></svg>Procurar...</button></div>
+      </div>
+      <div class="secao">
+        <b>Programa</b>
+        <div class="ajuda">O atalho "Leitor de Notas" (na área de trabalho e no menu Iniciar) abre o programa numa janela própria, sem a janela preta.</div>
+        <div class="linha-programa">
+          <button type="button" id="btAtalho"><svg class="i"><use href="#i-upload"/></svg>Criar atalho na área de trabalho</button>
+          <button type="button" id="btSair" title="Fecha o programa. Para abrir de novo, use o atalho.">Fechar o programa</button>
+        </div>
       </div>
     </div>
     <div class="botoes">
@@ -998,6 +1133,8 @@ const estado = {
   desfazer: null, // a inserção mais recente que ainda dá para desfazer: { id, nf, nome, linhas }
   tentativas: {}, // nome -> quantas vezes a leitura falhou por IA ocupada
   proximaTentativa: {},
+  regrasDesfeitas: {}, // nome -> Set(id das regras aprendidas que a pessoa desfez nesta nota)
+  aprender: { fila: [], mostrando: null }, // sugestões "posso aprender isso?" e avisos esperando na tela
 };
 const MAX_TENTATIVAS = 5;
 
@@ -1644,8 +1781,13 @@ function desenharFormulario(nome, r) {
   // No topo: só o que precisa de atenção, num quadro só. Observações de um quadro aparecem dentro dele.
   const erros = r.avisos.filter((a) => a.nivel === 'erro');
   const conferir = ativos.avisos.filter((a) => a.nivel === 'alerta' || (a.nivel === 'info' && !a.campo));
+  const desfeitas = estado.regrasDesfeitas[nome] || new Set();
+  // Correção feita por uma regra aprendida: fica marcada e dá para desfazer só nesta nota.
+  const obsRegra = (a) => desfeitas.has(a.regra.id)
+    ? `<div class="obs-campo obs-regra desfeita">${icone('lampada')}<span>Você desfez nesta nota a correção da regra aprendida. <button type="button" class="link" data-refazer-regra="${esc(a.regra.id)}">refazer</button></span></div>`
+    : `<div class="obs-campo obs-regra">${icone('lampada')}<span>${esc(a.texto)} <button type="button" class="link" data-desfazer-regra="${esc(a.regra.id)}">desfazer nesta nota</button></span></div>`;
   const obs = (campo) => r.avisos.filter((a) => a.campo === campo && a.nivel === 'info')
-    .map((a) => `<div class="obs-campo">${icone('info')}<span>${esc(a.texto)}</span></div>`).join('');
+    .map((a) => (a.regra ? obsRegra(a) : `<div class="obs-campo">${icone('info')}<span>${esc(a.texto)}</span></div>`)).join('');
   if (!conferir.length && ativos.incertos.length) conferir.push({ texto: 'A IA não teve certeza dos campos em amarelo.' });
   const quadroConferir = !conferir.length || duplicada ? ''
     : conferida
@@ -1720,6 +1862,23 @@ function desenharFormulario(nome, r) {
   if ($('#btTrocarCarta')) $('#btTrocarCarta').onclick = escolherCarta;
   if ($('#btVerCarta')) $('#btVerCarta').onclick = () => mostrarArquivo(nome, 'carta');
   if ($('#btTirarCarta')) $('#btTirarCarta').onclick = () => tirarCarta(nome);
+  // Desfazer / refazer a correção de uma regra aprendida, só nesta nota.
+  const camposDaRegra = (id) => (r.avisos.find((a) => a.regra && a.regra.id === id) || {}).regra?.campos || [];
+  const pegar = (obj, c) => c.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
+  const colocar = (obj, c, v) => { const p = c.split('.'); const k = p.pop(); const o = p.reduce((x, y) => x?.[y], obj); if (o) o[k] = v; };
+  $('#campos').querySelectorAll('[data-desfazer-regra]').forEach((b) => (b.onclick = () => {
+    const id = b.dataset.desfazerRegra;
+    for (const { c, antes } of camposDaRegra(id)) colocar(f, c, antes);
+    (estado.regrasDesfeitas[nome] ||= new Set()).add(id);
+    desenharFormulario(nome, r);
+    toast('Correção desfeita nesta nota. A regra continua valendo para as outras.');
+  }));
+  $('#campos').querySelectorAll('[data-refazer-regra]').forEach((b) => (b.onclick = () => {
+    const id = b.dataset.refazerRegra;
+    for (const { c } of camposDaRegra(id)) colocar(f, c, pegar(r.formulario, c));
+    estado.regrasDesfeitas[nome]?.delete(id);
+    desenharFormulario(nome, r);
+  }));
   if ($('#btConferi')) $('#btConferi').onclick = () => marcarConferida(true);
   if ($('#btDesconferir')) $('#btDesconferir').onclick = () => marcarConferida(false);
   $('#btInverter').onclick = () => {
@@ -1798,13 +1957,16 @@ async function inserirUma(nome) {
   estado.inserindo.add(nome);
   desenharLista();
   try {
-    const resp = await api('/api/inserir', { nome, formulario: f });
+    // proposta/contexto: o que o programa propôs. O servidor compara com o que foi lançado para aprender.
+    const resp = await api('/api/inserir', { nome, formulario: f, proposta: r.formulario, contexto: r.contexto || null });
     estado.desfazer = resp.desfazer || null;
+    if (resp.aprendizado) mostrarAprendizado(resp.aprendizado);
     if (typeof resp.saldo === 'number') mostrarSaldo(resp.saldo);
     registrarLancada(f.nf, resp.linhas, nome);
     estado.pendentes = estado.pendentes.filter((p) => p.nome !== nome);
     delete estado.leituras[nome];
     delete estado.forms[nome];
+    delete estado.regrasDesfeitas[nome];
     estado.selecionadas.delete(nome);
     return resp;
   } finally {
@@ -1891,7 +2053,7 @@ $('#btConfig').onclick = () => abrirConfig();
 
 // Atalho: Ctrl+Enter confirma e insere
 window.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.key === 'Enter' && !$('#btInserir').disabled && !$('#dlgConfig').open) $('#btInserir').click();
+  if (e.ctrlKey && e.key === 'Enter' && !$('#btInserir').disabled && !$('#dlgConfig').open && !$('#dlgSaldo').open) $('#btInserir').click();
 });
 
 // ---------- Configurações ----------
@@ -1928,6 +2090,7 @@ function abrirConfig() {
   const c = estado.config || {};
   const f = $('#formConfig');
   for (const k of ['ia', 'destino', 'planilha', 'googleUrl', 'aba', 'auditor', 'pastaNotas']) f.elements[k].value = c[k] || '';
+  f.elements.limiteQuebra.value = String(c.limiteQuebra || 3).replace('.', ',');
   if (!f.elements.destino.value) f.elements.destino.value = 'excel';
   if (!f.elements.ia.value) f.elements.ia.value = 'gemini';
   f.elements.apiKey.value = '';
@@ -1944,12 +2107,14 @@ function abrirConfig() {
   mostrarOpcoes();
   const dlg = $('#dlgConfig');
   if (!dlg.open) dlg.showModal();
+  carregarRegras();
 }
 $('#dlgConfig').addEventListener('close', async () => {
   if ($('#dlgConfig').returnValue !== 'salvar') return;
   const f = $('#formConfig');
   const dados = {};
   for (const k of ['ia', 'destino', 'planilha', 'googleUrl', 'aba', 'auditor', 'pastaNotas', 'apiKey', 'geminiKey']) dados[k] = f.elements[k].value;
+  dados.limiteQuebra = f.elements.limiteQuebra.value;
   dados.colunas = [...document.querySelectorAll('#gradeColunas input:checked')].map((i) => i.value);
   if (!dados.colunas.length) { toast('Marque pelo menos uma coluna para preencher.', true); return; }
   if (dados.colunas.length === COLUNAS.length) dados.colunas = [];
@@ -1967,6 +2132,297 @@ $('#dlgConfig').addEventListener('close', async () => {
 });
 
 atualizar().catch((e) => toast(e.message, true));
+
+// ---------- Painel de saldo ----------
+// Por licenciado + deslintadora + cultivar, direto da planilha: entrou, voltou, quebra e o que ainda está lá.
+const saldo = { grupos: [], abertos: new Set(), limite: 3 };
+const kgFmt = (n) => Number(n || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+const pctFmt = (n) => (n == null ? '—' : n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%');
+const kgOuTraco = (n) => (Math.abs(n) < 0.0005 ? '<span class="zero">–</span>' : kgFmt(n));
+const docFmt = (d) => (d && d.length === 14 ? d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5') : d && d.length === 11 ? d.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4') : '');
+const quebraAlta = (g) => g.quebraPct != null && g.quebraPct > saldo.limite;
+const precisaAtencao = (g) => g.voltouMais || quebraAlta(g);
+const gravidade = (g) => (g.voltouMais ? 2 : 0) + (quebraAlta(g) ? 1 : 0);
+
+async function abrirSaldo() {
+  const dlg = $('#dlgSaldo');
+  $('#saldoKpis').innerHTML = '';
+  $('#saldoTabela').innerHTML = '<div class="saldo-vazio"><div class="girando" style="margin:0 auto 10px"></div>Lendo a planilha...</div>';
+  if (!dlg.open) dlg.showModal();
+  try {
+    const r = await api('/api/saldo');
+    saldo.grupos = r.grupos || [];
+    saldo.limite = r.limiteQuebra || 3;
+    // Opções do relatório: clientes e meses que existem na planilha (o mês mais recente primeiro).
+    const NOMES_MES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    const clienteAntes = $('#relCliente').value;
+    $('#relCliente').innerHTML = '<option value="">Todos os clientes</option>' + (r.clientes || []).map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    if ((r.clientes || []).includes(clienteAntes)) $('#relCliente').value = clienteAntes;
+    $('#relMes').innerHTML = (r.meses || []).map((m) => `<option value="${m}">${NOMES_MES[Number(m.slice(5)) - 1]} de ${m.slice(0, 4)}</option>`).join('') + '<option value="">Tudo (desde o início)</option>';
+    $('#saldoLimite').value = String(saldo.limite).replace('.', ',');
+    $('#saldoAjuda').innerHTML = `Calculado agora, direto da planilha (aba <b>${esc(r.aba || '')}</b>). <b>Na deslintadora</b> = entrada − saída − sem deslintar − quebra. Clique numa linha para ver as notas.`;
+    desenharSaldo();
+  } catch (e) {
+    $('#saldoTabela').innerHTML = `<div class="saldo-vazio">Não consegui ler a planilha: ${esc(e.message)}</div>`;
+  }
+}
+
+function gruposFiltrados() {
+  const busca = $('#saldoBusca').value.trim().toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const so = $('#saldoAtencao').checked;
+  return saldo.grupos
+    .filter((g) => !so || precisaAtencao(g))
+    .filter((g) => !busca || [g.licenciado, g.deslintadora, g.cultivar, g.licencDoc, g.deslintDoc].join(' ').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(busca))
+    // Mais grave primeiro: voltou mais do que entrou, depois quebra alta, depois o resto.
+    .sort((a, b) => gravidade(b) - gravidade(a) || a.licenciado.localeCompare(b.licenciado) || a.cultivar.localeCompare(b.cultivar));
+}
+
+function desenharSaldo() {
+  const lista = gruposFiltrados();
+  const soma = (k) => lista.reduce((t, g) => t + g[k], 0);
+  const total = { entrada: soma('entrada'), saida: soma('saida'), semDeslintar: soma('semDeslintar'), quebra: soma('quebra'), naDeslintadora: soma('naDeslintadora') };
+  const atencao = saldo.grupos.filter(precisaAtencao).length;
+  $('#saldoKpis').innerHTML = `
+    <div class="kpi"><small>Entrou</small><b>${kgFmt(total.entrada)} kg</b><span>${lista.length} ${lista.length === 1 ? 'grupo' : 'grupos'}</span></div>
+    <div class="kpi"><small>Voltou deslintado</small><b>${kgFmt(total.saida)} kg</b><span>+ ${kgFmt(total.semDeslintar)} kg sem deslintar</span></div>
+    <div class="kpi"><small>Quebra</small><b>${kgFmt(total.quebra)} kg</b><span>${total.entrada ? pctFmt((total.quebra / total.entrada) * 100) + ' da entrada' : '—'}</span></div>
+    <div class="kpi"><small>Na deslintadora</small><b>${kgFmt(total.naDeslintadora)} kg</b><span>ainda não voltou</span></div>
+    <div class="kpi ${atencao ? 'atencao' : ''}"><small>Precisam de atenção</small><b>${atencao ? icone('alerta') : ''}${atencao}</b><span>${atencao ? 'veja os selos na tabela' : 'tudo certo'}</span></div>`;
+  if (!saldo.grupos.length) {
+    $('#saldoTabela').innerHTML = '<div class="saldo-vazio">Nenhuma nota com volume na planilha ainda.</div>';
+    return;
+  }
+  if (!lista.length) {
+    $('#saldoTabela').innerHTML = '<div class="saldo-vazio">Nada encontrado com esse filtro.</div>';
+    return;
+  }
+  const selos = (g) => [
+    g.voltouMais ? `<span class="selo-s ruim">${icone('alerta')}Voltou mais do que entrou</span>` : '',
+    quebraAlta(g) ? `<span class="selo-s alto">${icone('alerta')}Quebra alta</span>` : '',
+  ].filter(Boolean).join('') || '<span class="selo-s ok">OK</span>';
+  const tipo = (n) => (n.entrada ? 'Entrada' : n.saida ? 'Saída' : n.semDeslintar ? 'Sem deslintar' : 'Quebra');
+  const linhas = lista.map((g) => {
+    const aberto = saldo.abertos.has(g.chave);
+    const detalhe = aberto ? `<tr class="detalhe"><td colspan="9"><table>
+        <thead><tr><th>NF</th><th>Linha</th><th>Tipo</th><th class="n">Entrada</th><th class="n">Saída</th><th class="n">Sem deslintar</th><th class="n">Quebra</th></tr></thead>
+        <tbody>${g.notas.map((n) => `<tr><td>${esc(n.nf || '—')}</td><td>${n.linha}</td><td>${tipo(n)}</td>
+          <td class="n">${n.entrada ? kgFmt(n.entrada) : ''}</td><td class="n">${n.saida ? kgFmt(n.saida) : ''}</td>
+          <td class="n">${n.semDeslintar ? kgFmt(n.semDeslintar) : ''}</td><td class="n">${n.quebra ? kgFmt(n.quebra) : ''}</td></tr>`).join('')}</tbody>
+      </table></td></tr>` : '';
+    const docs = [g.licencDoc && 'Licenciado: ' + docFmt(g.licencDoc), g.deslintDoc && 'Deslintadora: ' + docFmt(g.deslintDoc)].filter(Boolean).join(' · ');
+    return `<tr class="grupo ${aberto ? 'aberto' : ''}" data-grupo="${esc(g.chave)}" title="${esc((docs ? docs + ' · ' : '') + 'Clique para ver as notas')}">
+        <td><span class="emp">${esc(g.licenciado)}</span><span class="doc">em ${esc(g.deslintadora)}</span></td>
+        <td style="white-space:nowrap"><b>${esc(g.cultivar)}</b><span class="doc">${esc(g.safras.join(', '))}</span></td>
+        <td class="n">${kgOuTraco(g.entrada)}</td><td class="n">${kgOuTraco(g.saida)}</td><td class="n">${kgOuTraco(g.semDeslintar)}</td>
+        <td class="n">${kgOuTraco(g.quebra)}</td><td class="n">${g.quebra ? pctFmt(g.quebraPct) : '<span class="zero">–</span>'}</td>
+        <td class="n ${g.naDeslintadora < -0.5 ? 'negativo' : ''}">${kgFmt(g.naDeslintadora)}</td>
+        <td><div class="situacao">${selos(g)}</div></td></tr>${detalhe}`;
+  }).join('');
+  $('#saldoTabela').innerHTML = `<table>
+    <thead><tr><th>Licenciado · deslintadora</th><th>Cultivar</th><th class="n">Entrada (kg)</th><th class="n">Saída (kg)</th><th class="n">Sem deslintar</th><th class="n">Quebra (kg)</th><th class="n">Quebra %</th><th class="n">Na deslintadora</th><th>Situação</th></tr></thead>
+    <tbody>${linhas}</tbody>
+    <tfoot><tr><td colspan="2">Total${lista.length < saldo.grupos.length ? ' (filtrado)' : ''}</td>
+      <td class="n">${kgFmt(total.entrada)}</td><td class="n">${kgFmt(total.saida)}</td><td class="n">${kgFmt(total.semDeslintar)}</td>
+      <td class="n">${kgFmt(total.quebra)}</td><td class="n">${total.entrada ? pctFmt((total.quebra / total.entrada) * 100) : '—'}</td>
+      <td class="n">${kgFmt(total.naDeslintadora)}</td><td></td></tr></tfoot></table>`;
+  $('#saldoTabela').querySelectorAll('tr.grupo').forEach((tr) => (tr.onclick = () => {
+    const k = tr.dataset.grupo;
+    if (saldo.abertos.has(k)) saldo.abertos.delete(k); else saldo.abertos.add(k);
+    desenharSaldo();
+  }));
+}
+
+$('#btSaldo').onclick = abrirSaldo;
+
+// ---------- Programa: atalho e fechar ----------
+$('#btAtalho').onclick = async () => {
+  const bt = $('#btAtalho');
+  bt.disabled = true;
+  try {
+    await api('/api/atalho', {});
+    toast('Atalho "Leitor de Notas" criado na área de trabalho e no menu Iniciar.');
+  } catch (e) { toast(e.message, true); }
+  bt.disabled = false;
+};
+$('#btSair').onclick = async () => {
+  const bt = $('#btSair');
+  // Pede um segundo clique para confirmar.
+  if (!bt.classList.contains('confirmar')) {
+    bt.classList.add('confirmar');
+    bt.textContent = 'Clique de novo para fechar';
+    setTimeout(() => { bt.classList.remove('confirmar'); bt.textContent = 'Fechar o programa'; }, 4000);
+    return;
+  }
+  try { await api('/api/sair', {}); } catch { /* já fechou */ }
+  $('#dlgConfig').close();
+  document.body.insertAdjacentHTML('beforeend', '<div class="programa-fechado"><div><h2>O Leitor de Notas foi fechado</h2><p>Pode fechar esta janela. Para abrir de novo, use o atalho "Leitor de Notas".</p></div></div>');
+  setTimeout(() => window.close(), 1500); // a janela própria (aberta pelo atalho) fecha sozinha
+};
+// Baixa o relatório em Excel (o servidor monta na hora, com a planilha como está agora).
+$('#btRelatorio').onclick = async () => {
+  const bt = $('#btRelatorio');
+  const q = new URLSearchParams({ cliente: $('#relCliente').value, mes: $('#relMes').value });
+  bt.disabled = true;
+  const texto = bt.innerHTML;
+  bt.innerHTML = '<span class="girando" style="width:15px;height:15px;border-width:2px;margin:0"></span>Gerando...';
+  try {
+    const resp = await fetch('/api/relatorio?' + q);
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).erro || 'Não consegui gerar o relatório.');
+    const blob = await resp.blob();
+    const nome = decodeURIComponent((resp.headers.get('Content-Disposition') || '').match(/filename\*=UTF-8''([^;]+)/)?.[1] || 'Relatorio.xlsx');
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: nome });
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toast(`Relatório "${nome}" baixado. Ele fica na pasta Downloads.`);
+  } catch (e) {
+    toast(e.message, true);
+  } finally {
+    bt.disabled = false;
+    bt.innerHTML = texto;
+  }
+};
+$('#btSaldoFechar').onclick = () => $('#dlgSaldo').close();
+$('#saldoBusca').oninput = desenharSaldo;
+$('#saldoAtencao').onchange = desenharSaldo;
+$('#saldoLimite').onchange = async () => {
+  const n = Number($('#saldoLimite').value.replace(',', '.'));
+  if (!(n > 0 && n <= 100)) { $('#saldoLimite').value = String(saldo.limite).replace('.', ','); toast('O limite tem que ser um número entre 0 e 100.', true); return; }
+  saldo.limite = n;
+  desenharSaldo();
+  // O mesmo limite vale para o aviso nas notas.
+  try { await api('/api/config', { limiteQuebra: n }); if (estado.config) estado.config.limiteQuebra = n; revalidarFila(); toast(`Limite de quebra: ${pctFmt(n).replace(',0%', '%')}`); } catch (e) { toast(e.message, true); }
+};
+// Copia a tabela (como está filtrada) para colar no Excel.
+$('#btSaldoCopiar').onclick = async () => {
+  const lista = gruposFiltrados();
+  if (!lista.length) { toast('Nada para copiar.', true); return; }
+  const n = (v) => String(Math.round(v * 1000) / 1000).replace('.', ',');
+  const linhas = [['Licenciado', 'CNPJ licenciado', 'Deslintadora', 'CNPJ deslintadora', 'Cultivar', 'Entrada (kg)', 'Saída (kg)', 'Sem deslintar (kg)', 'Quebra (kg)', 'Quebra %', 'Na deslintadora (kg)', 'Situação']]
+    .concat(lista.map((g) => [g.licenciado, docFmt(g.licencDoc), g.deslintadora, docFmt(g.deslintDoc), g.cultivar, n(g.entrada), n(g.saida), n(g.semDeslintar), n(g.quebra),
+      g.quebraPct == null ? '' : n(Math.round(g.quebraPct * 10) / 10), n(g.naDeslintadora),
+      [g.voltouMais ? 'Voltou mais do que entrou' : '', quebraAlta(g) ? 'Quebra alta' : ''].filter(Boolean).join('; ') || 'OK']));
+  try {
+    await navigator.clipboard.writeText(linhas.map((l) => l.map((c) => String(c).replace(/[\t\n]/g, ' ')).join('\t')).join('\n'));
+    toast('Tabela copiada. É só colar no Excel (Ctrl+V).');
+  } catch { toast('Não consegui copiar. Tente de novo.', true); }
+};
+
+// ---------- Aprender com as correções ----------
+// O servidor conta as correções. Quando a mesma acontece em 2 notas, aparece o cartão perguntando
+// se pode fazer sozinho. Nada vira regra sem o "Sim".
+function mostrarAprendizado(res) {
+  if (!res) return;
+  const fila = [
+    ...(res.avisos || []).map((a) => ({ chave: 'aviso:' + a.id, aviso: a })),
+    ...(res.sugestoes || []).map((s) => ({ chave: 'sug:' + s.chave, sug: s })),
+  ];
+  estado.aprender.fila = fila;
+  if (!fila.some((x) => x.chave === estado.aprender.mostrando)) estado.aprender.mostrando = fila[0]?.chave || null;
+  desenharCartaoAprender();
+  if ($('#dlgConfig').open) desenharRegras(res.regras || []);
+}
+
+function desenharCartaoAprender() {
+  const el = $('#cartaoAprender');
+  const { fila, mostrando } = estado.aprender;
+  const item = fila.find((x) => x.chave === mostrando);
+  if (!item) { el.hidden = true; el.innerHTML = ''; return; }
+  const mais = fila.length > 1 ? `<span class="mais">mais ${fila.length - 1}</span>` : '';
+  if (item.aviso) {
+    el.innerHTML = `<div class="topo-ca"><span class="ic aviso-ic">${icone('alerta')}</span><h4>Regra pausada</h4>${mais}</div>
+      <p>${esc(item.aviso.texto)}</p>
+      <div class="botoes-ca"><button type="button" class="primario" data-ca="visto">${icone('check')}Entendi</button></div>`;
+  } else {
+    const s = item.sug;
+    el.innerHTML = `<div class="topo-ca"><span class="ic">${icone('lampada')}</span><h4>Posso aprender isso?</h4>${mais}</div>
+      <p>${esc(s.texto)}</p>
+      <p class="pergunta">Quer que eu faça isso sozinho nas próximas notas?</p>
+      <p class="vale">Vale só para ${esc(s.onde)}. A correção aparece marcada na nota e dá para desfazer nela.</p>
+      <div class="botoes-ca">
+        <button type="button" class="primario" data-ca="sim">${icone('check')}Sim, sempre</button>
+        <button type="button" data-ca="nao">Não</button>
+        <button type="button" class="link" data-ca="depois">Perguntar depois</button>
+      </div>`;
+  }
+  el.hidden = false;
+  el.querySelectorAll('[data-ca]').forEach((b) => (b.onclick = () => responderAprendizado(item, b.dataset.ca)));
+}
+
+async function responderAprendizado(item, resposta) {
+  $('#cartaoAprender').querySelectorAll('button').forEach((b) => (b.disabled = true));
+  try {
+    const res = item.aviso
+      ? await api('/api/aprendizado/visto', { id: item.aviso.id })
+      : await api('/api/aprendizado/responder', { chave: item.sug.chave, resposta });
+    estado.aprender.mostrando = null;
+    mostrarAprendizado(res);
+    if (resposta === 'sim') {
+      toast('Pronto! Vou fazer isso nas próximas notas.');
+      reaplicarRegras(); // as notas da fila que a pessoa ainda não mexeu já vêm com a regra
+    } else if (resposta === 'nao') toast('Certo, não vou perguntar isso de novo.');
+    else if (resposta === 'depois') toast('Combinado, pergunto de novo amanhã.');
+  } catch (e) {
+    toast(e.message, true);
+    api('/api/aprendizado').then(mostrarAprendizado).catch(() => desenharCartaoAprender());
+  }
+}
+
+function desenharRegras(regras) {
+  const lista = $('#listaRegras');
+  if (!regras.length) {
+    lista.innerHTML = '<div class="vazio">Nenhuma ainda. Quando você corrigir a mesma coisa em 2 notas, o programa pergunta.</div>';
+    return;
+  }
+  lista.innerHTML = regras.map((r) => `
+    <div class="regra ${r.ativa ? '' : 'pausada'}">
+      <div class="txt"><b>${esc(r.titulo)}</b>
+        <small>${esc(r.onde)} · ${r.usos === 1 ? 'usada 1 vez' : `usada ${r.usos} vezes`}${r.ativa ? '' : r.pausadaSozinha ? ' · pausada (você desfez 2 vezes)' : ' · pausada'}</small></div>
+      <button type="button" data-regra="${esc(r.id)}" data-acao="${r.ativa ? 'pausar' : 'ligar'}">${r.ativa ? 'Pausar' : 'Ligar'}</button>
+      <button type="button" data-regra="${esc(r.id)}" data-acao="apagar">Apagar</button>
+    </div>`).join('');
+  lista.querySelectorAll('[data-regra]').forEach((b) => (b.onclick = async () => {
+    // Apagar pede um segundo clique para confirmar.
+    if (b.dataset.acao === 'apagar' && !b.classList.contains('confirmar')) {
+      b.classList.add('confirmar');
+      b.textContent = 'Confirmar';
+      setTimeout(() => { if (b.isConnected) { b.classList.remove('confirmar'); b.textContent = 'Apagar'; } }, 4000);
+      return;
+    }
+    lista.querySelectorAll('button').forEach((x) => (x.disabled = true));
+    try {
+      const res = await api('/api/aprendizado/regra', { id: b.dataset.regra, acao: b.dataset.acao });
+      desenharRegras(res.regras || []);
+      mostrarAprendizado(res);
+      reaplicarRegras();
+      toast({ pausar: 'Regra pausada', ligar: 'Regra ligada', apagar: 'Regra apagada' }[b.dataset.acao]);
+    } catch (e) {
+      toast(e.message, true);
+      lista.querySelectorAll('button').forEach((x) => (x.disabled = false));
+    }
+  }));
+}
+
+// Regra aprovada, pausada ou apagada: refaz as notas da fila que a pessoa ainda NÃO editou
+// (inclusive a que está aberta). As que ela já editou ficam como estão, para não perder o que digitou.
+function reaplicarRegras() {
+  for (const p of estado.pendentes) {
+    const r = leitura(p.nome);
+    if (r && estado.forms[p.nome] && JSON.stringify(estado.forms[p.nome]) === JSON.stringify(r.formulario)) {
+      delete estado.forms[p.nome];
+      delete estado.regrasDesfeitas[p.nome];
+    }
+  }
+  revalidarFila();
+  if (estado.atual && !estado.forms[estado.atual] && estado.pendentes.some((p) => p.nome === estado.atual)) selecionar(estado.atual);
+}
+
+async function carregarRegras() {
+  $('#listaRegras').innerHTML = '<div class="vazio">Carregando...</div>';
+  try { mostrarAprendizado(await api('/api/aprendizado')); } catch { $('#listaRegras').innerHTML = '<div class="vazio">Não consegui carregar as regras.</div>'; }
+}
+
+api('/api/aprendizado').then(mostrarAprendizado).catch(() => {});
 
 // ---------- Atualização automática ----------
 async function verVersaoNova() {

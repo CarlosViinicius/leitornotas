@@ -5,9 +5,13 @@ const path = require('path');
 const { exec, execFile } = require('child_process');
 const crypto = require('crypto');
 const { extrairNota, extrairNotaGemini, lerChaveGemini, VERSAO_LEITURA } = require('./lib/extrair');
+const { analisar: exatoDoArquivo, textoParaIA, corrigirComExato } = require('./lib/exato');
 const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require('./lib/referencia');
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
-const { proporFormulario, formularioParaLinhas, linhasJaLancadas } = require('./lib/montar');
+const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar } = require('./lib/montar');
+const { criarAprendizado } = require('./lib/aprender');
+const { conferirNota, saldoPorGrupo, LIMITE_QUEBRA_PADRAO } = require('./lib/conferencias');
+const { gerarRelatorio } = require('./lib/relatorio');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
 const { verificarBloqueio, paginaBloqueio, PIX, FLASH_LOGO } = require('./lib/bloqueio');
 const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
@@ -47,7 +51,8 @@ function lerConfig() {
   let c;
   let arquivoOk = true;
   try {
-    c = { ...padrao, ...JSON.parse(fs.readFileSync(ARQ_CONFIG, 'utf8')) };
+    // .replace: ignora a marca invisível (BOM) que o Bloco de Notas às vezes põe no começo do arquivo.
+    c = { ...padrao, ...JSON.parse(fs.readFileSync(ARQ_CONFIG, 'utf8').replace(/^\uFEFF/, '')) };
   } catch (e) {
     c = padrao;
     // Arquivo existe mas está com defeito: não sobrescreve, para não perder o que estava lá.
@@ -55,7 +60,7 @@ function lerConfig() {
     // Primeira vez: o zip traz config-inicial.json (e não config.json, para que extrair
     // o zip por cima de uma pasta já em uso não apague a configuração de quem já usa).
     else {
-      try { c = { ...padrao, ...JSON.parse(fs.readFileSync(path.join(RAIZ, 'config-inicial.json'), 'utf8')) }; } catch {}
+      try { c = { ...padrao, ...JSON.parse(fs.readFileSync(path.join(RAIZ, 'config-inicial.json'), 'utf8').replace(/^\uFEFF/, '')) }; } catch {}
     }
   }
   // Versões antigas gravavam o 3.8-flash como modelo; ele estoura o limite grátis em ~20 notas por dia.
@@ -250,54 +255,97 @@ async function lerNota(config, nome, forcar) {
   const guardada = forcar ? null : leituraGuardada(path.basename(caminho));
   if (guardada) {
     dados = guardada;
-  } else if (process.env.LEITOR_TESTE) {
-    // Modo de teste: usa respostas gravadas em vez de chamar a API.
-    dados = JSON.parse(fs.readFileSync(path.join(process.env.LEITOR_TESTE, path.basename(caminho) + '.json'), 'utf8'));
   } else {
-    const lerComIA = () => {
-      if (config.ia === 'claude') {
-        if (!config.apiKey) throw new Error('Falta a chave da API do Claude. Abra Configurações.');
-        return extrairNota(caminho, { apiKey: config.apiKey, modelo: config.modelo, referenciaTexto: referenciaComoTexto(ref), carta });
-      }
-      if (!config.geminiKey) throw new Error('Falta a chave do Gemini. Abra Configurações.');
-      return extrairNotaGemini(caminho, { apiKey: config.geminiKey, modelo: config.modeloGemini, referenciaTexto: referenciaComoTexto(ref), carta });
-    };
+    // Dados exatos do próprio arquivo (texto do PDF ou código de barras), antes da IA. Nunca trava a leitura.
     const inicio = Date.now();
     const seg = () => ((Date.now() - inicio) / 1000).toFixed(1) + 's';
-    dados = await lerComIA();
-    console.log(`[leitura] ${path.basename(caminho)}: nota lida em ${seg()}`);
-    // A chave de acesso tem dígito verificador: se não conferir, algo foi lido errado.
-    // 1) tenta consertar cruzando com UF, data, CNPJ, série e número lidos na nota;
-    // 2) se não der, lê de novo só a chave (no Gemini, com um modelo mais forte) e cruza tudo de novo.
-    if (!chaveValida(dados.chave_acesso)) {
-      const leituras = [dados.chave_acesso];
-      let certa = consertarChave(leituras, dados);
-      for (let tentativa = 0; !certa && tentativa < 2; tentativa++) {
-        try {
-          const outra = config.ia === 'claude'
-            ? (await lerComIA()).chave_acesso
-            : await lerChaveGemini(caminho, { apiKey: config.geminiKey, pular: tentativa });
-          if (chaveValida(outra)) certa = soDigitos(outra);
-          else {
-            leituras.push(outra);
-            certa = consertarChave(leituras, dados);
-          }
-        } catch {
-          break; // fica com o que já tem; a tela avisa que a chave não confere
-        }
+    const exato = await exatoDoArquivo(caminho);
+    const exatoCarta = carta && path.extname(carta).toLowerCase() === '.pdf' ? await exatoDoArquivo(carta) : null;
+    if (exato.chave || exato.texto) {
+      console.log(`[leitura] ${path.basename(caminho)}: ${exato.texto ? 'PDF com texto' : 'foto'}${exato.chave ? `, chave exata pelo ${exato.fonteChave === 'texto' ? 'texto do PDF' : 'código de barras'}` : ', sem chave exata'} (${seg()})`);
+    }
+    // Aplica o que é exato por cima do que a IA leu.
+    const conferir = () => {
+      const corrigidos = corrigirComExato(dados, exato);
+      if (exato.chave) dados.chave_fonte = exato.fonteChave;
+      // Chaves de OUTRAS notas escritas no PDF (ex.: a remessa citada no retorno), para conferir na planilha.
+      const citadas = (exato.chavesCandidatas || []).filter((c) => c !== soDigitos(dados.chave_acesso));
+      if (citadas.length) dados.chaves_citadas = citadas;
+      if (corrigidos.length) {
+        dados.corrigido_pelo_arquivo = corrigidos;
+        console.log(`[leitura] ${path.basename(caminho)}: corrigido pelo arquivo: ${corrigidos.join(', ')}`);
       }
-      console.log(`[leitura] ${path.basename(caminho)}: chave não conferia, releitura da chave terminou em ${seg()} (${certa ? 'consertada' : 'não consertada'})`);
-      if (certa && certa !== soDigitos(dados.chave_acesso)) {
-        dados.chave_lida = dados.chave_acesso;
-        dados.chave_acesso = certa;
+    };
+    if (process.env.LEITOR_TESTE) {
+      // Modo de teste: usa respostas gravadas em vez de chamar a API.
+      dados = JSON.parse(fs.readFileSync(path.join(process.env.LEITOR_TESTE, path.basename(caminho) + '.json'), 'utf8'));
+      conferir();
+    } else {
+      const extra = [
+        textoParaIA(exato),
+        exatoCarta && exatoCarta.texto ? textoParaIA({ ...exatoCarta, chave: '' }, 'da carta de correção') : '',
+      ].filter(Boolean).join('\n\n');
+      const lerComIA = () => {
+        if (config.ia === 'claude') {
+          if (!config.apiKey) throw new Error('Falta a chave da API do Claude. Abra Configurações.');
+          return extrairNota(caminho, { apiKey: config.apiKey, modelo: config.modelo, referenciaTexto: referenciaComoTexto(ref), carta, extra });
+        }
+        if (!config.geminiKey) throw new Error('Falta a chave do Gemini. Abra Configurações.');
+        return extrairNotaGemini(caminho, { apiKey: config.geminiKey, modelo: config.modeloGemini, referenciaTexto: referenciaComoTexto(ref), carta, extra });
+      };
+      dados = await lerComIA();
+      console.log(`[leitura] ${path.basename(caminho)}: nota lida em ${seg()}`);
+      conferir();
+      // A chave de acesso tem dígito verificador: se não conferir (e o arquivo não deu a chave exata), algo foi lido errado.
+      // 1) tenta consertar cruzando com UF, data, CNPJ, série e número lidos na nota;
+      // 2) se não der, lê de novo só a chave (no Gemini, com um modelo mais forte) e cruza tudo de novo.
+      if (!chaveValida(dados.chave_acesso)) {
+        const leituras = [dados.chave_acesso];
+        let certa = consertarChave(leituras, dados);
+        for (let tentativa = 0; !certa && tentativa < 2; tentativa++) {
+          try {
+            const outra = config.ia === 'claude'
+              ? (await lerComIA()).chave_acesso
+              : await lerChaveGemini(caminho, { apiKey: config.geminiKey, pular: tentativa });
+            if (chaveValida(outra)) certa = soDigitos(outra);
+            else {
+              leituras.push(outra);
+              certa = consertarChave(leituras, dados);
+            }
+          } catch {
+            break; // fica com o que já tem; a tela avisa que a chave não confere
+          }
+        }
+        console.log(`[leitura] ${path.basename(caminho)}: chave não conferia, releitura da chave terminou em ${seg()} (${certa ? 'consertada' : 'não consertada'})`);
+        if (certa && certa !== soDigitos(dados.chave_acesso)) {
+          dados.chave_lida = dados.chave_acesso;
+          dados.chave_acesso = certa;
+        }
       }
     }
   }
   dados._versaoLeitura = VERSAO_LEITURA;
   fs.mkdirSync(PASTA_CACHE, { recursive: true });
   fs.writeFileSync(cache, JSON.stringify(dados, null, 2));
+  // Regras que o auditor aprovou (lib/aprender.js). Se der qualquer problema nelas, a nota sai sem as regras.
+  let proposta;
+  try {
+    proposta = aprendizado.proporComRegras(dados, (c) => normalizarCultivar(c, ref), (d) => proporFormulario(d, ref));
+  } catch (e) {
+    console.error('Não consegui aplicar as regras aprendidas:', e.message);
+    proposta = proporFormulario(dados, ref);
+  }
+  // Conferências de auditoria (chave, CNPJ, retorno x remessa, saldo, quebra). Nunca impedem de mostrar a nota.
+  try {
+    const duplicada = proposta.avisos.some((a) => a.duplicada);
+    const extra = conferirNota({ dados, formulario: proposta.formulario, ref, limiteQuebra: config.limiteQuebra, duplicada });
+    proposta.avisos.push(...extra.avisos);
+    proposta.incertos = [...new Set([...proposta.incertos, ...extra.incertos])];
+  } catch (e) {
+    console.error('Não consegui fazer as conferências extras:', e.message);
+  }
   return {
-    ...proporFormulario(dados, ref),
+    ...proposta,
     carta: carta ? path.basename(carta) : null,
     listas: { clientes: ref.clientes, safras: ref.safras, cultivares: ref.cultivares.map((c) => c.nome) },
   };
@@ -314,7 +362,8 @@ function referencia(config) {
   return carregarReferencia(config, (nomes) => lerAbasGoogle(config, nomes));
 }
 
-async function inserirNota(config, nome, formulario, creditoRef = null) {
+// proposta/contexto: o que o programa tinha proposto para esta nota (para aprender com as correções).
+async function inserirNota(config, nome, formulario, creditoRef = null, proposta = null, contexto = null) {
   const caminho = arquivoPendente(config, nome);
   if (!formulario || !Array.isArray(formulario.itens) || !formulario.itens.length) throw new Error('Nenhum item para inserir.');
   esquecerReferencia();
@@ -359,8 +408,9 @@ async function inserirNota(config, nome, formulario, creditoRef = null) {
   try { leituraIA = JSON.parse(fs.readFileSync(cache, 'utf8')); } catch { /* sem leitura guardada */ }
   fs.rmSync(cache, { force: true });
   const digitos = (s) => String(s == null ? '' : s).replace(/\D/g, '');
+  const idInsercao = crypto.randomBytes(6).toString('hex');
   registrarInsercao({
-    id: crypto.randomBytes(6).toString('hex'),
+    id: idInsercao,
     quando: new Date().toISOString(),
     nf: String(formulario.nf || ''),
     nome: path.basename(caminho),
@@ -375,6 +425,11 @@ async function inserirNota(config, nome, formulario, creditoRef = null) {
     formulario,
     creditoRef,
   });
+  try {
+    aprendizado.observar({ proposta, lancado: formulario, contexto, id: idInsercao, nf: formulario.nf });
+  } catch (e) {
+    console.error('Não consegui anotar as correções desta nota:', e.message);
+  }
   return numeros;
 }
 
@@ -382,6 +437,7 @@ async function inserirNota(config, nome, formulario, creditoRef = null) {
 // Guarda as últimas inserções num arquivo (vale mesmo depois de fechar o programa).
 // Desfaz sempre a mais recente primeiro, para não deixar buraco no meio da planilha.
 const ARQ_HISTORICO = path.join(path.dirname(ARQ_CONFIG), '.insercoes.json');
+const aprendizado = criarAprendizado(path.join(path.dirname(ARQ_CONFIG), '.aprendizado.json'));
 const MAX_HISTORICO = 20;
 
 function lerHistorico() {
@@ -421,6 +477,7 @@ async function desfazerInsercao(config, id) {
   }
   esquecerReferencia();
   salvarHistorico(historico.slice(1));
+  try { aprendizado.esquecerInsercao(r.id); } catch (e) { console.error('Não consegui esquecer as correções desta nota:', e.message); }
   if (r.creditoRef && creditos.ligado()) await creditos.devolver(r.creditoRef, config.auditor).catch((e) => console.error('Não devolvi o crédito:', e.message));
 
   // A nota volta para a fila já lida (sem gastar IA de novo) e com as correções feitas na tela.
@@ -440,6 +497,10 @@ async function desfazerInsercao(config, id) {
     }
   }
   return { nome, nf: r.nf, linhas: r.conferencias.map((c) => c.linha), formulario: r.formulario };
+}
+
+function resumoAprendizado() {
+  try { return aprendizado.resumo(); } catch (e) { console.error('Aprendizado:', e.message); return { sugestoes: [], avisos: [], regras: [] }; }
 }
 
 function problemaConfig(config) {
@@ -520,6 +581,22 @@ const servidor = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': TIPOS['.html'], 'Cache-Control': 'no-store, max-age=0' });
       return fs.createReadStream(path.join(RAIZ, 'public', 'index.html')).pipe(res);
     }
+    if (req.method === 'GET' && url.pathname === '/icone.ico') {
+      res.writeHead(200, { 'Content-Type': 'image/x-icon', 'Cache-Control': 'max-age=86400' });
+      return fs.createReadStream(path.join(RAIZ, 'public', 'icone.ico')).pipe(res);
+    }
+    if (req.method === 'POST' && url.pathname === '/api/atalho') {
+      const onde = await criarAtalhos();
+      marcarAtalhoNaConfig();
+      return json(res, 200, { ok: true, onde });
+    }
+    // Fecha o programa (aberto pelo atalho não tem janela preta para fechar).
+    if (req.method === 'POST' && url.pathname === '/api/sair') {
+      json(res, 200, { ok: true });
+      console.log('Programa fechado pela tela.');
+      setTimeout(() => process.exit(0), 300);
+      return;
+    }
     if (req.method === 'GET' && url.pathname === '/planos') {
       res.writeHead(200, { 'Content-Type': TIPOS['.html'], 'Cache-Control': 'no-store, max-age=0' });
       return fs.createReadStream(path.join(RAIZ, 'public', 'planos.html')).pipe(res);
@@ -565,6 +642,10 @@ const servidor = http.createServer(async (req, res) => {
       const atual = lerConfig();
       for (const k of ['ia', 'destino', 'planilha', 'googleUrl', 'aba', 'auditor', 'pastaNotas']) {
         if (typeof novo[k] === 'string') atual[k] = novo[k].trim().replace(/^"|"$/g, '');
+      }
+      if (novo.limiteQuebra !== undefined) {
+        const n = Number(String(novo.limiteQuebra).replace(',', '.'));
+        if (Number.isFinite(n) && n > 0 && n <= 100) atual.limiteQuebra = n;
       }
       if (Array.isArray(novo.colunas)) atual.colunas = novo.colunas.filter((c) => /^[A-Y]$/.test(c));
       if (novo.apiKey) atual.apiKey = String(novo.apiKey).trim();
@@ -677,7 +758,7 @@ const servidor = http.createServer(async (req, res) => {
       return json(res, 200, await lerNota(config, nome, forcar));
     }
     if (req.method === 'POST' && url.pathname === '/api/inserir') {
-      const { nome, formulario } = await lerCorpo(req);
+      const { nome, formulario, proposta, contexto } = await lerCorpo(req);
       const problema = problemaConfig(config);
       if (problema) return json(res, 400, { erro: problema });
       // 1 crédito por nota: gasta antes de gravar e devolve se a inserção falhar.
@@ -686,12 +767,12 @@ const servidor = http.createServer(async (req, res) => {
       if (creditoRef) saldo = (await creditos.consumir(creditoRef, config.auditor)).saldo;
       let linhas;
       try {
-        linhas = await emFila(() => inserirNota(config, nome, formulario, creditoRef));
+        linhas = await emFila(() => inserirNota(config, nome, formulario, creditoRef, proposta, contexto));
       } catch (e) {
         if (creditoRef) await creditos.devolver(creditoRef, config.auditor).then((d) => { saldo = d.saldo; }).catch(() => {});
         throw e;
       }
-      return json(res, 200, { ok: true, linhas, saldo, desfazer: resumoDesfazer() });
+      return json(res, 200, { ok: true, linhas, saldo, desfazer: resumoDesfazer(), aprendizado: resumoAprendizado() });
     }
     if (req.method === 'POST' && url.pathname === '/api/desfazer') {
       const { id } = await lerCorpo(req);
@@ -699,6 +780,54 @@ const servidor = http.createServer(async (req, res) => {
       if (problema) return json(res, 400, { erro: problema });
       const r = await emFila(() => desfazerInsercao(config, id));
       return json(res, 200, { ok: true, ...r, desfazer: resumoDesfazer() });
+    }
+    if (req.method === 'GET' && url.pathname === '/api/saldo') {
+      const problema = problemaConfig(config);
+      if (problema) return json(res, 400, { erro: problema });
+      esquecerReferencia(); // sempre com a planilha como está agora
+      const ref = await referencia(config);
+      const mv = ref.movimentos || [];
+      return json(res, 200, {
+        grupos: saldoPorGrupo(ref), limiteQuebra: Number(config.limiteQuebra) || LIMITE_QUEBRA_PADRAO, aba: config.aba,
+        clientes: [...new Set(mv.map((m) => m.cliente).filter(Boolean))].sort(),
+        meses: [...new Set(mv.map((m) => (m.data || '').slice(0, 7)).filter(Boolean))].sort().reverse(),
+      });
+    }
+    // Relatório em Excel para mandar ao cliente (obtentora), de um mês ou de tudo.
+    if (req.method === 'GET' && url.pathname === '/api/relatorio') {
+      const problema = problemaConfig(config);
+      if (problema) return json(res, 400, { erro: problema });
+      esquecerReferencia();
+      const ref = await referencia(config);
+      const cliente = String(url.searchParams.get('cliente') || '').trim();
+      const mes = String(url.searchParams.get('mes') || '').trim();
+      const r = await gerarRelatorio({
+        movimentos: ref.movimentos, cliente, mes, aba: config.aba, auditor: config.auditor,
+        limiteQuebra: Number(config.limiteQuebra) || LIMITE_QUEBRA_PADRAO,
+      });
+      const nome = `Relatorio ${cliente || 'todos'} ${mes || 'completo'}.xlsx`.replace(/[<>:"/\\|?*]/g, '-');
+      res.writeHead(200, {
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="${nome.normalize('NFD').replace(/[^ -~]/g, '')}"; filename*=UTF-8''${encodeURIComponent(nome)}`,
+        'Cache-Control': 'no-store',
+      });
+      return res.end(r.buffer);
+    }
+    if (req.method === 'GET' && url.pathname === '/api/aprendizado') return json(res, 200, resumoAprendizado());
+    if (req.method === 'POST' && url.pathname === '/api/aprendizado/responder') {
+      const { chave, resposta } = await lerCorpo(req);
+      aprendizado.responder(String(chave || ''), String(resposta || ''));
+      return json(res, 200, resumoAprendizado());
+    }
+    if (req.method === 'POST' && url.pathname === '/api/aprendizado/regra') {
+      const { id, acao } = await lerCorpo(req);
+      aprendizado.mudarRegra(String(id || ''), String(acao || ''));
+      return json(res, 200, resumoAprendizado());
+    }
+    if (req.method === 'POST' && url.pathname === '/api/aprendizado/visto') {
+      const { id } = await lerCorpo(req);
+      aprendizado.avisoVisto(String(id || ''));
+      return json(res, 200, resumoAprendizado());
     }
     if (req.method === 'GET' && url.pathname === '/api/creditos') return json(res, 200, await creditos.estado(config.auditor));
     if (req.method === 'POST' && url.pathname === '/api/creditos/comprar') {
@@ -722,6 +851,10 @@ const servidor = http.createServer(async (req, res) => {
 });
 
 // Abre a página. Procura o Chrome (depois o Edge) direto: em alguns Windows 10 o "start" não abre nada.
+// Aberto pelo atalho (LEITOR_JANELA=1): abre como programa, numa janela própria sem barra de endereço.
+function argsNavegador(endereco) {
+  return process.env.LEITOR_JANELA === '1' ? [`--app=${endereco}`] : [endereco];
+}
 function abrirNavegador(endereco) {
   const bases = [process.env['ProgramFiles'], process.env['ProgramFiles(x86)'], process.env.LOCALAPPDATA].filter(Boolean);
   const navegadores = [path.join('Google', 'Chrome', 'Application', 'chrome.exe'), path.join('Microsoft', 'Edge', 'Application', 'msedge.exe')];
@@ -729,12 +862,71 @@ function abrirNavegador(endereco) {
     for (const base of bases) {
       const exe = path.join(base, nav);
       if (fs.existsSync(exe)) {
-        execFile(exe, [endereco], (erro) => { if (erro) exec(`start "" "${endereco}"`); });
+        execFile(exe, argsNavegador(endereco), (erro) => { if (erro) exec(`start "" "${endereco}"`); });
         return;
       }
     }
   }
   exec(`start "" "${endereco}"`);
+}
+
+// ---- Atalho com ícone (área de trabalho e menu Iniciar) ----
+// Abre pelo lib/iniciar.vbs: sem a janela preta e numa janela própria.
+// LEITOR_PASTA_ATALHOS (só para teste) troca as pastas onde os atalhos são criados.
+function criarAtalhos() {
+  return new Promise((ok, falha) => {
+    if (process.platform !== 'win32') return falha(new Error('O atalho só existe no Windows.'));
+    const script = [
+      "$ErrorActionPreference = 'Stop'",
+      '$ws = New-Object -ComObject WScript.Shell',
+      "$pastas = if ($env:LEITOR_PASTA_ATALHOS) { @($env:LEITOR_PASTA_ATALHOS) } else { @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs')) }",
+      'foreach ($p in $pastas) {',
+      '  if (-not $p -or -not (Test-Path -LiteralPath $p)) { continue }',
+      "  $l = $ws.CreateShortcut((Join-Path $p 'Leitor de Notas.lnk'))",
+      // Caminhos montados com Join-Path (sem barras no texto) e aspas com [char]34.
+      "  $l.TargetPath = Join-Path (Join-Path $env:SystemRoot 'System32') 'wscript.exe'",
+      "  $l.Arguments = [char]34 + (Join-Path (Join-Path $env:LEITOR_RAIZ 'lib') 'iniciar.vbs') + [char]34",
+      '  $l.WorkingDirectory = $env:LEITOR_RAIZ',
+      "  $l.IconLocation = (Join-Path (Join-Path $env:LEITOR_RAIZ 'public') 'icone.ico') + ',0'",
+      "  $l.Description = 'Leitor de Notas: lê as DANFEs e lança na planilha'",
+      '  $l.Save()',
+      '  Write-Output $p',
+      '}',
+    ].join('\n');
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script],
+      { env: { ...process.env, LEITOR_RAIZ: RAIZ }, windowsHide: true, timeout: 30000 },
+      (erro, saida, err) => {
+        if (erro) return falha(new Error('Não consegui criar o atalho: ' + (String(err || '').trim().split('\n')[0] || erro.message)));
+        ok(String(saida).trim().split(/\r?\n/).filter(Boolean));
+      });
+  });
+}
+
+// Anota na configuração que o atalho já foi criado nesta pasta.
+// SÓ grava se o config.json foi lido sem defeito: se não, gravar por cima apagaria a planilha, as chaves e o auditor.
+function marcarAtalhoNaConfig() {
+  try {
+    if (fs.existsSync(ARQ_CONFIG)) JSON.parse(fs.readFileSync(ARQ_CONFIG, 'utf8').replace(/^\uFEFF/, ''));
+  } catch {
+    console.log('config.json com defeito: não anotei o atalho para não apagar a configuração.');
+    return;
+  }
+  salvarConfig({ ...lerConfig(), atalhoPasta: RAIZ });
+}
+
+// Na primeira vez (ou se a pasta do programa mudou de lugar), cria os atalhos sozinho.
+// Se a pessoa apagar o atalho depois, não recria: dá para criar de novo em Configurações.
+async function atalhosNaPrimeiraVez() {
+  if (process.platform !== 'win32' || process.env.LEITOR_SEM_ATALHO || process.env.LEITOR_TESTE) return;
+  const c = lerConfig();
+  if (c.atalhoPasta === RAIZ) return;
+  try {
+    const onde = await criarAtalhos();
+    marcarAtalhoNaConfig();
+    console.log(`Atalho "Leitor de Notas" criado em: ${onde.join(' e ')}`);
+  } catch (e) {
+    console.log(e.message);
+  }
 }
 
 servidor.listen(PORTA, '127.0.0.1', () => {
@@ -743,6 +935,7 @@ servidor.listen(PORTA, '127.0.0.1', () => {
   console.log('Se o navegador não abrir sozinho, abra o Chrome e digite: localhost:' + PORTA);
   console.log('Deixe esta janela aberta enquanto estiver usando. Para sair, feche a janela.');
   if (!process.env.LEITOR_SEM_NAVEGADOR) abrirNavegador(endereco);
+  atalhosNaPrimeiraVez();
 });
 servidor.on('error', (e) => {
   if (e.code === 'EADDRINUSE') {

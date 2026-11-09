@@ -24,7 +24,9 @@ Quando quiser usar a planilha de verdade: Configurações > Planilha >
 "Procurar..." > escolha o Excel oficial > Salvar.
 
 NO DIA A DIA
-1. Abra o "Abrir Leitor de Notas.bat".
+1. Dê dois cliques no ícone "Leitor de Notas" (área de trabalho ou menu Iniciar).
+   Ele abre numa janela própria, sem a janela preta. (O "Abrir Leitor de Notas.bat"
+   continua funcionando. Para fechar o programa: Configurações > Fechar o programa.)
 2. Arraste as fotos ou PDFs das notas para a tela (ou "Adicionar notas",
    ou cole uma foto com Ctrl+V). Ele começa a ler sozinho.
 3. Para cada nota, confira os dados ao lado da imagem. Campos em amarelo
@@ -61,3 +63,9 @@ IMPORTANTE
   disponível"), clique em "Atualizar agora". Leva poucos segundos e não
   mexe nas suas configurações, notas nem planilha. A versão anterior fica
   guardada em Backups\Programa versão ...
+- SALDO E RELATÓRIO: o botão de gráfico no topo mostra, por licenciado,
+  deslintadora e cultivar, quanto entrou, voltou e ainda está na deslintadora.
+  Ali mesmo dá para baixar o relatório do mês em Excel para mandar ao cliente.
+- O programa aprende com as suas correções: quando você corrige a mesma coisa
+  em 2 notas, ele pergunta se pode fazer sozinho. Nada muda sem o seu "Sim".
+  As regras ficam em Configurações > Correções aprendidas.

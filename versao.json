@@ -1,17 +1,18 @@
 {
-  "versao": "1.1.28",
+  "versao": "1.1.29",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Nova tela de planos: plano mensal em destaque, cartões alinhados e comparação de preço por nota",
-    "Régua \"quantas notas você lança por mês\" para ajudar a escolher",
-    "A tela de compra e de Pix segue o tema claro ou escuro do programa",
-    "Melhor encaixe em notebooks e telas menores"
+    "Chave e CNPJs exatos: lidos do texto do PDF ou do código de barras da foto (menos erro de leitura)",
+    "Aprende com as suas correções: depois de 2 notas iguais, pergunta se pode corrigir sozinho",
+    "Novas conferências: remessa citada no retorno, volta mais do que entrou, quebra alta, data/UF/CNPJ",
+    "Painel de saldo por licenciado e cultivar, com relatório do mês em Excel para o cliente",
+    "Ícone \"Leitor de Notas\" na área de trabalho: abre numa janela própria, sem a janela preta"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "8f5f4e796b45dfc0794f0a5df2ca653aa1bbfa57f1e17afe269d96c4c4f6f783"
+      "sha256": "7a5fdfc24a808731bd79a840e5471a8635fab63e656a71f49f187e1e8b18e413"
     },
     {
       "arquivo": "package.json",
@@ -19,7 +20,7 @@
     },
     {
       "arquivo": "LEIA-ME.txt",
-      "sha256": "9a4ffda47133daa1c77b6d3d69657ce867984f37886e9c295907f8115de8e9f5"
+      "sha256": "8b4525fcbb2b4780788dd222064e5c3c554197882a60baeb963c420ed92a836a"
     },
     {
       "arquivo": "lib/atualizar.js",
@@ -31,7 +32,7 @@
     },
     {
       "arquivo": "lib/chave.js",
-      "sha256": "775d8969a56aef171a7d08c3201306b4701bb88bd6c5672037ae0a4bc7bae2f6"
+      "sha256": "4a40b2cbda8fed09c358d2f8baeb112a17fed00c702ad3f22b8ed74dd26863e2"
     },
     {
       "arquivo": "lib/creditos.js",
@@ -43,7 +44,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "b27f92c81f029af53b83e45b6fa9beaffd1276ab011801e8f2338d74360b6db4"
+      "sha256": "087d272f4292701d60a8a8261b9a6d8a93b57e52f11f87dd459202b8cb225e6e"
     },
     {
       "arquivo": "lib/google.js",
@@ -55,7 +56,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "0b9a448202dd5c0c3b76f60603dedc2cd10e66beea0c9de5dfd02021209590d3"
+      "sha256": "ff1b2294589c55efc80e62c738a0a5515284e8683a08118159b636f456538c32"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -63,15 +64,67 @@
     },
     {
       "arquivo": "lib/referencia.js",
-      "sha256": "8c1c1cbf8ca37badf2d4035094aae29141a19e8cbcf9e9ebbd4a5dd2b31c53eb"
+      "sha256": "0c92701c5e1926272d263ab758e09da040fa091adab0e9df7d175c1d829bdb71"
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "c320dbde5a302dbcea44edc2f74d947c5fa9bc3bb9087bb2f1d414cb1f1e5daa"
+      "sha256": "800bbf32418bc3e1ccbaaeaf4bcd81d38ca4ce794bbcae4fa82b6bba7b844442"
     },
     {
       "arquivo": "public/planos.html",
       "sha256": "ac6b8f660479688b7ddb7d5a4205f12714c09b6f8049f917198632d3ca027303"
+    },
+    {
+      "arquivo": "lib/exato.js",
+      "sha256": "b5f0aa25f5f89a637591f7a017d8b952dcc1c0d14e028aaf210782583c78de3d"
+    },
+    {
+      "arquivo": "lib/aprender.js",
+      "sha256": "1a66880887c3b56bec8ab44efe2b99fec9a10b03c7b8e61fdc60c9de63b20a4b"
+    },
+    {
+      "arquivo": "lib/conferencias.js",
+      "sha256": "ebf98c079e2515e47d5fd94dcf965aa60f40f8f087ac413ca580d5005bfcfb2d"
+    },
+    {
+      "arquivo": "lib/relatorio.js",
+      "sha256": "e3ee14f4aa9e449d13239fb6adb4de75d978f71d0f6d3913fc6891788fec3151"
+    },
+    {
+      "arquivo": "lib/iniciar.vbs",
+      "sha256": "22dc2135a767c3f9e0de6539da364e8c6de220c36ea39f1bc9c0e62fa8920e8f"
+    },
+    {
+      "arquivo": "public/icone.ico",
+      "sha256": "512b79ac66707da74a8a340665dc63a360d53e56f9afffa3a5a7e8fb11788aae"
+    },
+    {
+      "arquivo": "lib/terceiros/pdfjs/LICENSE",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    {
+      "arquivo": "lib/terceiros/pdfjs/pdf.min.mjs",
+      "sha256": "d2242a429cffd2a60d0bd24aaec1016d4421e889cd2fac8ebd8180d46eb0730f"
+    },
+    {
+      "arquivo": "lib/terceiros/pdfjs/pdf.worker.min.mjs",
+      "sha256": "2cbba88314e2190adcf33ec17cbc92c9994057cd8aff29a06b514015b45f270a"
+    },
+    {
+      "arquivo": "lib/terceiros/zxing/LICENSE",
+      "sha256": "fb506e4ade12d7a9efa67c9d76a9a28c8e15d347ca49a69e48e29b40b34ad2ab"
+    },
+    {
+      "arquivo": "lib/terceiros/zxing/reader/index.js",
+      "sha256": "299866d2bc644251c8dcf0e6c4355cec000f8165ee0479d7707f1b15e90c751a"
+    },
+    {
+      "arquivo": "lib/terceiros/zxing/share.js",
+      "sha256": "5a92f480ca195d7df1cced493eda30f93930fe9beea575b27b01b5e4bcdc78fa"
+    },
+    {
+      "arquivo": "lib/terceiros/zxing/zxing_reader.wasm",
+      "sha256": "85d46f55d7c86a4d09bb04273367408b19c324f582d040d018aecb25a9a82942"
     }
   ],
   "servidorCreditos": "https://leitor-notas-servidor.vercel.app"
