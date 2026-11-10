@@ -1,18 +1,17 @@
 {
-  "versao": "1.1.31",
+  "versao": "1.1.32",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Abre sempre como programa, numa janela própria (sem barra de endereço), pelo ícone ou pelo .bat",
-    "Cultivar fora da base não apaga mais o peso: o item vem com o peso preenchido e só a cultivar em branco",
-    "Se der erro ao abrir pelo ícone, o programa não fica preso e o motivo fica em registro-do-programa.txt",
-    "Textos da atualização sem falar de \"janela preta\"",
-    "Envia ao desenvolvedor só contagens (erros e campos mais corrigidos), nunca dados das notas"
+    "Painel de saldo mais bonito, com gráfico de para onde foi o que entrou e uma barrinha em cada linha",
+    "Quando o saldo fica negativo, o painel explica o provável motivo e destaca a nota suspeita",
+    "Filtros de safra e de \"até o mês\" no painel de saldo",
+    "Atualização mais confiável: tenta de novo, usa um endereço de reserva se o GitHub não abrir e mostra o andamento real"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "821fab8b40745a77a01cd6bf3ca8551c318d42995f4467e8de85dd3209ed65d2"
+      "sha256": "f478c9eeec02cf9f54d70ff20990d15e939a18cba0bf76d387c1a548995e6e4f"
     },
     {
       "arquivo": "package.json",
@@ -24,7 +23,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "d8ce1247ac6bddf44ed698d40a4b2f51f319dab58c17cb5295676637ea01d579"
+      "sha256": "6cd31b90f129986f7df39ab7804e18011bef48785c1865d229aa625d23105352"
     },
     {
       "arquivo": "lib/bloqueio.js",
@@ -68,7 +67,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "253b548ae2f76b64a5af7a65498a669169db26c27705532d5830e03fdb25fa9f"
+      "sha256": "d2fa97e02122907b67576010f67db0fafa529cfe09312dcad883b829c8df6471"
     },
     {
       "arquivo": "public/planos.html",
@@ -84,7 +83,7 @@
     },
     {
       "arquivo": "lib/conferencias.js",
-      "sha256": "ebf98c079e2515e47d5fd94dcf965aa60f40f8f087ac413ca580d5005bfcfb2d"
+      "sha256": "2770f06bbeeded775618b79e0c389ae54f346cffd75e6b798f1af3a1b5dc3f96"
     },
     {
       "arquivo": "lib/relatorio.js",

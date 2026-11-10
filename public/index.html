@@ -732,22 +732,39 @@
   #dlgSaldo form { max-height: 92vh; }
   #dlgSaldo .cabeca .ajuda { margin: 4px 0 0; }
   .saldo-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-  .saldo-kpis .kpi { padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; background: var(--sutil); min-width: 0; }
-  .saldo-kpis .kpi small { display: block; font-size: 11.5px; color: var(--suave); text-transform: uppercase; letter-spacing: .05em; }
-  .saldo-kpis .kpi b { display: block; margin-top: 4px; font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .saldo-kpis .kpi span { display: block; font-size: 12px; color: var(--suave); }
-  .saldo-kpis .kpi.atencao { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); }
+  .saldo-kpis .kpi { --cor: var(--verde-2); position: relative; padding: 14px 16px 13px; border: 1px solid var(--borda); border-radius: 14px; background: var(--sutil); min-width: 0; overflow: hidden; }
+  .saldo-kpis .kpi::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--cor); }
+  .saldo-kpis .kpi.azul { --cor: var(--azul); }
+  .saldo-kpis .kpi.ambar { --cor: var(--amarelo-texto); }
+  .saldo-kpis .kpi.cinza { --cor: var(--fraco); }
+  .saldo-kpis .kpi.neg { --cor: var(--vermelho-texto); }
+  .saldo-kpis .kpi small { display: block; font-size: 11px; font-weight: 600; color: var(--suave); text-transform: uppercase; letter-spacing: .06em; }
+  .saldo-kpis .kpi b { display: block; margin-top: 6px; font-size: 24px; line-height: 1.15; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .saldo-kpis .kpi b em { font-style: normal; font-size: 13px; font-weight: 500; color: var(--suave); margin-left: 3px; }
+  .saldo-kpis .kpi.neg b { color: var(--vermelho-texto); }
+  .saldo-kpis .kpi span { display: block; margin-top: 3px; font-size: 12px; color: var(--suave); }
+  .saldo-kpis .kpi.atencao { --cor: var(--vermelho-texto); border-color: var(--vermelho-borda); background: var(--vermelho-fundo); }
   .saldo-kpis .kpi.atencao b { display: flex; align-items: center; gap: 6px; }
   .saldo-kpis .kpi.atencao svg { color: var(--vermelho-texto); width: 17px; height: 17px; }
   @media (max-width: 900px) { .saldo-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .saldo-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
-  .saldo-filtros input[type=search] { flex: 1 1 280px; min-width: 0; }
-  .saldo-filtros label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--texto); white-space: nowrap; text-transform: none; letter-spacing: 0; }
-  .saldo-filtros .limite input { width: 52px; text-align: center; padding: 6px; }
-  .saldo-tabela { overflow: auto; border: 1px solid var(--borda); border-radius: 12px; max-height: 52vh; }
+  .saldo-filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 14px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 14px; background: var(--sutil); }
+  .saldo-filtros .busca { position: relative; flex: 1 1 260px; min-width: 200px; }
+  .saldo-filtros .busca svg { position: absolute; left: 11px; top: 50%; width: 16px; height: 16px; margin-top: -8px; color: var(--suave); pointer-events: none; }
+  .saldo-filtros input[type=search] { width: 100%; height: 38px; padding: 0 12px 0 34px; font-size: 13.5px; }
+  .saldo-filtros .campo { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 600; color: var(--suave); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+  .saldo-filtros select { height: 38px; min-width: 128px; padding: 0 30px 0 11px; font-size: 13.5px; font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .saldo-filtros .limite input { width: 64px; height: 38px; text-align: center; padding: 0 6px; font-size: 13.5px; }
+  .saldo-filtros .limite span { display: flex; align-items: center; height: 38px; gap: 6px; line-height: 1; font-size: 13px; font-weight: 500; color: var(--texto); text-transform: none; letter-spacing: 0; }
+  .saldo-filtros .chip { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 13px; border: 1px solid var(--borda-forte); border-radius: 99px; font-size: 13px; font-weight: 500; color: var(--texto); text-transform: none; letter-spacing: 0; cursor: pointer; white-space: nowrap; user-select: none; background: var(--painel); }
+  .saldo-filtros .chip:has(input:checked) { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); color: var(--vermelho-texto); }
+  .saldo-filtros .chip input { margin: 0; }
+  .saldo-tabela { overflow: auto; border: 1px solid var(--borda); border-radius: 14px; max-height: 38vh; }
   .saldo-tabela table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .saldo-tabela th { position: sticky; top: 0; z-index: 1; background: var(--sutil); color: var(--suave); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--borda); white-space: nowrap; }
-  .saldo-tabela td { padding: 9px 10px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  .saldo-tabela th { position: sticky; top: 0; z-index: 1; background: var(--sutil); color: var(--suave); font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--borda); white-space: nowrap; }
+  .saldo-tabela th.n { text-align: right; }
+  .saldo-tabela td { padding: 12px 8px; border-bottom: 1px solid var(--borda); vertical-align: middle; }
+  .saldo-tabela th:first-child, .saldo-tabela td:first-child { padding-left: 14px; }
+  .saldo-tabela tr.grupo.atencao td:first-child { box-shadow: inset 3px 0 0 var(--vermelho-texto); }
   .saldo-tabela .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .saldo-tabela tr.grupo { cursor: pointer; }
   .saldo-tabela tr.grupo:hover td { background: var(--hover); }
@@ -755,11 +772,12 @@
   .saldo-tabela tr.grupo.aberto td:first-child .emp::before { transform: rotate(90deg); }
   .saldo-tabela tr.grupo td:first-child .doc { padding-left: 14px; }
   .saldo-tabela:focus-visible { outline: 2px solid var(--anel); outline-offset: 1px; }
-  .saldo-tabela .emp { display: block; font-weight: 600; min-width: 220px; }
+  .saldo-tabela .emp { display: block; font-weight: 600; min-width: 170px; }
   .saldo-tabela .doc { display: block; color: var(--suave); font-size: 12px; }
   .saldo-tabela .zero { color: var(--fraco); }
-  .saldo-tabela th:last-child, .saldo-tabela td:last-child { min-width: 200px; }
-  .saldo-tabela .negativo { color: var(--vermelho-texto); font-weight: 650; }
+  .saldo-tabela th:last-child, .saldo-tabela td:last-child { min-width: 150px; padding-right: 14px; }
+  .saldo-tabela .negativo { color: var(--vermelho-texto); font-weight: 700; }
+  .saldo-tabela td b { font-weight: 650; letter-spacing: .01em; }
   .saldo-tabela .selo-s { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; border: 1px solid; }
   .saldo-tabela .selo-s svg { width: 13px; height: 13px; }
   .saldo-tabela .selo-s.ruim { color: var(--vermelho-texto); background: var(--vermelho-fundo); border-color: var(--vermelho-borda); }
@@ -769,16 +787,42 @@
   .saldo-tabela tr.detalhe td { background: var(--sutil); padding: 6px 10px 12px 34px; }
   .saldo-tabela tr.detalhe table { font-size: 12.5px; width: auto; min-width: min(640px, 100%); }
   .saldo-tabela tr.detalhe th { position: static; background: none; border-bottom: 1px solid var(--borda); padding: 6px 8px; }
+  .saldo-tabela tr.detalhe .dicas { margin: 4px 0 10px; padding: 9px 12px; border-radius: 10px; font-size: 12.5px; line-height: 1.45; background: rgba(242,131,122,.1); border: 1px solid rgba(242,131,122,.3); color: var(--texto); }
+  .saldo-tabela tr.detalhe .dicas b { display: block; margin-bottom: 3px; }
+  .saldo-tabela tr.detalhe .dicas b .i { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+  .saldo-tabela tr.detalhe .dicas ul { margin: 0; padding-left: 18px; }
+  .saldo-tabela tr.detalhe tr.suspeita td { background: rgba(242,131,122,.14); font-weight: 600; }
   .saldo-tabela tr.detalhe td td { background: none; padding: 5px 8px; border-bottom: 1px dashed var(--borda); }
-  .saldo-tabela tfoot td { position: sticky; bottom: 0; background: var(--painel); font-weight: 650; border-top: 1px solid var(--borda-forte); border-bottom: 0; }
+  .saldo-tabela tfoot td { position: sticky; bottom: 0; background: var(--sutil); font-weight: 700; border-top: 1px solid var(--borda-forte); border-bottom: 0; padding-top: 11px; padding-bottom: 11px; }
   .saldo-vazio { padding: 28px; text-align: center; color: var(--suave); font-size: 13.5px; }
+  .saldo-grafico:empty { display: none; }
+  .saldo-grafico { padding: 14px 16px 12px; border: 1px solid var(--borda); border-radius: 14px; background: var(--sutil); }
+  .saldo-grafico h4 { margin: 0 0 10px; font-size: 12px; font-weight: 600; color: var(--suave); text-transform: uppercase; letter-spacing: .06em; }
+  .sb { position: relative; display: flex; height: 14px; border-radius: 99px; background: var(--borda); overflow: hidden; }
+  .sb i { display: block; height: 100%; min-width: 0; }
+  .sb .v { background: var(--azul); }
+  .sb .sd { background: var(--azul); opacity: .5; }
+  .sb .q { background: var(--amarelo-texto); }
+  .sb .r { background: var(--fraco); opacity: .45; }
+  .sb .x { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, var(--vermelho-texto) 0 4px, rgba(0,0,0,.25) 4px 8px); }
+  .sb .marca { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: var(--texto); border-radius: 2px; }
+  .sb.fino { height: 6px; margin-top: 6px; min-width: 110px; }
+  .sb.fino .marca { display: none; }
+  .saldo-legenda { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 11px; font-size: 12.5px; color: var(--suave); }
+  .saldo-legenda span { display: inline-flex; align-items: center; gap: 7px; }
+  .saldo-legenda b { color: var(--texto); font-weight: 650; font-variant-numeric: tabular-nums; }
+  .saldo-legenda .p { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+  .saldo-legenda .p.v { background: var(--azul); } .saldo-legenda .p.sd { background: var(--azul); opacity: .5; }
+  .saldo-legenda .p.q { background: var(--amarelo-texto); } .saldo-legenda .p.r { background: var(--fraco); opacity: .6; }
+  .saldo-legenda .p.x { background: var(--vermelho-texto); }
   #dlgSaldo .botoes { flex-wrap: wrap; align-items: center; }
   .linha-programa { display: flex; flex-wrap: wrap; gap: 8px; }
   #btSair.confirmar { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); color: var(--vermelho-texto); }
   .programa-fechado { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--fundo); color: var(--texto); text-align: center; padding: 24px; }
   .programa-fechado h2 { margin: 0 0 8px; font-size: 20px; }
   .programa-fechado p { margin: 0; color: var(--suave); }
-  .relatorio-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; border: 1px solid var(--verde-borda); border-radius: 12px; background: var(--verde-claro); }
+  .relatorio-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 8px 7px 14px; border: 1px solid var(--verde-borda); border-radius: 14px; background: var(--verde-claro); }
+  .relatorio-linha select { height: 36px; font-size: 13.5px; }
   .relatorio-linha b { font-size: 13px; color: var(--verde-texto); margin-right: 2px; }
   .relatorio-linha select { width: auto; max-width: 220px; padding: 6px 8px; }
 
@@ -970,14 +1014,17 @@
 
 <dialog id="dlgSaldo">
   <form method="dialog" onsubmit="return false">
-    <div class="cabeca"><h3>Saldo por licenciado e cultivar</h3>
+    <div class="cabeca"><h3><svg class="i" style="width:22px;height:22px;vertical-align:-4px;margin-right:8px;color:var(--verde-2)"><use href="#i-saldo"/></svg>Saldo por licenciado e cultivar</h3>
       <p class="ajuda" id="saldoAjuda">Calculado direto da planilha. <b>Na deslintadora</b> = entrada − saída − sem deslintar − quebra.</p></div>
     <div class="corpo">
       <div class="saldo-kpis" id="saldoKpis"></div>
+      <div class="saldo-grafico" id="saldoGrafico"></div>
       <div class="saldo-filtros">
-        <input type="search" id="saldoBusca" placeholder="Buscar licenciado, deslintadora ou cultivar" autocomplete="off">
-        <label class="check"><input type="checkbox" id="saldoAtencao"> Só o que precisa de atenção</label>
-        <label class="limite">Quebra alta acima de <input id="saldoLimite" inputmode="decimal" size="3"> %</label>
+        <div class="busca"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="saldoBusca" placeholder="Buscar licenciado, deslintadora ou cultivar" autocomplete="off"></div>
+        <label class="campo">Safra<select id="saldoSafra" aria-label="Safra"></select></label>
+        <label class="campo">Até o mês<select id="saldoAte" aria-label="Até o mês"></select></label>
+        <label class="campo limite">Quebra alta acima de<span><input id="saldoLimite" inputmode="decimal" size="3"> %</span></label>
+        <label class="chip"><input type="checkbox" id="saldoAtencao"> Só o que precisa de atenção</label>
       </div>
       <div class="saldo-tabela" id="saldoTabela"></div>
     </div>
@@ -2136,7 +2183,7 @@ atualizar().catch((e) => toast(e.message, true));
 
 // ---------- Painel de saldo ----------
 // Por licenciado + deslintadora + cultivar, direto da planilha: entrou, voltou, quebra e o que ainda está lá.
-const saldo = { grupos: [], abertos: new Set(), limite: 3 };
+const saldo = { grupos: [], abertos: new Set(), limite: 3, safra: '', ate: '' };
 const kgFmt = (n) => Number(n || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
 const pctFmt = (n) => (n == null ? '—' : n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%');
 const kgOuTraco = (n) => (Math.abs(n) < 0.0005 ? '<span class="zero">–</span>' : kgFmt(n));
@@ -2145,13 +2192,14 @@ const quebraAlta = (g) => g.quebraPct != null && g.quebraPct > saldo.limite;
 const precisaAtencao = (g) => g.voltouMais || quebraAlta(g);
 const gravidade = (g) => (g.voltouMais ? 2 : 0) + (quebraAlta(g) ? 1 : 0);
 
-async function abrirSaldo() {
+async function abrirSaldo(evento) {
+  if (evento && evento.type === 'click') { saldo.safra = ''; saldo.ate = ''; } // abrindo de novo: sem filtro
   const dlg = $('#dlgSaldo');
   $('#saldoKpis').innerHTML = '';
   $('#saldoTabela').innerHTML = '<div class="saldo-vazio"><div class="girando" style="margin:0 auto 10px"></div>Lendo a planilha...</div>';
   if (!dlg.open) dlg.showModal();
   try {
-    const r = await api('/api/saldo');
+    const r = await api('/api/saldo?' + new URLSearchParams({ safra: saldo.safra, ate: saldo.ate }));
     saldo.grupos = r.grupos || [];
     saldo.limite = r.limiteQuebra || 3;
     // Opções do relatório: clientes e meses que existem na planilha (o mês mais recente primeiro).
@@ -2160,6 +2208,10 @@ async function abrirSaldo() {
     $('#relCliente').innerHTML = '<option value="">Todos os clientes</option>' + (r.clientes || []).map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
     if ((r.clientes || []).includes(clienteAntes)) $('#relCliente').value = clienteAntes;
     $('#relMes').innerHTML = (r.meses || []).map((m) => `<option value="${m}">${NOMES_MES[Number(m.slice(5)) - 1]} de ${m.slice(0, 4)}</option>`).join('') + '<option value="">Tudo (desde o início)</option>';
+    $('#saldoSafra').innerHTML = '<option value="">Todas</option>' + (r.safras || []).map((x) => `<option value="${esc(x)}">${esc(x)}</option>`).join('') + (r.temSemSafra ? '<option value="__sem">(sem safra)</option>' : '');
+    $('#saldoSafra').value = saldo.safra;
+    $('#saldoAte').innerHTML = '<option value="">Hoje (tudo)</option>' + (r.meses || []).map((m) => `<option value="${m}">${NOMES_MES[Number(m.slice(5)) - 1]} de ${m.slice(0, 4)}</option>`).join('');
+    $('#saldoAte').value = saldo.ate;
     $('#saldoLimite').value = String(saldo.limite).replace('.', ',');
     $('#saldoAjuda').innerHTML = `Calculado agora, direto da planilha (aba <b>${esc(r.aba || '')}</b>). <b>Na deslintadora</b> = entrada − saída − sem deslintar − quebra. Clique numa linha para ver as notas.`;
     desenharSaldo();
@@ -2178,17 +2230,43 @@ function gruposFiltrados() {
     .sort((a, b) => gravidade(b) - gravidade(a) || a.licenciado.localeCompare(b.licenciado) || a.cultivar.localeCompare(b.cultivar));
 }
 
+// Barra de "para onde foi o que entrou": voltou (azul), sem deslintar (azul claro), quebra (amarelo), o que falta voltar (cinza).
+// Se voltou mais do que entrou, o excesso aparece listrado de vermelho e a risca marca onde a entrada termina.
+function barraSaldo(t, fina) {
+  const entrada = t.entrada || 0;
+  const voltou = (t.saida || 0) + (t.semDeslintar || 0) + (t.quebra || 0);
+  const escala = Math.max(entrada, voltou);
+  if (!(escala > 0)) return '';
+  const w = (v) => Math.max(0, (v / escala) * 100).toFixed(2) + '%';
+  const resta = Math.max(0, entrada - voltou);
+  const excesso = Math.max(0, voltou - entrada);
+  return `<div class="sb ${fina ? 'fino' : ''}">
+      <i class="v" style="width:${w(t.saida)}"></i><i class="sd" style="width:${w(t.semDeslintar)}"></i><i class="q" style="width:${w(t.quebra)}"></i><i class="r" style="width:${w(resta)}"></i>
+      ${excesso ? `<i class="x" style="left:${w(entrada)};right:0"></i>` : ''}${excesso ? `<i class="marca" style="left:${w(entrada)}"></i>` : ''}
+    </div>`;
+}
+
 function desenharSaldo() {
   const lista = gruposFiltrados();
   const soma = (k) => lista.reduce((t, g) => t + g[k], 0);
   const total = { entrada: soma('entrada'), saida: soma('saida'), semDeslintar: soma('semDeslintar'), quebra: soma('quebra'), naDeslintadora: soma('naDeslintadora') };
   const atencao = saldo.grupos.filter(precisaAtencao).length;
   $('#saldoKpis').innerHTML = `
-    <div class="kpi"><small>Entrou</small><b>${kgFmt(total.entrada)} kg</b><span>${lista.length} ${lista.length === 1 ? 'grupo' : 'grupos'}</span></div>
-    <div class="kpi"><small>Voltou deslintado</small><b>${kgFmt(total.saida)} kg</b><span>+ ${kgFmt(total.semDeslintar)} kg sem deslintar</span></div>
-    <div class="kpi"><small>Quebra</small><b>${kgFmt(total.quebra)} kg</b><span>${total.entrada ? pctFmt((total.quebra / total.entrada) * 100) + ' da entrada' : '—'}</span></div>
-    <div class="kpi"><small>Na deslintadora</small><b>${kgFmt(total.naDeslintadora)} kg</b><span>ainda não voltou</span></div>
+    <div class="kpi"><small>Entrou</small><b>${kgFmt(total.entrada)}<em>kg</em></b><span>${lista.length} ${lista.length === 1 ? 'grupo' : 'grupos'}</span></div>
+    <div class="kpi azul"><small>Voltou deslintado</small><b>${kgFmt(total.saida)}<em>kg</em></b><span>+ ${kgFmt(total.semDeslintar)} kg sem deslintar</span></div>
+    <div class="kpi ambar"><small>Quebra</small><b>${kgFmt(total.quebra)}<em>kg</em></b><span>${total.entrada ? pctFmt((total.quebra / total.entrada) * 100) + ' da entrada' : '—'}</span></div>
+    <div class="kpi ${total.naDeslintadora < -0.5 ? 'neg' : 'cinza'}"><small>Na deslintadora</small><b>${kgFmt(total.naDeslintadora)}<em>kg</em></b><span>${total.naDeslintadora < -0.5 ? 'voltou mais do que entrou' : 'ainda não voltou'}</span></div>
     <div class="kpi ${atencao ? 'atencao' : ''}"><small>Precisam de atenção</small><b>${atencao ? icone('alerta') : ''}${atencao}</b><span>${atencao ? 'veja os selos na tabela' : 'tudo certo'}</span></div>`;
+  const pe = (v) => (total.entrada ? ' · ' + pctFmt((v / total.entrada) * 100) : '');
+  const vtot = total.saida + total.semDeslintar + total.quebra;
+  $('#saldoGrafico').innerHTML = total.entrada || vtot ? `<h4>Para onde foi o que entrou</h4>${barraSaldo(total)}
+    <div class="saldo-legenda">
+      <span><i class="p v"></i>Voltou deslintado <b>${kgFmt(total.saida)} kg</b>${pe(total.saida)}</span>
+      ${total.semDeslintar ? `<span><i class="p sd"></i>Sem deslintar <b>${kgFmt(total.semDeslintar)} kg</b>${pe(total.semDeslintar)}</span>` : ''}
+      <span><i class="p q"></i>Quebra <b>${kgFmt(total.quebra)} kg</b>${pe(total.quebra)}</span>
+      ${total.entrada > vtot + 0.5 ? `<span><i class="p r"></i>Ainda na deslintadora <b>${kgFmt(total.entrada - vtot)} kg</b>${pe(total.entrada - vtot)}</span>` : ''}
+      ${vtot > total.entrada + 0.5 ? `<span><i class="p x"></i>Voltou a mais do que entrou <b>${kgFmt(vtot - total.entrada)} kg</b></span>` : ''}
+    </div>` : '';
   if (!saldo.grupos.length) {
     $('#saldoTabela').innerHTML = '<div class="saldo-vazio">Nenhuma nota com volume na planilha ainda.</div>';
     return;
@@ -2204,19 +2282,20 @@ function desenharSaldo() {
   const tipo = (n) => (n.entrada ? 'Entrada' : n.saida ? 'Saída' : n.semDeslintar ? 'Sem deslintar' : 'Quebra');
   const linhas = lista.map((g) => {
     const aberto = saldo.abertos.has(g.chave);
-    const detalhe = aberto ? `<tr class="detalhe"><td colspan="9"><table>
+    const dicas = g.dicas && g.dicas.length ? `<div class="dicas"><b>${icone('alerta')} Por que o saldo ficou negativo?</b><ul>${g.dicas.map((d) => `<li>${esc(d)}</li>`).join('')}</ul></div>` : '';
+    const detalhe = aberto ? `<tr class="detalhe"><td colspan="9">${dicas}<table>
         <thead><tr><th>NF</th><th>Linha</th><th>Tipo</th><th class="n">Entrada</th><th class="n">Saída</th><th class="n">Sem deslintar</th><th class="n">Quebra</th></tr></thead>
-        <tbody>${g.notas.map((n) => `<tr><td>${esc(n.nf || '—')}</td><td>${n.linha}</td><td>${tipo(n)}</td>
+        <tbody>${g.notas.map((n) => `<tr class="${n.suspeita ? 'suspeita' : ''}"><td>${esc(n.nf || '—')}</td><td>${n.linha}</td><td>${tipo(n)}</td>
           <td class="n">${n.entrada ? kgFmt(n.entrada) : ''}</td><td class="n">${n.saida ? kgFmt(n.saida) : ''}</td>
           <td class="n">${n.semDeslintar ? kgFmt(n.semDeslintar) : ''}</td><td class="n">${n.quebra ? kgFmt(n.quebra) : ''}</td></tr>`).join('')}</tbody>
       </table></td></tr>` : '';
     const docs = [g.licencDoc && 'Licenciado: ' + docFmt(g.licencDoc), g.deslintDoc && 'Deslintadora: ' + docFmt(g.deslintDoc)].filter(Boolean).join(' · ');
-    return `<tr class="grupo ${aberto ? 'aberto' : ''}" data-grupo="${esc(g.chave)}" title="${esc((docs ? docs + ' · ' : '') + 'Clique para ver as notas')}">
+    return `<tr class="grupo ${aberto ? 'aberto' : ''} ${precisaAtencao(g) ? 'atencao' : ''}" data-grupo="${esc(g.chave)}" title="${esc((docs ? docs + ' · ' : '') + 'Clique para ver as notas')}">
         <td><span class="emp">${esc(g.licenciado)}</span><span class="doc">em ${esc(g.deslintadora)}</span></td>
         <td style="white-space:nowrap"><b>${esc(g.cultivar)}</b><span class="doc">${esc(g.safras.join(', '))}</span></td>
         <td class="n">${kgOuTraco(g.entrada)}</td><td class="n">${kgOuTraco(g.saida)}</td><td class="n">${kgOuTraco(g.semDeslintar)}</td>
         <td class="n">${kgOuTraco(g.quebra)}</td><td class="n">${g.quebra ? pctFmt(g.quebraPct) : '<span class="zero">–</span>'}</td>
-        <td class="n ${g.naDeslintadora < -0.5 ? 'negativo' : ''}">${kgFmt(g.naDeslintadora)}</td>
+        <td class="n ${g.naDeslintadora < -0.5 ? 'negativo' : ''}">${kgFmt(g.naDeslintadora)}${barraSaldo(g, true)}</td>
         <td><div class="situacao">${selos(g)}</div></td></tr>${detalhe}`;
   }).join('');
   $('#saldoTabela').innerHTML = `<table>
@@ -2286,6 +2365,9 @@ $('#btRelatorio').onclick = async () => {
 $('#btSaldoFechar').onclick = () => $('#dlgSaldo').close();
 $('#saldoBusca').oninput = desenharSaldo;
 $('#saldoAtencao').onchange = desenharSaldo;
+// Safra e "até o mês" mudam o que entra na conta, então a planilha é lida de novo.
+$('#saldoSafra').onchange = () => { saldo.safra = $('#saldoSafra').value; abrirSaldo(); };
+$('#saldoAte').onchange = () => { saldo.ate = $('#saldoAte').value; abrirSaldo(); };
 $('#saldoLimite').onchange = async () => {
   const n = Number($('#saldoLimite').value.replace(',', '.'));
   if (!(n > 0 && n <= 100)) { $('#saldoLimite').value = String(saldo.limite).replace('.', ','); toast('O limite tem que ser um número entre 0 e 100.', true); return; }

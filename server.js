@@ -15,7 +15,7 @@ const { conferirNota, saldoPorGrupo, LIMITE_QUEBRA_PADRAO } = require('./lib/con
 const { gerarRelatorio } = require('./lib/relatorio');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
 const { verificarBloqueio, paginaBloqueio, PIX, FLASH_LOGO } = require('./lib/bloqueio');
-const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
+const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, andamento: andamentoAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
 const { usarCodigo } = require('./lib/liberar');
@@ -612,7 +612,7 @@ const servidor = http.createServer(async (req, res) => {
   // Sem trava por prazo: o único bloqueio agora é a falta de créditos (tratada em /api/inserir).
   const bloqueio = { bloqueado: false, aviso: '' };
   // /planos fica aberta mesmo bloqueado: é a página de planos que a tela de bloqueio oferece (ela só mostra preços, não libera nada).
-  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/liberar', '/planos', '/api/pix', '/api/creditos', '/api/creditos/comprar', '/api/creditos/pagamento', '/api/creditos/resgatar'].includes(url.pathname)) {
+  if (bloqueio.bloqueado && !['/api/versao', '/api/atualizar', '/api/atualizar/andamento', '/api/liberar', '/planos', '/api/pix', '/api/creditos', '/api/creditos/comprar', '/api/creditos/pagamento', '/api/creditos/resgatar'].includes(url.pathname)) {
     // Bloqueado, mas com versão nova no ar: atualiza primeiro (a tela de atualização se resolve sozinha).
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova && !url.pathname.startsWith('/api/')) {
@@ -624,7 +624,7 @@ const servidor = http.createServer(async (req, res) => {
     return res.end(paginaBloqueio(bloqueio, v.atual));
   }
   // Atualização obrigatória: com versão nova no ar, nada abre até atualizar (garante que o bloqueio sempre funcione).
-  if (!['/api/versao', '/api/atualizar', '/api/estado', '/api/aviso', '/api/liberar'].includes(url.pathname)) {
+  if (!['/api/versao', '/api/atualizar', '/api/atualizar/andamento', '/api/estado', '/api/aviso', '/api/liberar'].includes(url.pathname)) {
     const v = await verificarAtualizacao(RAIZ);
     if (v.nova) {
       if (url.pathname.startsWith('/api/')) return json(res, 426, { erro: 'Atualização obrigatória: atualize o programa para continuar.' });
@@ -744,6 +744,7 @@ const servidor = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/versao') {
       return json(res, 200, await verificarAtualizacao(RAIZ));
     }
+    if (req.method === 'GET' && url.pathname === '/api/atualizar/andamento') return json(res, 200, andamentoAtualizacao());
     if (req.method === 'POST' && url.pathname === '/api/atualizar') {
       const r = await aplicarAtualizacao(RAIZ, lerConfig().pastaBackups);
       json(res, 200, r);
@@ -845,9 +846,11 @@ const servidor = http.createServer(async (req, res) => {
       const ref = await referencia(config);
       const mv = ref.movimentos || [];
       return json(res, 200, {
-        grupos: saldoPorGrupo(ref), limiteQuebra: Number(config.limiteQuebra) || LIMITE_QUEBRA_PADRAO, aba: config.aba,
+        grupos: saldoPorGrupo(ref, { safra: String(url.searchParams.get('safra') || ''), ate: String(url.searchParams.get('ate') || '') }), limiteQuebra: Number(config.limiteQuebra) || LIMITE_QUEBRA_PADRAO, aba: config.aba,
         clientes: [...new Set(mv.map((m) => m.cliente).filter(Boolean))].sort(),
         meses: [...new Set(mv.map((m) => (m.data || '').slice(0, 7)).filter(Boolean))].sort().reverse(),
+        safras: [...new Set(mv.map((m) => m.safra).filter(Boolean))].sort().reverse(),
+        temSemSafra: mv.some((m) => !m.safra),
       });
     }
     // Relatório em Excel para mandar ao cliente (obtentora), de um mês ou de tudo.
