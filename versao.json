@@ -1,19 +1,16 @@
 {
-  "versao": "1.1.33",
+  "versao": "1.1.34",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Visual novo: tela mais limpa, modo claro e escuro, e as colunas da tela dá para arrastar e ajustar",
-    "Zoom ligado a cada campo: ao clicar num campo, aparece o trecho da nota de onde ele veio",
-    "Créditos comprados dentro do programa, em 3 passos (escolher, Pix, pago)",
-    "Histórico de lançamentos com busca e exportação para Excel; desfazer o último lançamento",
-    "Nota repetida pode ser lançada mesmo assim, com confirmação; carta de correção vai sozinha para a nota dela",
-    "Painel de saldo com gráficos novos (mês a mês e quebra por licenciado)"
+    "Avaliação rápida: a cada 10 notas, o programa pergunta sobre o que você mais corrigiu, para melhorar a leitura",
+    "Arrastar a imagem da nota não envia o arquivo de novo",
+    "Cabeçalho da conferência numa linha só"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "27c123100a45fcb53d1b2fe66cb66a6ea2c1040412b8b7920c8303e3ffd78320"
+      "sha256": "b8c6808177bed968b99c1208c41fe2739e78e176102423a08dfaa750dc9ea09e"
     },
     {
       "arquivo": "package.json",
@@ -69,7 +66,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "657d93cfcd8e6a3c6463c61717fe1629b44dcdc98ae3f1e655f5b1caca172be0"
+      "sha256": "5c3d577430190b1fb6407965e47a516a5234a98b201b83a61d491bdd3e70708f"
     },
     {
       "arquivo": "public/planos.html",
@@ -130,6 +127,10 @@
     {
       "arquivo": "lib/telemetria.js",
       "sha256": "bc1c3a3b7fa7cfd3ef6a41e364876e42699f9eb510d51293b5383fa0308ad201"
+    },
+    {
+      "arquivo": "lib/avaliacao.js",
+      "sha256": "a7abc3ff24f324343a43307c14fe487e06c250b708af26032b30fe114da68403"
     }
   ],
   "servidorCreditos": "https://leitor-notas-servidor.vercel.app"

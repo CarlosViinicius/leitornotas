@@ -1264,6 +1264,21 @@
   .saldo-tabela .selo-s { white-space: normal; line-height: 1.25; }
   .saldo-tabela th:last-child, .saldo-tabela td:last-child { min-width: 120px; }
   .saldo-tabela .emp { min-width: 140px; }
+  /* Avaliação rápida (janela no meio da tela) */
+  #dlgAvaliacao { width: min(560px, 94vw); }
+  #dlgAvaliacao .corpo { gap: 14px; }
+  .av-p { border: 1px solid var(--borda); border-radius: 14px; background: var(--painel); padding: 12px 14px 14px; margin: 0; min-width: 0; }
+  .av-p legend { float: left; width: 100%; padding: 0; margin-bottom: 10px; font-size: 13.5px; font-weight: 600; color: var(--texto); line-height: 1.4; display: flex; gap: 8px; }
+  .av-n { flex: none; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; background: var(--verde-claro); color: var(--verde-texto); font-size: 12px; font-weight: 700; }
+  .av-opcoes { clear: both; display: flex; flex-wrap: wrap; gap: 6px; }
+  .av-op { display: inline-flex; align-items: center; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--texto); text-transform: none; letter-spacing: 0; }
+  .av-op input { position: absolute; opacity: 0; width: 1px; height: 1px; min-height: 0; margin: 0; }
+  .av-op span { padding: 7px 12px; border: 1px solid var(--borda-forte); border-radius: 999px; background: var(--sutil); transition: background .12s, border-color .12s; }
+  .av-op:hover span { border-color: var(--verde); }
+  .av-op input:checked + span { background: var(--verde-claro); border-color: var(--verde); color: var(--verde-texto); font-weight: 650; }
+  .av-op input:focus-visible + span { outline: 2px solid var(--verde); outline-offset: 2px; }
+  .av-com { font-size: 12.5px; }
+  .av-com textarea { min-height: 56px; }
   /* ===== Tela principal igual ao design (itens 1, 2, 5, 6, 7) ===== */
   /* Cabeçalho da conferência: linha 1 = NOTA FISCAL + destinatário; linha 2 = selo + setas */
   /* Tudo numa linha só, reto (pedido do Carlos): número, destinatário, selo e setas. O nome longo encurta com "…". */
@@ -1570,6 +1585,20 @@
     <div class="cabeca"><h3 id="confTitulo"></h3></div>
     <div class="corpo"><p id="confTexto" style="margin:0"></p></div>
     <div class="botoes"><button type="submit" id="confNao" value="nao">Cancelar</button><button type="button" class="primario" id="confSim"></button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgAvaliacao" aria-labelledby="avTit">
+  <form method="dialog" onsubmit="return false">
+    <div class="cabeca cab-x"><span class="cab-ic"><svg class="i"><use href="#i-balao"/></svg></span>
+      <div><h3 id="avTit">Uma ajuda rápida</h3><p class="ajuda" id="avSub">Com base no que você corrigiu nas últimas notas. Leva uns 10 segundos.</p></div>
+      <button type="button" class="bt-x" id="avX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo" id="avCorpo"></div>
+    <div class="botoes">
+      <span class="ajuda com-ic" style="margin-right:auto"><svg class="i"><use href="#i-cadeado"/></svg><span>Vai só a sua resposta. Nenhum dado das notas.</span></span>
+      <button type="button" id="avPular">Agora não</button>
+      <button type="button" class="primario" id="avEnviar" disabled><svg class="i"><use href="#i-enviar"/></svg>Enviar</button>
+    </div>
   </form>
 </dialog>
 
@@ -2882,6 +2911,7 @@ function desenharFormulario(nome, r) {
   if ($('#btOutraEmpresa')) $('#btOutraEmpresa').onclick = removerAtual;
   $('#campos').querySelectorAll('[data-ver-saldo]').forEach((b) => (b.onclick = () => $('#btSaldo').click()));
   $('#campos').querySelectorAll('[data-visto]').forEach((b) => (b.onclick = () => {
+    contarAviso('saldo');
     (estado.vistos[nome] ||= new Set()).add(b.dataset.visto);
     const faltam = conferir.filter((a) => a.tipo !== 'cultivar' && !estado.vistos[nome].has(a.texto));
     if (!faltam.length && !avCultivar.length) estado.conferidas.add(nome);
@@ -2923,6 +2953,7 @@ function desenharFormulario(nome, r) {
   }));
   if ($('#btConferi')) $('#btConferi').onclick = () => {
     // Confere só os avisos deste quadro; a nota fica "conferida" quando não sobra nenhum.
+    contarAviso('geral');
     for (const a of avGerais) (estado.vistos[nome] ||= new Set()).add(a.texto);
     const faltam = conferir.filter((a) => a.tipo !== 'cultivar' && !estado.vistos[nome].has(a.texto));
     if (!faltam.length && !avCultivar.length) marcarConferida(true);
@@ -3047,6 +3078,7 @@ async function inserirAtual(opcoes = {}) {
     estado.atual = null;
     await atualizar();
     if (prox && estado.pendentes.some((p) => p.nome === prox.nome)) selecionar(prox.nome);
+    setTimeout(verAvaliacao, 1500); // a cada 10 notas pode aparecer a avaliação rápida
   } catch (e) {
     toast(e.message, true);
     revalidarFila();
@@ -3106,6 +3138,43 @@ async function desfazerPorId(alvo) {
     return true;
   } catch (e) { toast(e.message, true); return false; }
 }
+
+// ---------- Avaliação rápida ----------
+// A cada 10 notas lançadas, o programa pergunta (numa janela no meio da tela) sobre o que o auditor mais corrigiu
+// ou sobre os avisos em que ele mais clicou "Já conferi". Sem nada repetido, não pergunta.
+const avaliacaoTela = { pacote: null, respostas: {} };
+async function verAvaliacao() {
+  if (document.querySelector('dialog[open]')) return; // não atrapalha outra janela aberta
+  let r;
+  try { r = await api('/api/avaliacao'); } catch { return; }
+  if (!r || !r.perguntas || !r.perguntas.length) return;
+  avaliacaoTela.pacote = r; avaliacaoTela.respostas = {};
+  $('#avSub').textContent = `Com base no que você corrigiu nas últimas ${r.notas} notas. Leva uns 10 segundos.`;
+  $('#avCorpo').innerHTML = r.perguntas.map((p, i) => `<fieldset class="av-p" data-id="${esc(p.id)}"><legend><span class="av-n">${i + 1}</span>${esc(p.texto)}</legend>
+      <div class="av-opcoes">${p.opcoes.map((o) => `<label class="av-op"><input type="radio" name="av${i}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join('')}</div></fieldset>`).join('')
+    + '<label class="av-com">Quer contar mais alguma coisa? <span class="mu">(opcional)</span><textarea id="avComentario" rows="2" maxlength="1000" placeholder="Ex.: a cultivar dessa empresa sempre vem com o nome diferente"></textarea></label>';
+  $('#avCorpo').querySelectorAll('.av-p').forEach((fs) => fs.addEventListener('change', (ev) => {
+    avaliacaoTela.respostas[fs.dataset.id] = ev.target.value;
+    $('#avEnviar').disabled = Object.keys(avaliacaoTela.respostas).length < r.perguntas.length;
+  }));
+  $('#avEnviar').disabled = true;
+  $('#dlgAvaliacao').showModal();
+}
+const pularAvaliacao = () => { $('#dlgAvaliacao').close(); api('/api/avaliacao/pular', {}).catch(() => {}); };
+$('#avPular').onclick = pularAvaliacao;
+$('#avX').onclick = pularAvaliacao;
+$('#dlgAvaliacao').addEventListener('cancel', (e) => { e.preventDefault(); pularAvaliacao(); });
+$('#avEnviar').onclick = async () => {
+  const bt = $('#avEnviar');
+  bt.disabled = true;
+  try {
+    await api('/api/avaliacao/responder', { respostas: avaliacaoTela.respostas, comentario: $('#avComentario').value });
+    $('#dlgAvaliacao').close();
+    toast('Obrigado! Sua resposta ajuda a melhorar o programa.');
+  } catch (e) { toast(e.message, true); bt.disabled = false; }
+};
+// "Já conferi" nos avisos conta para a avaliação (para saber se o aviso aparece à toa).
+const contarAviso = (tipo) => api('/api/avaliacao/aviso', { tipo }).catch(() => {});
 
 // ---------- Histórico de lançamentos ----------
 const hist = { lista: [], desfazer: null };
@@ -3182,6 +3251,7 @@ $('#btInserirLote').onclick = async () => {
   if (falhas.length) toast(`${ok} inserida(s). Não inseridas: ${falhas.join(' | ')}`, true);
   else toast(`${ok} nota(s) inserida(s) na planilha`);
   await atualizar();
+  if (ok) setTimeout(verAvaliacao, 1500);
 };
 $('#btLimparSel').onclick = () => { estado.selecionadas.clear(); desenharLista(); };
 $('#btSelTodas').onclick = () => {

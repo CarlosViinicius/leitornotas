@@ -11,6 +11,7 @@ const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar, pesoFecha } = require('./lib/montar');
 const { criarAprendizado } = require('./lib/aprender');
 const { criarTelemetria } = require('./lib/telemetria');
+const { criarAvaliacao, textoDasRespostas } = require('./lib/avaliacao');
 const { conferirNota, saldoPorGrupo, LIMITE_QUEBRA_PADRAO } = require('./lib/conferencias');
 const { gerarRelatorio } = require('./lib/relatorio');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
@@ -538,6 +539,7 @@ async function inserirNota(config, nome, formulario, creditoRef = null, proposta
     console.error('Não consegui anotar as correções desta nota:', e.message);
   }
   try { telemetria.registrarNota(proposta, formulario); } catch { /* telemetria nunca atrapalha o lançamento */ }
+  try { avaliacao.registrarNota(proposta, formulario); } catch { /* idem */ }
   return numeros;
 }
 
@@ -548,6 +550,9 @@ const ARQ_HISTORICO = path.join(path.dirname(ARQ_CONFIG), '.insercoes.json');
 const aprendizado = criarAprendizado(path.join(path.dirname(ARQ_CONFIG), '.aprendizado.json'));
 // Contagens de erros e de campos corrigidos, enviadas ao desenvolvedor (sem nenhum dado de nota). Ver lib/telemetria.js.
 const telemetria = criarTelemetria(path.join(path.dirname(ARQ_CONFIG), '.telemetria.json'));
+// Avaliação rápida a cada 10 notas, com perguntas sobre o que o auditor mais corrigiu (ver lib/avaliacao.js).
+const avaliacao = criarAvaliacao(path.join(path.dirname(ARQ_CONFIG), '.avaliacao.json'));
+let avaliacaoAberta = null; // perguntas mostradas agora (para montar o texto das respostas)
 async function enviarTelemetria() {
   try {
     if (!creditos.ligado()) return;
@@ -946,6 +951,32 @@ const servidor = http.createServer(async (req, res) => {
       if (problema) return json(res, 400, { erro: problema });
       const r = await emFila(() => desfazerInsercao(config, id));
       return json(res, 200, { ok: true, ...r, desfazer: resumoDesfazer() });
+    }
+    // ---- Avaliação rápida (janela no meio da tela a cada 10 notas) ----
+    if (req.method === 'GET' && url.pathname === '/api/avaliacao') {
+      avaliacaoAberta = avaliacao.perguntas();
+      return json(res, 200, avaliacaoAberta || {});
+    }
+    if (req.method === 'POST' && url.pathname === '/api/avaliacao/aviso') {
+      const { tipo } = await lerCorpo(req);
+      avaliacao.registrarAviso(String(tipo || ''));
+      return json(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && url.pathname === '/api/avaliacao/pular') {
+      avaliacao.zerar();
+      avaliacaoAberta = null;
+      return json(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && url.pathname === '/api/avaliacao/responder') {
+      const { respostas, comentario } = await lerCorpo(req);
+      const pacote = avaliacaoAberta || avaliacao.perguntas();
+      if (!pacote) return json(res, 400, { erro: 'Não há avaliação aberta.' });
+      const msg = textoDasRespostas(pacote, respostas && typeof respostas === 'object' ? respostas : {}, String(comentario || '').trim().slice(0, 1000));
+      // Vai para a aba Sugestões do painel (mesmo caminho do "Sugerir melhoria").
+      if (creditos.ligado()) await creditos.sugestao(msg, String(config.auditor || '').slice(0, 80), lerVersaoLocal(RAIZ).versao);
+      avaliacao.zerar();
+      avaliacaoAberta = null;
+      return json(res, 200, { ok: true });
     }
     if (req.method === 'GET' && url.pathname === '/api/historico') {
       return json(res, 200, { lancamentos: lerLancamentos(), desfazer: resumoDesfazer() });
