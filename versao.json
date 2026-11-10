@@ -1,10 +1,9 @@
 {
-  "versao": "1.1.34",
+  "versao": "1.1.35",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Avaliação rápida: a cada 10 notas, o programa pergunta sobre o que você mais corrigiu, para melhorar a leitura",
-    "Arrastar a imagem da nota não envia o arquivo de novo",
-    "Cabeçalho da conferência numa linha só"
+    "Loading mais suave: anel girando devagar, sem piscar quando a lista atualiza",
+    "Zoom da nota mais firme: acompanha o clique no campo e o tamanho da janela"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -66,7 +65,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "5c3d577430190b1fb6407965e47a516a5234a98b201b83a61d491bdd3e70708f"
+      "sha256": "32d793d7a65939c6aaaa579040932374c86609647a2fc2937c7274a9e9374ff4"
     },
     {
       "arquivo": "public/planos.html",

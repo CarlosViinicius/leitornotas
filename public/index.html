@@ -1335,6 +1335,13 @@
   @keyframes varre { 0% { top: 60px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: calc(100% - 20px); opacity: 0; } }
   #visor { position: relative; }
   @media (prefers-reduced-motion: reduce) { .sk, #visor.lendo::before { animation: none; } }
+  /* Loading suave: anel girando devagar (no lugar da bolinha que piscava) e brilho calmo */
+  .girando, .spin { animation: gira 1.3s cubic-bezier(.45,.1,.55,.9) infinite !important; }
+  .status.lendo::before, .status.enviando::before, .status.inserindo::before {
+    width: 10px; height: 10px; background: transparent; border: 2px solid color-mix(in srgb, currentColor 25%, transparent); border-top-color: currentColor;
+    box-sizing: border-box; animation: gira 1.3s cubic-bezier(.45,.1,.55,.9) infinite !important; transform: none; opacity: 1; }
+  .sk { animation-duration: 2.4s !important; animation-timing-function: ease-in-out !important; }
+  .barra i { animation-duration: 3.6s !important; }
   /* Cabeçalho das janelas com ícone e X */
   dialog .cab-x { display: flex; align-items: flex-start; gap: 12px; }
   dialog .cab-x > div { flex: 1; min-width: 0; }
@@ -2059,6 +2066,17 @@ setInterval(() => {
   }
 }, 250);
 
+// Ao redesenhar um trecho, as animações recomeçariam do zero (o "pisca-pisca").
+// Aqui todas as que repetem voltam para a fase do relógio da página, então seguem contínuas.
+function sincronizarAnimacoes(raiz) {
+  try {
+    const t = document.timeline.currentTime;
+    (raiz || document).getAnimations({ subtree: true }).forEach((a) => {
+      if (a.effect && a.effect.getTiming().iterations === Infinity) a.currentTime = t;
+    });
+  } catch (e) { /* navegador sem suporte: segue normal */ }
+}
+
 function desenharLista() {
   const l = $('#lista');
   $('#contador').textContent = estado.pendentes.length || '';
@@ -2092,6 +2110,7 @@ function desenharLista() {
           <div class="linha-lancada"><small>${x.linhas.length > 1 ? 'linhas ' + x.linhas.join(', ') : 'linha ' + x.linhas[0]}</small>${podeDesfazer(x) ? botaoDesfazer() : ''}</div></span></div>`).join('')}</div>`;
   }
   l.innerHTML = html;
+  sincronizarAnimacoes(l);
   const btDesfazer = l.querySelector('[data-desfazer]');
   if (btDesfazer) btDesfazer.onclick = () => desfazerUltima(btDesfazer);
   l.querySelectorAll('.item[data-nome]').forEach((d) => {
@@ -2507,6 +2526,10 @@ function mostrarZona(z) {
   $('#lupaNome').textContent = ZONAS[z].nome;
   const crop = $('#lupaCrop');
   const pgImg = $('#pagina img');
+  // Imagem da página ainda carregando: espera e desenha de novo (antes o zoom saía com a proporção errada).
+  if (pgImg && !(pgImg.complete && pgImg.naturalWidth)) {
+    pgImg.addEventListener('load', () => { if (estado.zonaAtual === z) mostrarZona(z); }, { once: true });
+  }
   const asp = pgImg && pgImg.naturalWidth ? pgImg.naturalHeight / pgImg.naturalWidth : 1.414; // altura / largura da página
   const larg = crop.clientWidth || 300;
   const escala = larg / (w / 100); // largura da página inteira para o trecho ocupar a caixa
@@ -2516,11 +2539,21 @@ function mostrarZona(z) {
   const vb = $('#vb'), pg = $('#pagina');
   if (vb && pg) vb.scrollTo({ top: Math.max(0, pg.offsetTop + pg.clientHeight * y / 100 - 40), behavior: 'smooth' });
 }
-$('#campos').addEventListener('focusin', (e) => {
+function zonaDoEvento(e) {
   const c = e.target.closest('[data-c]')?.dataset.c || (e.target.id === 'novaChave' ? 'chave' : null);
-  const z = zonaDoCampo(c);
-  if (z) mostrarZona(z);
-});
+  return zonaDoCampo(c);
+}
+$('#campos').addEventListener('focusin', (e) => { const z = zonaDoEvento(e); if (z) mostrarZona(z); });
+// Clicar num campo que já está com o cursor não dispara focusin: o clique também atualiza o zoom.
+$('#campos').addEventListener('click', (e) => { const z = zonaDoEvento(e); if (z) mostrarZona(z); });
+// Mudou o tamanho da janela/colunas: o zoom é recalculado para a largura nova (antes ficava torto até clicar de novo).
+let _recalcZoom = null;
+function recalcularZoom() {
+  clearTimeout(_recalcZoom);
+  _recalcZoom = setTimeout(() => { if (estado.zonaAtual) mostrarZona(estado.zonaAtual); }, 120);
+}
+window.addEventListener('resize', recalcularZoom);
+if (window.ResizeObserver) new ResizeObserver(recalcularZoom).observe($('#visor'));
 
 async function removerAtual() {
   const nome = estado.atual;
@@ -2637,6 +2670,7 @@ async function selecionar(nome, forcar) {
     $('#campos').innerHTML = skeletonFormulario('Lendo a nota com a IA...', 'costuma levar poucos segundos · pode abrir outra nota enquanto isso');
     if (!semCredito()) $('#visor').classList.add('lendo');
   }
+  sincronizarAnimacoes($('#campos'));
   try {
     const r = await ler(nome, forcar, !forcar);
     if (estado.atual !== nome) return;
