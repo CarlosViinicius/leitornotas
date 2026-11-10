@@ -1,17 +1,19 @@
 {
-  "versao": "1.1.32",
+  "versao": "1.1.33",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Painel de saldo mais bonito, com gráfico de para onde foi o que entrou e uma barrinha em cada linha",
-    "Quando o saldo fica negativo, o painel explica o provável motivo e destaca a nota suspeita",
-    "Filtros de safra e de \"até o mês\" no painel de saldo",
-    "Atualização mais confiável: tenta de novo, usa um endereço de reserva se o GitHub não abrir e mostra o andamento real"
+    "Visual novo: tela mais limpa, modo claro e escuro, e as colunas da tela dá para arrastar e ajustar",
+    "Zoom ligado a cada campo: ao clicar num campo, aparece o trecho da nota de onde ele veio",
+    "Créditos comprados dentro do programa, em 3 passos (escolher, Pix, pago)",
+    "Histórico de lançamentos com busca e exportação para Excel; desfazer o último lançamento",
+    "Nota repetida pode ser lançada mesmo assim, com confirmação; carta de correção vai sozinha para a nota dela",
+    "Painel de saldo com gráficos novos (mês a mês e quebra por licenciado)"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "f478c9eeec02cf9f54d70ff20990d15e939a18cba0bf76d387c1a548995e6e4f"
+      "sha256": "27c123100a45fcb53d1b2fe66cb66a6ea2c1040412b8b7920c8303e3ffd78320"
     },
     {
       "arquivo": "package.json",
@@ -23,7 +25,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "6cd31b90f129986f7df39ab7804e18011bef48785c1865d229aa625d23105352"
+      "sha256": "f3eae0a321f33de1bb5a4ccc292cf74e145bbdf5fb368ae521512ce05c8bbf4d"
     },
     {
       "arquivo": "lib/bloqueio.js",
@@ -55,7 +57,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "c6e6e69d3c000500b002433079dd1fa21fef1384c9e1452d5837b37023dc34cd"
+      "sha256": "62a92a76f2de06c948eaed0a5ad7dc446f44e7b24a6e1b993754b9fa1f075119"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -67,15 +69,15 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "d2fa97e02122907b67576010f67db0fafa529cfe09312dcad883b829c8df6471"
+      "sha256": "657d93cfcd8e6a3c6463c61717fe1629b44dcdc98ae3f1e655f5b1caca172be0"
     },
     {
       "arquivo": "public/planos.html",
-      "sha256": "ac6b8f660479688b7ddb7d5a4205f12714c09b6f8049f917198632d3ca027303"
+      "sha256": "c2ac45c4d262260ff9c24fa7d736a7e27c15e8aa6e728249f31dabbdb6d4e629"
     },
     {
       "arquivo": "lib/exato.js",
-      "sha256": "6862fac2cce1a007d168f4fa6ca85ca0d21ec4fc67e5a8116a880cdbfffc4624"
+      "sha256": "d32332942f8c31c0454e2954f59a4fbf52e48268059a14d7e185edb8c8acdc16"
     },
     {
       "arquivo": "lib/aprender.js",
@@ -83,7 +85,7 @@
     },
     {
       "arquivo": "lib/conferencias.js",
-      "sha256": "2770f06bbeeded775618b79e0c389ae54f346cffd75e6b798f1af3a1b5dc3f96"
+      "sha256": "69a3b9e0e853845896338f3758d389296a8967830cdc04d15031755766d89594"
     },
     {
       "arquivo": "lib/relatorio.js",

@@ -6,7 +6,7 @@
 <title>Leitor de Notas</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23166534'/%3E%3Cpath d='M10 8h9l5 5v11a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z' fill='%23fff'/%3E%3Cpath d='M12 17h8M12 21h6' stroke='%23166534' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --fundo: #edf1ee; --painel: #ffffff; --borda: #d9e0dc; --borda-forte: #c3cdc7;
@@ -856,6 +856,579 @@
   #listaRegras .regra .txt small { font-size: 12px; color: var(--suave); overflow-wrap: anywhere; }
   #listaRegras .regra button { flex: none; padding: 5px 11px; font-size: 12px; }
   #listaRegras .regra button.confirmar { border-color: var(--vermelho-borda); background: var(--vermelho-fundo); color: var(--vermelho-texto); }
+
+  /* =====================================================================
+     REDESIGN 2026-11 (canvas "Leitor de Notas · Redesign")
+     Tudo daqui para baixo manda no visual. Cores em variáveis; o tema troca pelo data-tema do <html>.
+     ===================================================================== */
+  :root {
+    --fundo: #F4F3EE; --painel: #FFFFFF; --borda: #E4E2DA; --borda-forte: #D6D3C9;
+    --texto: #14201A; --texto2: #435049; --suave: #5C6761; --fraco: #6B7570;
+    --verde: #18855A; --verde-2: #18855A; --verde-claro: #E3F2EA; --verde-borda: #A7D7BF; --verde-texto: #0F5C3E; --sobre-verde: #FFFFFF;
+    --amarelo: #FDF1D8; --amarelo-borda: #EDD49A; --amarelo-texto: #6E4600; --amarelo-fundo: #FDF1D8;
+    --vermelho: #C2412A; --vermelho-fundo: #FCE7E3; --vermelho-borda: #F0BDB1; --vermelho-texto: #A3301A;
+    --azul: #1E4E9C; --azul-fundo: #E6EEFB; --azul-borda: #C5D6F3; --azul-texto: #1E4E9C;
+    --campo: #FAFAF7; --sutil: #FAFAF7; --hover: #EEEDE7; --chip: #EEEDE7; --item-nota: #FAFAF7; --pele: #EEEDE7;
+    --conferir: #6E4600; --anel: #A7D7BF; --visor: #EEEDE7; --pdf: #EEEDE7; --spinner: #E4E2DA; --icone-vazio: #D6D3C9;
+    --fundo-modal: rgba(14, 30, 22, .5);
+    --topo: #0E3B2C; --sobre-topo: #E9F1EC; --sobre-topo2: #A9C2B5; --limao: #C8F169; --sobre-limao: #0E3B2C;
+    --sombra: 0 1px 2px rgba(20,32,26,.05), 0 10px 30px -14px rgba(20,32,26,.22); --sombra-alta: 0 30px 80px -20px rgba(0,0,0,.5);
+    --fonte: Geist, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; --mono: "Geist Mono", Consolas, monospace;
+    --raio: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) {
+      --fundo: #0C110F; --painel: #141A17; --borda: #25302A; --borda-forte: #34413A;
+      --texto: #E6ECE8; --texto2: #BAC6BF; --suave: #97A59D; --fraco: #85938B;
+      --verde: #3DBE84; --verde-2: #3DBE84; --verde-claro: #12291C; --verde-borda: #1F4A31; --verde-texto: #7EE2A8; --sobre-verde: #05130C;
+      --amarelo: #2A2310; --amarelo-borda: #5E4B14; --amarelo-texto: #F0CF6B; --amarelo-fundo: #2A2310;
+      --vermelho: #F2837A; --vermelho-fundo: #2D1513; --vermelho-borda: #5C2621; --vermelho-texto: #FF9B92;
+      --azul: #7AA9F0; --azul-fundo: #121D2E; --azul-borda: #22385A; --azul-texto: #B9D0F5;
+      --campo: #111613; --sutil: #111613; --hover: #1B2320; --chip: #1B2320; --item-nota: #111613; --pele: #1B2320;
+      --conferir: #F0CF6B; --anel: #1F4A31; --visor: #1B2320; --pdf: #1B2320; --spinner: #25302A; --icone-vazio: #34413A;
+      --fundo-modal: rgba(0, 0, 0, .62); --topo: #0F2A1F; --sobre-topo: #E6ECE8; --sobre-topo2: #9DB3A7;
+      --sombra: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+      color-scheme: dark;
+    }
+  }
+  :root[data-tema="escuro"] {
+    --fundo: #0C110F; --painel: #141A17; --borda: #25302A; --borda-forte: #34413A;
+    --texto: #E6ECE8; --texto2: #BAC6BF; --suave: #97A59D; --fraco: #85938B;
+    --verde: #3DBE84; --verde-2: #3DBE84; --verde-claro: #12291C; --verde-borda: #1F4A31; --verde-texto: #7EE2A8; --sobre-verde: #05130C;
+    --amarelo: #2A2310; --amarelo-borda: #5E4B14; --amarelo-texto: #F0CF6B; --amarelo-fundo: #2A2310;
+    --vermelho: #F2837A; --vermelho-fundo: #2D1513; --vermelho-borda: #5C2621; --vermelho-texto: #FF9B92;
+    --azul: #7AA9F0; --azul-fundo: #121D2E; --azul-borda: #22385A; --azul-texto: #B9D0F5;
+    --campo: #111613; --sutil: #111613; --hover: #1B2320; --chip: #1B2320; --item-nota: #111613; --pele: #1B2320;
+    --conferir: #F0CF6B; --anel: #1F4A31; --visor: #1B2320; --pdf: #1B2320; --spinner: #25302A; --icone-vazio: #34413A;
+    --fundo-modal: rgba(0, 0, 0, .62); --topo: #0F2A1F; --sobre-topo: #E6ECE8; --sobre-topo2: #9DB3A7;
+    --sombra: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+  body { font-family: var(--fonte); font-size: 14px; line-height: 1.5; background: var(--fundo); font-feature-settings: normal; }
+  svg.i { stroke-width: 1.8; }
+  .num, input, .saldo-tabela .n { font-variant-numeric: tabular-nums; }
+  .linha-chave, .editar-chave input, .grade-colunas .letra, kbd { font-family: var(--mono); }
+  kbd { font: 500 11px var(--mono); padding: 0 5px; border: 1px solid var(--borda-forte); border-bottom-width: 2px; border-radius: 5px; background: var(--painel); color: var(--texto); }
+
+  /* Topo verde-escuro */
+  header { min-height: 58px; height: auto; padding: 10px clamp(12px, 1.6vw, 22px); gap: 8px 10px; flex-wrap: wrap; background: var(--topo); color: var(--sobre-topo); border: 0; box-shadow: none; backdrop-filter: none; }
+  header .marca { gap: 10px; margin-right: 6px; }
+  header .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--limao); color: var(--sobre-limao); box-shadow: none; }
+  header .logo svg { width: 19px; height: 19px; stroke-width: 2; }
+  header .marca h1 { color: #fff; font-size: 14.5px; font-weight: 650; letter-spacing: 0; }
+  header .marca small { color: var(--sobre-topo2); font-size: 11.5px; letter-spacing: 0; }
+  header .chips { gap: 8px; margin-left: 0; flex-wrap: wrap; min-width: 0; }
+  header .chip { height: 34px; padding: 0 12px; gap: 7px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); color: var(--sobre-topo); font-size: 13px; font-weight: 500; backdrop-filter: none; max-width: 260px; }
+  header .chip svg { width: 16px; height: 16px; color: var(--sobre-topo2); }
+  header .chip > span { overflow: hidden; text-overflow: ellipsis; }
+  header .chip.ok { background: rgba(255,255,255,.07); color: var(--sobre-topo); border-color: rgba(255,255,255,.12); }
+  header #chipCreditos, header #chipCreditos.ok { background: var(--limao); border-color: var(--limao); color: var(--sobre-limao); font-weight: 650; }
+  header #chipCreditos svg { color: var(--sobre-limao); }
+  header #chipCreditos.pouco, :root[data-tema] header #chipCreditos.pouco { background: #F6C9BF; border-color: #F6C9BF; color: #5A1609; }
+  header #chipCreditos.pouco svg { color: #5A1609; }
+  header .chip[role=button]:hover { filter: brightness(1.05); }
+  header .contador-hoje { color: var(--sobre-topo2); font-size: 13px; }
+  header .contador-hoje b { color: var(--limao); }
+  header button.fantasma, header #btConfig, header #btSugestao, header #btTema, header #btPlanos, header #btSaldo, header #btHistorico {
+    width: 38px; height: 38px; padding: 0; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: var(--sobre-topo); }
+  header button.fantasma:hover, header #btConfig:hover, header #btSugestao:hover, header #btTema:hover, header #btPlanos:hover, header #btSaldo:hover, header #btHistorico:hover { background: rgba(255,255,255,.13); border-color: rgba(255,255,255,.2); color: #fff; }
+  header button.fantasma svg { width: 18px; height: 18px; }
+  #chipVersao { height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; background: transparent; border: 1px solid rgba(200,241,105,.45); color: var(--limao); font: 600 13px var(--fonte); cursor: pointer; }
+  #chipVersao[hidden] { display: none; }
+  #chipVersao i { width: 7px; height: 7px; border-radius: 50%; background: var(--limao); }
+  #chipVersao:hover { background: rgba(200,241,105,.1); }
+  #avisoPag { border-left-color: rgba(255,255,255,.14); }
+  #avisoPag p, #avisoPag p b, #avisoPag .un b { color: var(--sobre-topo); }
+  #avisoPag .un i, #avisoPag .dp { color: var(--sobre-topo2); }
+  #avisoPag .rel { background: rgba(255,255,255,.08); }
+  #avisoPag .fechar { width: 28px; height: 28px; padding: 0; border: 0; background: transparent; color: var(--sobre-topo2); border-radius: 8px; flex: none; }
+  #avisoPag .fechar:hover { background: rgba(255,255,255,.1); color: #fff; }
+  #avisoPag .fechar svg { width: 15px; height: 15px; }
+  #faixaAtualizacao { background: var(--verde-claro); border-bottom: 1px solid var(--verde-borda); }
+  #faixaAviso { background: var(--amarelo); border-bottom: 1px solid var(--amarelo-borda); color: var(--amarelo-texto); }
+
+  /* Botões */
+  button { border-radius: 10px; border-color: var(--borda-forte); font: 600 13.5px var(--fonte); min-height: 34px; }
+  button:hover { background: var(--hover); }
+  button:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+  button.primario, button.primario:hover { background: var(--verde); border-color: var(--verde); color: var(--sobre-verde); box-shadow: none; transform: none; }
+  button.primario:hover:not(:disabled) { filter: brightness(1.07); transform: none; }
+  button.primario.grande, button.primario.grande:not(:disabled) { height: 44px; padding: 0 20px; font-size: 14.5px; border-radius: 10px; box-shadow: none; letter-spacing: 0; }
+  button.fantasma { color: var(--texto2); }
+  button.link { color: var(--verde-texto); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* Campos */
+  label { font-size: 12px; font-weight: 600; color: var(--texto2); text-transform: none; letter-spacing: 0; }
+  input, textarea, select { margin-top: 4px; min-height: 38px; padding: 0 10px; font: 500 13.5px var(--fonte); border: 1px solid var(--borda-forte); border-radius: 9px; background: var(--campo); color: var(--texto); }
+  textarea { padding: 8px 10px; line-height: 1.45; }
+  input[type=checkbox], input[type=radio] { min-height: 0; }
+  input:hover, textarea:hover, select:hover { border-color: var(--borda-forte); }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--verde); outline-offset: 1px; box-shadow: none; background: var(--painel); border-color: var(--borda-forte); }
+  .incerto input, .incerto textarea { border-color: #D99A2B; background: var(--amarelo); box-shadow: 0 0 0 3px rgba(217,154,43,.16); }
+  .incerto label { color: var(--amarelo-texto); }
+  .incerto label::after { content: ""; }
+
+  /* Área de trabalho: 3 painéis com divisores arrastáveis */
+  main { --lf: var(--lf-usuario, 256px); --pn: var(--pn-usuario, .44); display: flex; grid-template-columns: none; padding: clamp(10px, 1.1vw, 16px); gap: 0; min-height: 0; }
+  main.fila-recolhida { --lf: 72px; grid-template-columns: none; }
+  #fila, #visor, #painel { background: var(--painel); border: 1px solid var(--borda); border-radius: 16px; box-shadow: var(--sombra); overflow: hidden; min-height: 0; }
+  #fila { flex: 0 0 var(--lf); border-right: 1px solid var(--borda); }
+  #visor { flex: 0 0 calc((100% - var(--lf) - 28px) * var(--pn)); min-width: 240px; flex-direction: column; background: var(--painel); }
+  #painel { flex: 1 1 0; min-width: 340px; border-left: 1px solid var(--borda); background: var(--painel); }
+  .gut, #divisoria { position: static; right: auto; top: auto; bottom: auto; width: auto; flex: 0 0 14px; display: flex; align-items: center; justify-content: center; cursor: col-resize; touch-action: none; outline: none; background: none; z-index: auto; }
+  .gut::before, #divisoria::before { content: ""; width: 4px; height: 48px; border-radius: 4px; background: var(--borda-forte); transition: background .15s, height .15s; }
+  .gut:hover::before, .gut:focus-visible::before, #divisoria:hover::before, #divisoria:focus-visible::before, body.arrastando .gut.ativo::before { background: var(--verde); height: 72px; }
+  #divisoria:hover, body.arrastando #divisoria { background: none; }
+  body.arrastando, body.arrastando * { user-select: none; cursor: col-resize !important; }
+  main.fila-recolhida #gutFila { visibility: hidden; }
+
+  /* Fila */
+  .fila-topo { padding: 12px 14px; border-bottom: 1px solid var(--borda); }
+  .fila-topo h2 { margin: 0 0 10px; font-size: 15px; font-weight: 650; color: var(--texto); text-transform: none; letter-spacing: 0; align-items: center; }
+  #contador { background: var(--pele); color: var(--texto2); font-size: 11.5px; font-weight: 650; }
+  .soltar-mini { min-height: 38px; padding: 0 14px; font-size: 13.5px; border-radius: 10px; border: 1px solid var(--verde); background: var(--verde); color: var(--sobre-verde); }
+  .soltar-mini:hover { background: var(--verde); border-color: var(--verde); filter: brightness(1.07); box-shadow: none; }
+  #lista { padding: 10px; gap: 6px; }
+  .item { margin: 0; padding: 10px; border-radius: 12px; border: 1.5px solid transparent; }
+  .item:hover { background: var(--hover); }
+  .item.atual, .item.atual:hover { background: var(--verde-claro); border-color: var(--verde); box-shadow: none; }
+  .item.atual::before { display: none; }
+  .item .tipo { width: 34px; height: 34px; border-radius: 8px; }
+  .item .nome { font-size: 13px; font-weight: 600; }
+  .status { font-size: 12px; font-weight: 600; }
+  .status.pronta { color: var(--verde-texto); } .status.conferir { color: var(--amarelo-texto); } .status.erro, .status.lancada-ja { color: var(--vermelho-texto); }
+  .lote { border-radius: 12px; background: var(--verde-claro); border-color: var(--verde-borda); }
+  .fila-rodape { background: var(--sutil); border-top: 1px solid var(--borda); }
+  main.fila-recolhida .fila-trilho { gap: 10px; padding: 12px 0; }
+  .fila-trilho .qtd { min-width: 26px; height: 22px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: var(--verde-claro); color: var(--verde-texto); }
+  #lista:not(:has(.fila-vazia))::after { border-color: var(--borda-forte); border-radius: 12px; }
+
+  /* Nota (visor) */
+  #visor .boas-vindas { color: var(--texto); }
+  #visor .area-soltar, #visor .area-soltar:hover { border: 2px dashed var(--verde-borda); background: var(--sutil); border-radius: 14px; box-shadow: none; transform: none; }
+  #visor .area-soltar .grande-icone { width: 60px; height: 60px; border-radius: 17px; background: var(--verde-claro); color: var(--verde); }
+  #visor .area-soltar h3 { font-size: clamp(17px, 1.5vw, 21px); font-weight: 650; letter-spacing: -.02em; }
+  #visor iframe, #visor .imagem { flex: 1; min-height: 0; background: var(--visor); }
+  .abas-visor { border-radius: 12px; background: var(--painel); border-color: var(--borda); }
+  .abas-visor button { min-height: 0; }
+  .abas-visor button.ativa { background: var(--verde-claro); color: var(--verde-texto); }
+
+  #visor .vh { flex: none; display: flex; align-items: center; gap: 4px; padding: 6px 8px 6px 12px; border-bottom: 1px solid var(--borda); background: var(--painel); }
+  #visor .vh .t { flex: 1; min-width: 0; font-size: 12.5px; color: var(--texto2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #visor .bvh { display: inline-flex; align-items: center; gap: 6px; height: 30px; min-height: 30px; padding: 0 8px; border-radius: 9px; border: 1px solid transparent; background: transparent; color: var(--texto2); font: 600 12.5px var(--fonte); text-decoration: none; cursor: pointer; }
+  #visor .bvh:hover:not(:disabled) { background: var(--hover); color: var(--texto); }
+  #visor #btRemover:hover:not(:disabled) { color: var(--vermelho-texto); background: var(--vermelho-fundo); }
+  #visor .bvh svg { width: 16px; height: 16px; }
+  #visor .abas-nc { display: inline-flex; padding: 2px; border-radius: 9px; background: var(--pele); }
+  #visor .abas-nc button { min-height: 26px; height: 26px; padding: 0 9px; border: 0; border-radius: 7px; background: transparent; color: var(--texto2); font-size: 12px; }
+  #visor .abas-nc button.ativa { background: var(--painel); color: var(--texto); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  #visor .lupa { flex: none; padding: 10px 12px; border-bottom: 1px solid var(--borda); background: var(--sutil); display: flex; flex-direction: column; gap: 6px; }
+  #visor .lupa[hidden] { display: none; }
+  #visor .lupa .hd { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--texto2); }
+  #visor .lupa .hd b { color: var(--texto); }
+  #visor .lupa .hd svg { width: 14px; height: 14px; color: var(--verde); }
+  #visor .lupa-dica { color: var(--suave); }
+  #visor .crop { position: relative; overflow: hidden; border-radius: 8px; border: 2px solid var(--verde); background: #fff; max-height: 30vh; }
+  #visor .crop img { display: block; max-width: none; height: auto; }
+  #visor .vb { flex: 1; min-height: 0; overflow: auto; background: var(--pele); padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  #visor .vb iframe { width: 100%; height: 100%; min-height: 400px; border: 0; border-radius: 6px; }
+  #visor .pg { position: relative; flex: none; border-radius: 6px; box-shadow: 0 8px 24px -10px rgba(0,0,0,.35); background: #fff; }
+  #visor .pg img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  #visor .pg .carregando { padding: 60px 20px; }
+  #visor .hl { position: absolute; border: 2px solid var(--verde); background: rgba(24,133,90,.12); border-radius: 4px; box-shadow: 0 0 0 9999px rgba(20,32,26,.18); transition: all .25s; pointer-events: none; }
+  #visor .hl[hidden] { display: none; }
+  #visor .pg { overflow: hidden; }
+  #visor.embacado .vb, #visor.embacado .lupa { filter: blur(10px); pointer-events: none; user-select: none; }
+  #visor.embacado .lupa { display: none; }
+  #visor .selo { z-index: 4; }
+  /* Cabeçalho do formulário e quadros de aviso */
+  #campos .fh { position: sticky; top: -12px; z-index: 2; margin: -12px -14px 12px; display: flex; align-items: center; gap: 10px 14px; padding: 10px 14px; border-bottom: 1px solid var(--borda); background: var(--painel); flex-wrap: wrap; }
+  .fh .nfbig { display: flex; flex-direction: column; line-height: 1.1; }
+  .fh small { font-size: 11px; color: var(--suave); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+  .fh .nfbig b { font-size: 24px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .fh .who { flex: 1; min-width: 150px; line-height: 1.3; }
+  .fh .who small { display: block; }
+  .fh .who b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fh .who span { font-size: 12.5px; color: var(--suave); }
+  .fh-selos { display: flex; flex-wrap: wrap; gap: 6px; }
+  .fh-nav { display: flex; gap: 2px; }
+  .fh .bvh { display: inline-grid; place-items: center; width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 9px; border: 1px solid var(--borda-forte); background: var(--painel); color: var(--texto2); }
+  .fh .bvh svg { width: 16px; height: 16px; }
+  .bdg { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .bdg svg { width: 13px; height: 13px; stroke-width: 2.4; }
+  .b-ok { background: var(--verde-claro); color: var(--verde-texto); } .b-w { background: var(--amarelo); color: var(--amarelo-texto); }
+  .b-b { background: var(--vermelho-fundo); color: var(--vermelho-texto); } .b-i { background: var(--azul-fundo); color: var(--azul-texto); } .b-n { background: var(--pele); color: var(--texto2); }
+  .al { display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--amarelo); border: 1px solid var(--amarelo-borda); color: var(--amarelo-texto); font-size: 13px; }
+  .al > svg { width: 18px; height: 18px; margin-top: 1px; flex: none; }
+  .al > div { min-width: 0; flex: 1; }
+  .al b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+  .al ul { margin: 0; padding-left: 18px; }
+  .al.bd { background: var(--vermelho-fundo); border-color: var(--vermelho-borda); color: var(--vermelho-texto); }
+  .al .acts { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; min-height: 0; padding: 0 14px; border-radius: 10px; border: 1px solid var(--borda-forte); background: var(--painel); color: var(--texto); font: 600 13.5px var(--fonte); cursor: pointer; white-space: nowrap; }
+  .btn.sm { height: 30px; padding: 0 10px; font-size: 12.5px; }
+  .btn.pri { background: var(--verde); border-color: var(--verde); color: var(--sobre-verde); }
+  .btn svg { width: 15px; height: 15px; }
+  .al .acts .btn { border-color: currentColor; background: transparent; color: inherit; }
+  .al .acts .btn.f { background: var(--painel); }
+  .al .acts .btn.sub { border-color: transparent; text-decoration: underline; }
+  .al .acts .btn:hover { background: var(--painel); }
+  .sgb { margin-top: 8px; padding: 8px 10px; border-radius: 9px; background: var(--painel); color: var(--texto); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 12.5px; }
+  .sgb > span { flex: 1 1 200px; }
+  .al .sgb b, .al span.mono { display: inline; margin: 0; font-size: inherit; }
+  .sgb .btn.pri { color: var(--sobre-verde); border-color: var(--verde); }
+  .mono { font-family: var(--mono); }
+  .sum { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; border: 1px solid var(--borda); border-radius: 14px; background: var(--painel); padding: 10px 14px; font-size: 13px; }
+  .sum .ok { width: 24px; height: 24px; border-radius: 50%; background: var(--verde-claro); color: var(--verde-texto); display: grid; place-items: center; flex: none; }
+  .sum .ok svg { width: 13px; height: 13px; stroke-width: 2.8; }
+  .sum b { font-weight: 650; }
+  .sum .direita { margin-left: auto; }
+  .grp { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--borda); border-radius: 12px; background: var(--sutil); }
+  .grp + .grp { margin-top: 8px; }
+  .grp .sub-tit { font-size: 12.5px; font-weight: 650; color: var(--texto); }
+  #campos > .carta { margin: 0 0 12px; }
+  .ins { position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px; z-index: 35; display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 14px; border-radius: 14px; background: #14201A; color: #fff; box-shadow: 0 20px 50px -20px rgba(0,0,0,.6); max-width: calc(100vw - 40px); flex-wrap: wrap; }
+  .ins[hidden] { display: none; }
+  :root[data-tema="escuro"] .ins { background: #E6ECE8; color: #14201A; }
+  .ins .ins-ok { width: 28px; height: 28px; border-radius: 50%; background: #3DBE84; color: #05130C; display: grid; place-items: center; flex: none; }
+  .ins .ins-ok svg { width: 14px; height: 14px; stroke-width: 2.8; }
+  .ins .txt { display: flex; flex-direction: column; line-height: 1.3; margin-right: 4px; }
+  .ins .txt small { opacity: .75; font-size: 12.5px; }
+  .ins .btn { height: 32px; font-size: 12.5px; }
+  .ins .btn.lime { background: var(--limao); border-color: var(--limao); color: var(--sobre-limao); }
+  .ins .btn.lime.confirmar { background: #F6C9BF; border-color: #F6C9BF; color: #5A1609; }
+  .ins .btn.vazado { background: transparent; color: inherit; border-color: rgba(127,127,127,.45); }
+  .ins .btn.ib { width: 32px; padding: 0; }
+  #dlgConfirmar { width: min(480px, 94vw); }
+  #dlgHistorico { width: min(1100px, 96vw); }
+  #dlgHistorico .saldo-filtros select { min-width: 150px; }
+  .btn.confirmar { background: var(--vermelho-fundo); border-color: var(--vermelho-borda); color: var(--vermelho-texto); }
+  @media (max-width: 640px) { .ins { left: 12px; right: 12px; transform: none; bottom: 12px; } }
+  /* Janela de créditos (3 passos) */
+  #dlgCompra { width: min(980px, 96vw); }
+  #dlgCompra .corpo { padding: 18px 22px; }
+  .eb { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); }
+  .mu { color: var(--suave); }
+  .passos { list-style: none; margin: 4px 0 0; padding: 0; display: flex; gap: 6px; counter-reset: p; }
+  .passos li { counter-increment: p; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 4px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--suave); background: var(--pele); }
+  .passos li::before { content: counter(p); width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--painel); color: var(--suave); }
+  .passos li.agora { background: var(--verde-claro); color: var(--verde-texto); }
+  .passos li.agora::before { background: var(--verde); color: var(--sobre-verde); }
+  .passos li.feito::before { content: "✓"; background: var(--verde-claro); color: var(--verde-texto); }
+  @media (max-width: 760px) { .passos { display: none; } }
+  .cp-passo { display: flex; flex-direction: column; gap: 16px; }
+  .cp-passo[hidden] { display: none !important; }
+  .pk3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; padding-top: 10px; }
+  .pc { background: var(--painel); border: 1px solid var(--borda); border-radius: 16px; padding: 18px 16px 16px; display: flex; flex-direction: column; gap: 10px; position: relative; transition: box-shadow .15s, transform .15s; }
+  .pc.mid { border: 2px solid var(--verde); }
+  .pc.apontado { box-shadow: 0 0 0 4px color-mix(in srgb, var(--verde) 25%, transparent); transform: translateY(-2px); }
+  .pc.best { background: #14201A; border-color: #14201A; color: #fff; }
+  :root[data-tema="escuro"] .pc.best { background: #1E2A24; border-color: #1E2A24; }
+  .pc.best .mu, .pc.best .eb { color: #BFD3C8; }
+  .pc p { margin: 0; }
+  .pc .pc-t { font-size: 17px; font-weight: 650; margin-top: 2px; }
+  .pc .pc-t .mu { font-size: 12.5px; font-weight: 500; }
+  .pr { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .pr small { font-size: 14px; font-weight: 600; letter-spacing: 0; margin-right: 3px; }
+  .pc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
+  .pc li { display: flex; gap: 7px; }
+  .pc li svg { width: 14px; height: 14px; color: var(--verde); stroke-width: 2.6; margin-top: 2px; }
+  .pc.best li svg { color: var(--limao); }
+  .tag { position: absolute; top: -11px; left: 14px; height: 22px; padding: 0 9px; border-radius: 999px; font-size: 11.5px; font-weight: 650; display: inline-flex; align-items: center; background: var(--verde); color: var(--sobre-verde); }
+  .btn-limao, .btn-limao:hover { background: var(--limao); border-color: var(--limao); color: var(--sobre-limao); }
+  .cp-guia { display: flex; flex-direction: column; gap: 8px; }
+  .cp-guia > b { font-size: 13px; }
+  .opt3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+  .opt3 div { border: 1px solid var(--borda); border-radius: 12px; padding: 9px 12px; background: var(--painel); font-size: 12.5px; cursor: pointer; }
+  .opt3 div.on { border-color: var(--verde-borda); background: var(--verde-claro); }
+  .opt3 p { margin: 0; }
+  .cp-duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .cp-caixa { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--borda); border-radius: 14px; background: var(--painel); font-size: 13px; }
+  .stp { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; }
+  .stp > span { display: flex; flex-direction: column; }
+  .stp i { font-style: normal; width: 24px; height: 24px; border-radius: 7px; background: var(--verde-claro); color: var(--verde-texto); display: grid; place-items: center; font-weight: 700; flex: none; font-size: 12px; }
+  #dlgCompra .linha-codigo input { margin-top: 0; }
+  .pxb { flex-direction: row !important; flex-wrap: wrap; gap: 0 !important; border: 1px solid var(--borda); border-radius: 16px; overflow: hidden; background: var(--painel); }
+  .pxl { flex: 0 1 270px; min-width: 240px; padding: 22px; background: var(--sutil); border-right: 1px solid var(--borda); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .pxr { flex: 1 1 300px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .pxl .qr { width: 200px; aspect-ratio: 1; background: #fff; border-radius: 14px; padding: 10px; border: 1px solid var(--borda); }
+  .pxl .qr img, #dlgCompra .pxl .qr img { width: 100%; height: 100%; padding: 0; border-radius: 0; display: block; image-rendering: pixelated; }
+  #dlgCompra .pxl .qr { display: block; }
+  .pxl #pixCopia { width: 200px; font-size: 12px; background: var(--pele); border-color: transparent; text-overflow: ellipsis; margin: 0; }
+  .how { background: var(--sutil); border: 1px solid var(--borda); border-radius: 12px; padding: 10px 14px; font-size: 13.5px; }
+  .how ol { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--texto2); display: flex; flex-direction: column; gap: 3px; }
+  .tl { display: flex; flex-direction: column; }
+  .ts { display: flex; gap: 12px; position: relative; padding-bottom: 12px; }
+  .ts:not(:last-child)::after { content: ""; position: absolute; left: 12px; top: 26px; bottom: 2px; width: 2px; background: var(--borda); }
+  .ts.done:not(:last-child)::after { background: var(--verde); }
+  .tm { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; border: 2px solid var(--borda-forte); background: var(--painel); }
+  .ts.done .tm { background: var(--verde); border-color: var(--verde); color: var(--sobre-verde); }
+  .ts.now .tm { border-color: var(--verde); }
+  .tm svg { width: 13px; height: 13px; stroke-width: 2.6; }
+  .ts p { margin: 0; } .ts .t { font-weight: 600; } .ts .d { font-size: 12.5px; color: var(--suave); }
+  .ts.next .t { color: var(--suave); }
+  .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--verde-borda); border-top-color: var(--verde); animation: gira 1s linear infinite; }
+  .cp-pago { align-items: center; text-align: center; padding: 24px 0; }
+  .pago { width: 200px; aspect-ratio: 1; border-radius: 22px; background: #1A6B48; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 18px 40px -18px rgba(26,107,72,.7); }
+  .pago span.c { width: 60px; height: 60px; border-radius: 50%; background: #fff; color: #1A6B48; display: grid; place-items: center; margin-bottom: 6px; }
+  .pago b { font-size: 21px; font-weight: 700; }
+  .pago span.r { font-size: 13px; color: #D3EADD; }
+  @media (max-width: 640px) { .pxl { flex-basis: 100%; border-right: 0; border-bottom: 1px solid var(--borda); } }
+  /* Saldo: gráficos novos */
+  .saldo-graficos2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .saldo-graficos2:empty { display: none; }
+  .saldo-graficos2 .saldo-grafico { background: var(--painel); }
+  .lim-leg { float: right; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--vermelho-texto); }
+  .rb { display: flex; align-items: center; gap: 8px; min-width: 130px; }
+  .rb .t { flex: 1; height: 8px; border-radius: 9px; background: var(--pele); overflow: hidden; display: flex; }
+  .rb .t i { display: block; height: 100%; border-radius: 9px; }
+  .rb > span:last-child { font-size: 12px; font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; }
+  .mb { display: flex; align-items: flex-end; gap: 12px; height: 128px; padding-bottom: 2px; border-bottom: 1px solid var(--borda); }
+  .mb > div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; }
+  .mb i { width: 100%; max-width: 44px; border-radius: 6px 6px 2px 2px; background: var(--verde-borda); display: block; }
+  .mb i.on { background: var(--verde); }
+  .mb i.neg { background: var(--vermelho); }
+  .mb span { font-size: 11px; color: var(--texto2); white-space: nowrap; }
+  .mb span.negativo { color: var(--vermelho-texto); font-weight: 650; }
+  .hb { display: flex; flex-direction: column; gap: 9px; }
+  .hb .r { display: grid; grid-template-columns: minmax(80px, 160px) 1fr 44px; gap: 8px; align-items: center; font-size: 12.5px; }
+  .hb .r > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hb .tr { position: relative; height: 10px; border-radius: 9px; background: var(--pele); }
+  .hb .tr i { display: block; height: 100%; border-radius: 9px; }
+  .hb .lim { position: absolute; top: -4px; bottom: -4px; border-left: 2px dashed var(--vermelho-texto); }
+  .hb .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .saldo-tabela .negativo { color: var(--vermelho-texto); font-weight: 700; }
+  /* ===== Saldo igual ao design ===== */
+  #dlgSaldo .corpo { gap: 14px; }
+  .saldo-kpis { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .saldo-kpis .kp { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .saldo-kpis .kp .v { font-size: clamp(19px, 1.6vw, 23px); font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.3; white-space: nowrap; }
+  .saldo-kpis .kp .v small { font-size: 12.5px; font-weight: 500; color: var(--suave); margin-left: 3px; }
+  .saldo-kpis .kp .s { font-size: 12px; color: var(--suave); }
+  .saldo-kpis .kp.neg .v { color: var(--vermelho-texto); }
+  .saldo-kpis .kp.w { background: var(--amarelo); border-color: var(--amarelo-borda); }
+  .saldo-kpis .kp.w * { color: var(--amarelo-texto); }
+  #saldoGrafico.saldo-grafico, .saldo-graficos2 .saldo-grafico { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .sg-topo { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .sg-topo b, .sg-tit b { font-size: 13.5px; color: var(--texto); }
+  .sg-tit { display: flex; flex-direction: column; font-size: 12px; }
+  .sg-frase { font-size: 12px; }
+  .sb { height: 20px; border-radius: 7px; background: var(--pele); overflow: visible; }
+  .sb > i:not(.x):not(.marca):first-child { border-radius: 7px 0 0 7px; }
+  .sb .v { background: var(--verde); } .sb .sd { background: #5B8DD6; opacity: 1; } .sb .q { background: #E0A23B; } .sb .r { background: var(--verde-borda); opacity: 1; }
+  .sb .x { border-radius: 0 7px 7px 0; background: repeating-linear-gradient(135deg, rgba(217,87,59,.85) 0 5px, rgba(232,128,106,.5) 5px 10px); }
+  .sb .marca { top: -5px; bottom: -5px; width: 0; margin-left: 0; background: none; border-left: 2px dashed var(--texto); border-radius: 0; }
+  .saldo-legenda { margin-top: 0; gap: 6px 18px; font-size: 12.5px; color: var(--texto); }
+  .saldo-legenda .p { width: 10px; height: 10px; border-radius: 3px; }
+  .saldo-legenda .p.v { background: var(--verde); } .saldo-legenda .p.sd { background: #5B8DD6; opacity: 1; } .saldo-legenda .p.q { background: #E0A23B; } .saldo-legenda .p.r { background: var(--verde-borda); opacity: 1; } .saldo-legenda .p.x { background: #D9573B; }
+  .saldo-legenda b.neg { color: var(--vermelho-texto); }
+  .mb { height: 116px; } .mb i { background: var(--verde-borda); } .mb i.on { background: var(--verde); } .mb i.neg { background: #D9573B; }
+  .mb span.forte { color: var(--texto); font-weight: 650; }
+  .mb-meses { display: flex; justify-content: space-around; font-size: 11.5px; color: var(--suave); }
+  .hb .num.negativo { color: var(--vermelho-texto); font-weight: 650; }
+  /* Filtros: rótulo em cima, sem caixa em volta */
+  #dlgSaldo .saldo-filtros { padding: 0; border: 0; background: none; gap: 10px; }
+  #dlgSaldo .saldo-filtros .campo { font-size: 12px; font-weight: 600; color: var(--texto2); text-transform: none; letter-spacing: 0; gap: 4px; }
+  #dlgSaldo .saldo-filtros .busca { flex: 1 1 240px; }
+  #dlgSaldo .saldo-filtros .busca input { padding: 0 10px; height: 38px; margin: 0; }
+  #dlgSaldo .saldo-filtros select, #dlgSaldo .saldo-filtros .limite input { margin: 0; }
+  #dlgSaldo .saldo-filtros .chip { height: 38px; border-radius: 9px; background: var(--painel); border-color: var(--borda-forte); color: var(--texto); }
+  /* Tabela */
+  .saldo-tabela { background: var(--painel); max-height: none; flex: none; overflow-x: auto; overflow-y: visible; }
+  #dlgSaldo .corpo > * { flex: none; }
+  .saldo-tabela td { padding: 10px 12px; }
+  .saldo-tabela th { padding: 9px 12px; }
+  .saldo-tabela tr.grupo.linha-ruim td { background: var(--vermelho-fundo); }
+  .saldo-tabela tr.grupo.linha-alta td { background: var(--amarelo); }
+  .saldo-tabela tr.grupo.atencao td:first-child { box-shadow: none; }
+  .saldo-tabela .emp { min-width: 0; font-weight: 650; }
+  .saldo-tabela .cult { font: 500 12px var(--mono); background: var(--pele); padding: 2px 7px; border-radius: 6px; }
+  .saldo-tabela .n.alto { color: var(--amarelo-texto); font-weight: 650; }
+  .saldo-tabela .situacao .bdg { white-space: nowrap; }
+  .saldo-tabela tr.detalhe td { background: var(--sutil); padding: 12px; }
+  .saldo-tabela .det-flex { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  .saldo-tabela .dica-saldo { flex: 1 1 280px; }
+  .saldo-tabela .dica-saldo b { display: block; }
+  .saldo-tabela .det-notas { flex: 2 1 400px; border: 1px solid var(--borda); border-radius: 12px; overflow: auto; background: var(--painel); }
+  .saldo-tabela .det-notas table, .saldo-tabela tr.detalhe .det-notas table { width: 100%; min-width: 0; }
+  .saldo-tabela tr.detalhe .det-notas th { background: var(--sutil); padding: 8px 12px; }
+  .saldo-tabela tr.detalhe .det-notas td { padding: 8px 12px; background: none; border-bottom: 1px solid var(--borda); }
+  .saldo-tabela tr.detalhe tr.suspeita td { background: var(--vermelho-fundo); font-weight: 500; }
+  /* Rodapé: relatório sem caixa */
+  #dlgSaldo .botoes { gap: 10px; }
+  #dlgSaldo .rel-tit { font-size: 13px; }
+  #dlgSaldo .botoes select { width: auto; max-width: 200px; margin: 0; }
+  #dlgSaldo { width: min(1320px, 97vw); }
+  .saldo-tabela .rb { min-width: 96px; }
+  .saldo-tabela .selo-s { white-space: normal; line-height: 1.25; }
+  .saldo-tabela th:last-child, .saldo-tabela td:last-child { min-width: 120px; }
+  .saldo-tabela .emp { min-width: 140px; }
+  /* ===== Tela principal igual ao design (itens 1, 2, 5, 6, 7) ===== */
+  /* Cabeçalho da conferência: linha 1 = NOTA FISCAL + destinatário; linha 2 = selo + setas */
+  /* Tudo numa linha só, reto (pedido do Carlos): número, destinatário, selo e setas. O nome longo encurta com "…". */
+  #campos .fh { flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 14px; }
+  .fh .fh-l1 { flex: 1 1 auto; display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .fh .fh-l1 .who { flex: 1 1 auto; min-width: 0; }
+  .fh .fh-l2 { flex: none; display: flex; align-items: center; gap: 8px; }
+  .fh .fh-l2 .fh-nav { display: inline-flex; gap: 2px; }
+  .fh .fh-l2 .bvh { width: 28px; height: 28px; min-height: 28px; border: 0; background: transparent; }
+  .fh .fh-l2 .bvh:hover:not(:disabled) { background: var(--hover); }
+  .fh .fh-l2 .bvh:disabled { opacity: .35; }
+  /* Fila: miniatura da nota, "Nenhuma selecionada · limpar" e rodapé sempre à vista */
+  .th-fila { flex: none; width: 38px; height: 48px; border-radius: 6px; border: 1px solid var(--borda-forte); background: #fff; overflow: hidden; display: grid; place-items: center; color: var(--fraco); }
+  .th-fila img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  #visor img, #lista img, #trilhoNotas img { -webkit-user-drag: none; user-select: none; }
+  .th-fila svg { width: 18px; height: 18px; }
+  .th-fila.semcred img { filter: blur(3px); }
+  .fila-topo { display: flex; flex-direction: column; gap: 10px; }
+  .fila-topo h2 { margin: 0; }
+  .sel-linha { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--suave); min-height: 22px; }
+  .sel-linha .link { font-size: 12.5px; padding: 0; min-height: 0; }
+  .sel-linha .link[hidden] { display: none; }
+  .fila-rodape { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: var(--sutil); border-top: 1px solid var(--borda); }
+  .fila-rodape #btInserirLote { width: 100%; height: 38px; justify-content: center; }
+  .fila-rodape #btInserirLote:disabled { opacity: .5; }
+  .fila-rodape .rod-linha { display: flex; justify-content: space-between; align-items: center; }
+  .fila-rodape .rod-linha .link { font-size: 12.5px; font-weight: 600; color: var(--verde-texto); padding: 4px 6px; min-height: 0; display: inline-flex; align-items: center; gap: 5px; width: auto; justify-content: flex-start; }
+  .fila-rodape .rod-linha .link:disabled { color: var(--fraco); }
+  .fila-rodape .rod-linha .link svg { width: 15px; height: 15px; }
+  .qtd-lote { background: rgba(255,255,255,.22); }
+  /* Topo da nota: "· 1 página", "Outra aba" com texto, Remover em vermelho e a dica embaixo */
+  #visor .bvh.verde { color: var(--verde-texto); }
+  #visor .bvh.vermelho { color: var(--vermelho-texto); }
+  #visor .vf { flex: none; padding: 7px 12px; font-size: 12px; color: var(--suave); border-top: 1px solid var(--borda); background: var(--painel); }
+  #visor.embacado .vf, #visor.lendo .vf { visibility: hidden; }
+  /* Topo: créditos ao lado dos ícones e bolinha de "conectado" na planilha e na IA */
+  header #chipCreditos { margin-right: 2px; }
+  header .chips .chip { position: relative; padding-left: 12px; }
+  header .chips .chip::after { content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none; background: #E0A23B; box-shadow: 0 0 0 3px rgba(224,162,59,.18); order: 3; }
+  header .chips .chip.ok::after { background: #3DBE84; box-shadow: 0 0 0 3px rgba(61,190,132,.2); }
+  /* Carregando: skeleton dos campos + nota embaçada com a linha de leitura */
+  .sk { display: block; height: 10px; border-radius: 6px; background: linear-gradient(90deg, var(--pele) 0%, var(--borda) 50%, var(--pele) 100%); background-size: 200% 100%; animation: skBrilho 1.4s ease-in-out infinite; }
+  .sk + .sk { margin-top: 6px; }
+  .sk.sk-in { height: 38px; border-radius: 9px; margin-top: 6px; }
+  .esqueleto .grade > div { display: flex; flex-direction: column; }
+  .esqueleto .sk-sub { margin: -4px 0 12px; font-size: 12.5px; color: var(--suave); }
+  .esqueleto .cartao-titulo svg { color: var(--fraco); }
+  @keyframes skBrilho { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  #visor.lendo .vb, #visor.lendo .lupa { filter: blur(6px) saturate(.7); pointer-events: none; user-select: none; transition: filter .4s; }
+  #visor .vb, #visor .lupa { transition: filter .4s; }
+  #visor.lendo .lupa { display: none; }
+  #visor.lendo::after { content: "Lendo a nota..."; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; padding: 10px 16px; border-radius: 999px; background: var(--painel); color: var(--texto); font: 600 13px var(--fonte); box-shadow: var(--sombra); }
+  #visor.lendo::before { content: ""; position: absolute; left: 12px; right: 12px; top: 60px; height: 3px; z-index: 3; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--verde), transparent); box-shadow: 0 0 18px 4px color-mix(in srgb, var(--verde) 45%, transparent); animation: varre 2.2s ease-in-out infinite; }
+  @keyframes varre { 0% { top: 60px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: calc(100% - 20px); opacity: 0; } }
+  #visor { position: relative; }
+  @media (prefers-reduced-motion: reduce) { .sk, #visor.lendo::before { animation: none; } }
+  /* Cabeçalho das janelas com ícone e X */
+  dialog .cab-x { display: flex; align-items: flex-start; gap: 12px; }
+  dialog .cab-x > div { flex: 1; min-width: 0; }
+  dialog .cab-x p { margin: 4px 0 0; }
+  dialog .bt-x { width: 36px; height: 36px; min-height: 36px; padding: 0; border: 0; background: transparent; color: var(--texto2); flex: none; }
+  dialog .bt-x:hover { background: var(--hover); }
+  dialog .cab-ic { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex: none; background: var(--verde-claro); color: var(--verde); }
+  dialog .cab-ic svg { width: 20px; height: 20px; }
+  .ajuda.com-ic { display: flex; gap: 8px; align-items: flex-start; }
+  .ajuda.com-ic svg { width: 15px; height: 15px; margin-top: 1px; color: var(--suave); }
+  /* Configurações com menu à esquerda */
+  #dlgConfig { width: min(980px, 96vw); }
+  #dlgConfig .corpo { padding: 18px 22px; scroll-behavior: smooth; }
+  #dlgConfig .cfg { display: flex; gap: 20px; align-items: flex-start; }
+  #dlgConfig .cnav { flex: 0 0 190px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; }
+  #dlgConfig .cnav a { display: flex; align-items: center; height: 36px; padding: 0 10px; border-radius: 9px; color: var(--texto2); text-decoration: none; font-weight: 500; font-size: 13.5px; border: 1px solid transparent; }
+  #dlgConfig .cnav a:hover { background: var(--hover); }
+  #dlgConfig .cnav a.on { background: var(--painel); color: var(--texto); font-weight: 650; border-color: var(--borda); }
+  #dlgConfig .cfg-secoes { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  #dlgConfig .secao { padding: 16px 18px; gap: 12px; scroll-margin-top: 8px; }
+  #dlgConfig .secao > b { font-size: 15px; font-weight: 650; }
+  #dlgConfig .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-items: start; }
+  #dlgConfig .duas > div[data-ia] label { margin-top: 0; }
+  @media (max-width: 900px) { #dlgConfig .cnav { display: none; } #dlgConfig .duas { grid-template-columns: 1fr; } }
+  .grade-colunas { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
+  .grade-colunas label { padding: 6px 8px; border: 1px solid var(--borda); border-radius: 8px; font-size: 12.5px; color: var(--texto); }
+  .grade-colunas .letra { display: inline-grid; place-items: center; min-width: 20px; width: auto; padding: 1px 5px; border-radius: 5px; background: var(--pele); color: var(--texto); font: 600 11px var(--mono); }
+  .qtd-lote { display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,.22); font-size: 12px; }
+
+  /* Formulário */
+  #painel { container-type: inline-size; }
+  #campos { padding: 12px 14px; }
+  .resumo-nf { padding: 10px 14px; gap: 14px; border-radius: 14px; box-shadow: none; background: var(--painel); border: 1px solid var(--borda); }
+  .resumo-nf::before { display: none; }
+  .resumo-nf .rn-num b { color: var(--texto); font-size: 24px; font-weight: 700; letter-spacing: -.03em; }
+  .resumo-nf small { color: var(--suave); font-size: 11px; letter-spacing: .08em; }
+  .resumo-nf .rn-chave { height: 24px; display: inline-flex; align-items: center; padding: 0 10px; border: 0; }
+  .resumo-nf .rn-chave.ok { background: var(--verde-claro); color: var(--verde-texto); border: 0; }
+  .resumo-nf .rn-chave.ruim { background: var(--vermelho-fundo); color: var(--vermelho-texto); border: 0; }
+  .cartao { padding: 12px 14px 14px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--borda); box-shadow: none; background: var(--painel); }
+  .cartao-titulo { font-size: 14px; font-weight: 650; margin-bottom: 10px; gap: 8px; }
+  .cartao-titulo > svg { width: 16px; height: 16px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--verde); }
+  .grade { gap: 10px; }
+  @container (max-width: 540px) { .grade > * { grid-column: span 3; } .grade > .c6 { grid-column: span 6; } .grade-nota { grid-template-columns: 1fr 1fr; } .grade-nota > * { grid-column: auto; } }
+  .item-nota { padding: 10px; border-radius: 12px; background: var(--sutil); border-color: var(--borda); }
+  .chave { border: 1px dashed var(--borda-forte); border-left: 1px dashed var(--borda-forte); border-radius: 10px; background: transparent; }
+  .natureza, .carta { border-radius: 10px; border-left-width: 1px; }
+  .aviso { padding: 12px 14px; border-radius: 12px; font-size: 13px; }
+  .aviso.alerta { background: var(--amarelo); border-color: var(--amarelo-borda); color: var(--amarelo-texto); }
+  .aviso.erro { background: var(--vermelho-fundo); border-color: var(--vermelho-borda); color: var(--vermelho-texto); }
+  .aviso.conferida { background: var(--verde-claro); border-color: var(--verde-borda); color: var(--verde-texto); }
+  .bt-conferi { border-radius: 9px; border-color: currentColor; background: var(--painel); color: inherit; font-family: var(--fonte); min-height: 30px; }
+  #acoes { padding: 10px 14px; gap: 8px; border-top: 1px solid var(--borda); background: var(--sutil); box-shadow: none; backdrop-filter: none; flex-wrap: wrap; }
+  #acoes button { padding: 0 14px; height: 38px; border-radius: 10px; }
+  #acoes #btInserir { height: 44px; }
+  .gasta-credito { font-size: 12px; color: var(--suave); text-align: right; line-height: 1.35; }
+  .gasta-credito[hidden] { display: none; }
+
+  /* Janelas */
+  dialog { border-radius: 20px; border: 0; background: var(--fundo); box-shadow: var(--sombra-alta); max-height: calc(100vh - 32px); }
+  dialog form { max-height: calc(100vh - 32px); }
+  dialog .cabeca { padding: 18px 22px; background: var(--painel); border-bottom: 1px solid var(--borda); }
+  dialog h3 { font-size: clamp(17px, 1.5vw, 21px); font-weight: 650; letter-spacing: -.02em; }
+  dialog .corpo { padding: 18px 22px; gap: 16px; }
+  dialog .secao { border-radius: 16px; background: var(--painel); border-color: var(--borda); }
+  dialog .botoes { padding: 12px 22px; background: var(--painel); border-top: 1px solid var(--borda); }
+  @media (max-width: 640px) {
+    dialog { width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; margin: 0; }
+    dialog form { max-height: 100vh; height: 100%; }
+    dialog .cabeca, dialog .corpo, dialog .botoes { padding-left: 14px; padding-right: 14px; }
+  }
+  #toast { border-radius: 14px; background: #14201A; color: #fff; font-weight: 500; }
+  #toast.erro { background: var(--vermelho); color: #fff; }
+  :root[data-tema="escuro"] #toast:not(.erro) { background: #E6ECE8; color: #14201A; }
+  #sobrepor { background: rgba(14, 59, 44, .9); }
+
+  /* Telas menores */
+  /* Trilho da fila (fila recolhida ou tela menor): abrir, adicionar, quantidade e miniaturas das notas */
+  .fila-trilho { overflow: hidden; }
+  .fila-trilho #btMostrarFila { width: 38px; height: 38px; min-height: 38px; padding: 0; color: var(--suave); }
+  .fila-trilho #btTrilhoAdd { width: 38px; height: 38px; min-height: 38px; padding: 0; border-radius: 10px; }
+  .fila-trilho .qtd { min-width: 26px; height: 22px; padding: 0 7px; border-radius: 999px; display: grid; place-items: center; font-size: 11.5px; font-weight: 650; background: var(--pele); color: var(--texto2); }
+  .trilho-notas { flex: 1; min-height: 0; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 4px 0 8px; }
+  .trilho-notas .th { flex: none; position: relative; width: 38px; height: 48px; min-height: 0; padding: 0; border-radius: 6px; border: 1px solid var(--borda-forte); background: #fff; overflow: hidden; cursor: pointer; display: grid; place-items: center; color: var(--fraco); }
+  .trilho-notas .th img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .trilho-notas .th svg { width: 18px; height: 18px; }
+  .trilho-notas .th.atual { outline: 2px solid var(--verde); outline-offset: 2px; }
+  .trilho-notas .th.semcred img { filter: blur(3px); }
+  .trilho-notas .th i { position: absolute; right: 2px; bottom: 2px; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #fff; }
+  .trilho-notas .th i.pronta { background: var(--verde); } .trilho-notas .th i.conferir { background: #D99A2B; } .trilho-notas .th i.erro, .trilho-notas .th i.lancada-ja { background: var(--vermelho); } .trilho-notas .th i.lendo, .trilho-notas .th i.nova { background: var(--azul); }
+  @media (max-width: 1180px) {
+    main:not(.abrir-fila) { --lf: 72px; }
+    main:not(.abrir-fila) #fila > :not(.fila-trilho) { display: none; }
+    main:not(.abrir-fila) .fila-trilho { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px 0; }
+    main:not(.abrir-fila) #gutFila { visibility: hidden; }
+    header .marca small, #chipIA { display: none; }
+    header .chip { max-width: 170px; }
+  }
+  @media (max-width: 860px) {
+    body { overflow: auto; height: auto; }
+    main { flex-direction: column; gap: 12px; flex: none; }
+    .gut, #divisoria { display: none; }
+    #fila { flex: none; }
+    main .fila-trilho { flex-direction: row; padding: 10px; }
+    main .trilho-notas { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px; }
+    #visor { flex: none; height: 420px; min-width: 0; }
+    #painel { flex: none; min-width: 0; }
+    #campos { overflow: visible; }
+  }
 </style>
 <script>
   try { const t = localStorage.getItem('tema'); if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t; } catch {}
@@ -891,6 +1464,17 @@
   <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
   <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></symbol>
   <symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 5l10 7-10 7zM19 5v14"/></symbol>
+  <symbol id="i-baixar" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-balao" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-cadeado" viewBox="0 0 24 24"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-historico" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
+  <symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-seta-esq" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-seta-dir" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-desfazer" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
 </svg>
 
 <header>
@@ -901,7 +1485,6 @@
   <div class="chips">
     <span class="chip" id="chipPlanilha" title="Para onde as notas vão"><svg class="i"><use href="#i-tabela"/></svg><span></span></span>
     <span class="chip" id="chipIA" title="IA que lê as notas"><svg class="i"><use href="#i-ia"/></svg><span></span></span>
-    <span class="chip" id="chipCreditos" role="button" tabindex="0" style="display:none" title="Cada nota lançada gasta 1 crédito · clique para comprar"><svg class="i"><use href="#i-cartao"/></svg><span></span></span>
   </div>
   <div id="avisoPag" hidden role="timer">
     <div class="rel" id="relPag">
@@ -911,12 +1494,16 @@
       <span class="un"><b id="przM">00</b><i>min</i></span><span class="dp">:</span>
       <span class="un"><b id="przS">00</b><i>seg</i></span>
     </div>
-    <p id="msgPag"><b>É bom né?</b> Te poupa <b>horas</b> todo mês — quem te devolveu esse tempo espera o <b>pagamento</b> 😉</p>
+    <p id="msgPag"><b>É bom, né?</b> Te poupa <b>horas</b> todo mês. Quem te devolveu esse tempo espera o <b>pagamento</b>.</p>
+    <button type="button" class="fechar" id="btFecharPag" title="Esconder até amanhã" aria-label="Esconder aviso"><svg class="i"><use href="#i-x"/></svg></button>
   </div>
   <span class="espaco"></span>
+  <button type="button" id="chipVersao" hidden title="Tem uma versão nova do programa"><i></i>Nova versão</button>
   <span class="contador-hoje" id="contadorHoje"></span>
+  <span class="chip" id="chipCreditos" role="button" tabindex="0" style="display:none" title="Cada nota lançada gasta 1 crédito · clique para comprar"><svg class="i"><use href="#i-cartao"/></svg><span></span></span>
+  <button class="fantasma icone" id="btHistorico" title="Histórico de lançamentos" aria-label="Histórico de lançamentos"><svg class="i"><use href="#i-historico"/></svg></button>
   <button class="fantasma icone" id="btSaldo" title="Saldo por licenciado e cultivar (o que entrou, voltou e ainda está na deslintadora)" aria-label="Saldo"><svg class="i"><use href="#i-saldo"/></svg></button>
-  <button class="fantasma icone" id="btPlanos" title="Ver os planos" aria-label="Planos" onclick="location.href='/planos'"><svg class="i"><use href="#i-cartao"/></svg></button>
+  <button class="fantasma icone" id="btPlanos" title="Ver os planos" aria-label="Planos"><svg class="i"><use href="#i-cartao"/></svg></button>
   <button class="fantasma icone" id="btSugestao" title="Melhoria: envie uma ideia ou aponte um problema" aria-label="Melhoria"><svg class="i"><use href="#i-lampada"/></svg></button>
   <button class="fantasma icone" id="btTema" title="Tema"><svg class="i"><use href="#i-auto"/></svg></button>
   <button class="fantasma icone" id="btConfig" title="Configurações" aria-label="Configurações"><svg class="i"><use href="#i-config"/></svg></button>
@@ -931,32 +1518,34 @@
 <main>
   <aside id="fila">
     <div class="fila-trilho">
-      <button type="button" class="fantasma" id="btMostrarFila" title="Mostrar a lista de notas"><svg class="i"><use href="#i-expandir"/></svg></button>
-      <span class="qtd" id="contadorTrilho"></span>
+      <button type="button" class="fantasma" id="btMostrarFila" title="Abrir a fila" aria-label="Abrir a fila"><svg class="i"><use href="#i-expandir"/></svg></button>
+      <button type="button" class="primario" id="btTrilhoAdd" title="Adicionar notas" aria-label="Adicionar notas"><svg class="i"><use href="#i-mais"/></svg></button>
+      <span class="qtd" id="contadorTrilho" title="Notas na fila"></span>
+      <div class="trilho-notas" id="trilhoNotas"></div>
     </div>
     <div class="fila-topo">
       <h2><span>Notas para lançar</span><span><span id="contador"></span>
         <button type="button" class="bt-recolher" id="btRecolher" title="Esconder a lista (mais espaço para a nota)"><svg class="i"><use href="#i-recolher"/></svg></button></span></h2>
       <button class="soltar-mini" id="btEnviar"><svg class="i"><use href="#i-upload"/></svg>Adicionar notas</button>
-      <div class="lote" id="lote">
-        <div class="linha-lote"><span><b id="loteQtd">0</b> <span id="loteTxt">selecionadas</span></span>
-          <button class="link" id="btLimparSel" type="button">limpar seleção</button></div>
-        <button class="primario" id="btInserirLote" type="button"><svg class="i"><use href="#i-check"/></svg><span id="loteBt">Inserir selecionadas</span></button></div>
+      <div class="sel-linha"><span id="selTxt">Nenhuma selecionada</span><button class="link" id="btLimparSel" type="button">limpar</button></div>
     </div>
-    <div class="opcoes-lista"><button class="link" id="btSelTodas" type="button">Selecionar todas as prontas</button></div>
     <div id="lista"></div>
+    <!-- Rodapé da fila sempre à vista (igual ao design) -->
     <div class="fila-rodape">
-      <button class="fantasma" id="btAbrirPasta" title="Abre a pasta das notas no computador"><svg class="i"><use href="#i-pasta"/></svg>Abrir pasta das notas</button>
+      <button class="primario" id="btInserirLote" type="button" disabled>Inserir selecionadas <span class="qtd-lote" id="loteQtd">0</span></button>
+      <div class="rod-linha"><button class="link" id="btSelTodas" type="button">Selecionar as prontas</button>
+        <button class="link" id="btAbrirPasta" type="button" title="Abre a pasta das notas no computador"><svg class="i"><use href="#i-pasta"/></svg>Pasta</button></div>
     </div>
   </aside>
+  <div class="gut" id="gutFila" role="separator" aria-orientation="vertical" aria-label="Largura da lista de notas" tabindex="0" title="Arraste para mudar a largura da lista (dois cliques volta ao normal)"></div>
   <section id="visor"></section>
-  <div id="divisoria" title="Arraste para mudar o tamanho da nota e do painel (dois cliques volta ao normal)"></div>
+  <div class="gut" id="divisoria" role="separator" aria-orientation="vertical" aria-label="Tamanho da nota e dos dados" tabindex="0" title="Arraste para mudar o tamanho da nota e dos dados (dois cliques volta ao normal)"></div>
   <section id="painel">
     <div id="campos"></div>
     <div id="acoes">
-      <button id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)" aria-label="Remover nota" disabled><svg class="i"><use href="#i-lixo"/></svg></button>
       <button id="btReler" disabled title="Pede para a IA ler a nota de novo"><svg class="i"><use href="#i-recarregar"/></svg>Ler de novo</button>
       <span class="espaco"></span>
+      <span class="gasta-credito" id="gastaCredito" hidden>Gasta 1 crédito</span>
       <button id="btInserir" class="primario grande" disabled><svg class="i"><use href="#i-check"/></svg>Confirmar e inserir</button>
     </div>
   </section>
@@ -968,44 +1557,110 @@
 <input type="file" id="arquivoCarta" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*">
 <div id="sobrepor"><div class="caixa"><svg class="i"><use href="#i-upload"/></svg><h3>Solte as notas aqui</h3></div></div>
 <div id="toast"></div>
+<div id="avisoInserida" class="ins" hidden role="status" aria-live="polite">
+  <span class="ins-ok"><svg class="i"><use href="#i-check"/></svg></span>
+  <span class="txt"></span>
+  <button type="button" class="btn lime" id="insDesfazer"><svg class="i"><use href="#i-desfazer"/></svg>Desfazer</button>
+  <button type="button" class="btn vazado" id="insHist">Histórico</button>
+  <button type="button" class="btn vazado ib" id="insFechar" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button>
+</div>
+
+<dialog id="dlgConfirmar">
+  <form method="dialog">
+    <div class="cabeca"><h3 id="confTitulo"></h3></div>
+    <div class="corpo"><p id="confTexto" style="margin:0"></p></div>
+    <div class="botoes"><button type="submit" id="confNao" value="nao">Cancelar</button><button type="button" class="primario" id="confSim"></button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgHistorico" aria-labelledby="histTit">
+  <form method="dialog">
+    <div class="cabeca" style="display:flex;align-items:flex-start;gap:12px"><div style="flex:1"><h3 id="histTit">Histórico de lançamentos</h3>
+      <p class="ajuda" style="margin:4px 0 0">Quem lançou cada nota, quando e em qual linha da planilha. Dá para desfazer o último lançamento.</p></div>
+      <button type="submit" class="fantasma" aria-label="Fechar" style="width:38px;padding:0"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo">
+      <div class="saldo-filtros">
+        <label class="busca" style="font-size:0"><svg class="i"><use href="#i-lupa"/></svg><input type="search" id="histBusca" placeholder="Buscar por NF, empresa, cultivar ou linha" aria-label="Buscar"></label>
+        <label class="campo">Período<select id="histPeriodo"><option value="">Tudo</option><option value="1">Hoje</option><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select></label>
+        <label class="campo">Auditor<select id="histAuditor"><option value="">Todos</option></select></label>
+      </div>
+      <div id="histCorpo"></div>
+    </div>
+    <div class="botoes" style="justify-content:space-between;align-items:center"><span class="ajuda" id="histResumo"></span>
+      <span style="display:flex;gap:8px"><button type="button" id="histExcel"><svg class="i"><use href="#i-tabela"/></svg>Exportar para Excel</button><button type="submit" class="primario">Fechar</button></span></div>
+  </form>
+</dialog>
 <div id="cartaoAprender" hidden role="dialog" aria-live="polite" aria-label="Sugestão de correção automática"></div>
 
 <dialog id="dlgSugestao">
   <form method="dialog" id="formSugestao">
-    <div class="cabeca"><h3>Sugerir uma melhoria</h3><p class="ajuda">Conte o que podemos melhorar ou o que não está funcionando. Sua mensagem chega direto para o desenvolvedor.</p></div>
+    <div class="cabeca cab-x"><span class="cab-ic"><svg class="i"><use href="#i-balao"/></svg></span>
+      <div><h3>Sugerir uma melhoria</h3><p class="ajuda">Conte o que podemos melhorar ou o que não está funcionando. Sua mensagem chega direto para o desenvolvedor.</p></div>
+      <button type="button" class="bt-x" data-fechar aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
     <div class="corpo">
       <label>Seu nome (opcional)<input name="nome" maxlength="80" placeholder="Como posso te chamar?" autocomplete="off"></label>
-      <label>Mensagem<textarea name="texto" rows="6" maxlength="3000" required placeholder="Ex.: queria que a lista mostrasse o valor da nota..."></textarea></label>
-      <div class="ajuda">Enviamos só o texto acima e a versão do programa. Nenhum dado das notas ou da planilha vai junto.</div>
+      <label>Mensagem<textarea name="texto" rows="6" maxlength="3000" required placeholder="Ex.: seria bom poder lançar notas de serviço também"></textarea></label>
+      <div class="ajuda com-ic"><svg class="i"><use href="#i-cadeado"/></svg><span>Enviamos só o texto acima e a versão do programa. Nenhum dado das notas ou da planilha vai junto.</span></div>
     </div>
     <div class="botoes">
       <button type="button" id="btSugCancelar">Cancelar</button>
-      <button type="submit" class="primario" id="btSugEnviar"><svg class="i"><use href="#i-check"/></svg>Enviar melhoria</button>
+      <button type="submit" class="primario" id="btSugEnviar"><svg class="i"><use href="#i-enviar"/></svg>Enviar melhoria</button>
     </div>
   </form>
 </dialog>
 
-<dialog id="dlgCompra">
+<dialog id="dlgCompra" aria-labelledby="compraTit">
   <form method="dialog" onsubmit="return false">
-    <div class="cabeca"><h3>Créditos</h3><p class="ajuda">Cada nota lançada na planilha gasta 1 crédito. Ler, conferir e corrigir as notas não gasta nada.</p></div>
+    <div class="cabeca" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="flex:1"><h3 id="compraTit">Adicionar créditos</h3><p class="ajuda" id="compraSaldo" style="margin:4px 0 0"></p></div>
+      <ol class="passos" aria-label="Passos"><li data-passo="1">Escolher</li><li data-passo="2">Pix</li><li data-passo="3">Pago</li></ol>
+      <button type="button" class="fantasma" id="btCompraX" aria-label="Fechar" style="width:38px;padding:0"><svg class="i"><use href="#i-x"/></svg></button>
+    </div>
     <div class="corpo">
-      <div id="compraPacotes">
-        <p id="compraSaldo" class="ajuda" style="margin:0 0 10px"></p>
-        <div id="listaPacotes" style="display:flex;flex-direction:column;gap:8px"></div>
-        <div class="secao" style="margin-top:14px">
-          <b>Tem um código?</b>
-          <div class="linha-codigo"><input id="inCodigo" maxlength="40" placeholder="Ex.: LEITOR-AB12-CD34" autocomplete="off"><button type="button" id="btCodigo">Usar código</button></div>
+      <!-- Passo 1: escolher -->
+      <div id="compraPacotes" class="cp-passo">
+        <div id="listaPacotes" class="pk3"></div>
+        <div class="cp-guia"><b>Quantas notas você lança por mês?</b><div class="opt3" id="guiaMes"></div></div>
+        <div class="cp-duas">
+          <div class="cp-caixa"><b>Como funciona</b>
+            <div class="stp"><i>1</i><span><b>Escolha o pacote</b><span class="mu">Cada crédito lança uma nota. No plano mensal, sem limite.</span></span></div>
+            <div class="stp"><i>2</i><span><b>Pague com Pix</b><span class="mu">QR Code ou copia e cola, no app do seu banco.</span></span></div>
+            <div class="stp"><i>3</i><span><b>Pronto</b><span class="mu">Os créditos entram sozinhos assim que o pagamento cai.</span></span></div>
+          </div>
+          <div class="cp-caixa"><b>Tem um código?</b><span class="mu">Códigos de teste ou de presente viram créditos na hora.</span>
+            <div class="linha-codigo"><input id="inCodigo" class="mono" maxlength="40" placeholder="LEITOR-XXXX-XXXX" autocomplete="off" aria-label="Código"><button type="button" id="btCodigo">Usar</button></div>
+            <span class="mu" style="font-size:12.5px;margin-top:4px">Ler, conferir e corrigir as notas não gasta nada: só lançar na planilha.</span>
+          </div>
         </div>
       </div>
-      <div id="compraPix" hidden class="qr">
-        <b id="pixValor"></b>
-        <img id="pixQr" alt="QR Code do Pix">
-        <div class="ajuda">Abra o app do seu banco, escolha pagar com Pix e leia o QR Code. Ou copie o código abaixo.</div>
-        <div class="copia"><input id="pixCopia" readonly><button type="button" id="btPixCopiar">Copiar</button></div>
-        <div class="ajuda" id="pixStatus">Aguardando o pagamento...</div>
+      <!-- Passo 2: Pix -->
+      <div id="compraPix" hidden class="cp-passo pxb">
+        <div class="pxl">
+          <div class="qr"><img id="pixQr" alt="QR Code do Pix"></div>
+          <input id="pixCopia" readonly aria-label="Código Pix copia e cola" class="mono">
+          <button type="button" class="primario" id="btPixCopiar" style="width:100%"><svg class="i"><use href="#i-doc"/></svg>Copiar código Pix</button>
+          <span class="mu" style="font-size:12.5px;display:inline-flex;align-items:center;gap:6px"><svg class="i" style="width:14px;height:14px"><use href="#i-relogio"/></svg>Expira em <b id="pixExpira" class="num" style="color:var(--texto)">30:00</b></span>
+        </div>
+        <div class="pxr">
+          <div><span class="eb">Valor a pagar</span><p class="pr num" id="pixValor"></p><p class="mu" id="pixPacote" style="margin:4px 0 0;font-size:13px"></p></div>
+          <div class="how"><b>Como pagar</b><ol><li>Abra o app do seu banco e entre na área Pix.</li><li>Escolha <b>Ler QR Code</b> ou <b>Pix copia e cola</b>.</li><li>Confira o valor e confirme.</li></ol></div>
+          <div class="tl">
+            <div class="ts done"><span class="tm"><svg class="i"><use href="#i-check"/></svg></span><div><p class="t">Pix gerado</p><p class="d">QR Code pronto para pagar</p></div></div>
+            <div class="ts now"><span class="tm"><span class="spin"></span></span><div><p class="t" id="pixStatus">Aguardando o pagamento...</p><p class="d">Esta janela avisa sozinha quando o pagamento cair.</p></div></div>
+            <div class="ts next"><span class="tm"></span><div><p class="t">Créditos liberados</p><p class="d">Entram no seu saldo na hora.</p></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Passo 3: pago -->
+      <div id="compraPago" hidden class="cp-passo cp-pago">
+        <div class="pago"><span class="c"><svg class="i" style="width:30px;height:30px;stroke-width:2.6"><use href="#i-check"/></svg></span><b>Pago</b><span class="r" id="pagoValor"></span></div>
+        <h3 id="pagoTitulo" style="margin:0">Créditos liberados</h3>
+        <p class="mu" id="pagoTexto" style="margin:0"></p>
+        <button type="button" class="primario grande" id="btPagoVoltar">Voltar e lançar a nota</button>
       </div>
     </div>
     <div class="botoes">
+      <span class="mu" id="compraWhats" style="margin-right:auto;font-size:13px"></span>
       <button type="button" id="btCompraVoltar" hidden>Voltar</button>
       <button type="button" id="btCompraFechar">Fechar</button>
     </div>
@@ -1014,13 +1669,15 @@
 
 <dialog id="dlgSaldo">
   <form method="dialog" onsubmit="return false">
-    <div class="cabeca"><h3><svg class="i" style="width:22px;height:22px;vertical-align:-4px;margin-right:8px;color:var(--verde-2)"><use href="#i-saldo"/></svg>Saldo por licenciado e cultivar</h3>
+    <div class="cabeca cab-x"><div><p class="eb" style="margin:0 0 2px">Painel de saldo</p><h3>Saldo por licenciado e cultivar</h3>
       <p class="ajuda" id="saldoAjuda">Calculado direto da planilha. <b>Na deslintadora</b> = entrada − saída − sem deslintar − quebra.</p></div>
+      <button type="button" class="bt-x" data-fechar aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
     <div class="corpo">
       <div class="saldo-kpis" id="saldoKpis"></div>
       <div class="saldo-grafico" id="saldoGrafico"></div>
+      <div class="saldo-graficos2" id="saldoGraficos2"></div>
       <div class="saldo-filtros">
-        <div class="busca"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="saldoBusca" placeholder="Buscar licenciado, deslintadora ou cultivar" autocomplete="off"></div>
+        <label class="campo busca">Buscar<input type="search" id="saldoBusca" placeholder="Buscar licenciado, deslintadora ou cultivar" autocomplete="off"></label>
         <label class="campo">Safra<select id="saldoSafra" aria-label="Safra"></select></label>
         <label class="campo">Até o mês<select id="saldoAte" aria-label="Até o mês"></select></label>
         <label class="campo limite">Quebra alta acima de<span><input id="saldoLimite" inputmode="decimal" size="3"> %</span></label>
@@ -1029,14 +1686,12 @@
       <div class="saldo-tabela" id="saldoTabela"></div>
     </div>
     <div class="botoes">
-      <div class="relatorio-linha">
-        <b>Relatório para o cliente</b>
-        <select id="relCliente" aria-label="Cliente do relatório"></select>
-        <select id="relMes" aria-label="Período do relatório"></select>
-        <button type="button" id="btRelatorio" class="primario"><svg class="i"><use href="#i-doc"/></svg>Baixar relatório (Excel)</button>
-      </div>
+      <b class="rel-tit">Relatório para o cliente</b>
+      <select id="relCliente" aria-label="Cliente do relatório"></select>
+      <select id="relMes" aria-label="Período do relatório"></select>
       <span style="flex:1"></span>
       <button type="button" id="btSaldoCopiar" title="Copia a tabela como está na tela, para colar no Excel">Copiar tabela</button>
+      <button type="button" id="btRelatorio" class="primario"><svg class="i"><use href="#i-baixar"/></svg>Baixar relatório (Excel)</button>
       <button type="button" id="btSaldoFechar">Fechar</button>
     </div>
   </form>
@@ -1044,9 +1699,16 @@
 
 <dialog id="dlgConfig">
   <form method="dialog" id="formConfig">
-    <div class="cabeca"><h3>Configurações</h3></div>
+    <div class="cabeca cab-x"><div><h3>Configurações</h3><p class="ajuda">Planilha, leitura das notas e preferências do programa.</p></div>
+      <button type="button" class="bt-x" data-fechar aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
     <div class="corpo">
-      <div class="secao">
+     <div class="cfg">
+      <nav class="cnav" aria-label="Seções das configurações">
+        <a href="#cfPlanilha" class="on">Planilha</a><a href="#cfLeitura">Leitura das notas</a><a href="#cfColunas">O que preencher</a>
+        <a href="#cfConferencias">Conferências</a><a href="#cfRegras">Correções aprendidas</a><a href="#cfPasta">Pasta das notas</a><a href="#cfPrograma">Programa</a>
+      </nav>
+      <div class="cfg-secoes">
+      <div class="secao" id="cfPlanilha">
         <b>Planilha</b>
         <label>Onde está a planilha?
           <select name="destino">
@@ -1073,11 +1735,12 @@
             <input name="googleUrl" placeholder="https://script.google.com/macros/s/.../exec">
           </label>
         </div>
-        <label>Aba onde as notas são lançadas <input name="aba"></label>
-        <label>Nome do auditor <input name="auditor"></label>
+        <div class="duas"><label>Aba onde as notas são lançadas <input name="aba"></label>
+        <label>Nome do auditor <input name="auditor"></label></div>
       </div>
-      <div class="secao">
+      <div class="secao" id="cfLeitura">
         <b>Leitura das notas</b>
+        <div class="duas">
         <label>IA que lê as notas
           <select name="ia">
             <option value="gemini">Google Gemini (grátis)</option>
@@ -1092,30 +1755,31 @@
           <label>Chave da API do Claude <input name="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off"></label>
           <div class="ajuda" id="ajudaChave"></div>
         </div>
+        </div>
       </div>
-      <div class="secao">
+      <div class="secao" id="cfColunas">
         <b>O que preencher na planilha</b>
         <div class="ajuda">Desmarque as colunas que você prefere preencher na mão. Elas ficam em branco.</div>
         <div class="grade-colunas" id="gradeColunas"></div>
       </div>
-      <div class="secao">
+      <div class="secao" id="cfConferencias">
         <b>Conferências</b>
         <label>Avisar quando a quebra técnica passar de (%)
           <input name="limiteQuebra" inputmode="decimal" placeholder="3"></label>
         <div class="ajuda">Vale para o aviso na nota e para o painel de saldo.</div>
       </div>
-      <div class="secao">
+      <div class="secao" id="cfRegras">
         <b>Correções aprendidas</b>
         <div class="ajuda">Quando você corrige a mesma coisa em 2 notas, o programa pergunta se pode fazer isso sozinho. As que você aprovou ficam aqui. Pausar ou apagar vale na hora.</div>
         <div id="listaRegras"></div>
       </div>
-      <div class="secao">
+      <div class="secao" id="cfPasta">
         <b>Pasta das notas</b>
         <label>Pasta onde ficam as notas para lançar</label>
         <div class="com-botao"><input name="pastaNotas">
           <button type="button" data-escolher="pasta"><svg class="i"><use href="#i-pasta"/></svg>Procurar...</button></div>
       </div>
-      <div class="secao">
+      <div class="secao" id="cfPrograma">
         <b>Programa</b>
         <div class="ajuda">O programa abre numa janela própria. O atalho "Leitor de Notas" (na área de trabalho e no menu Iniciar) abre sem a janela preta.</div>
         <div class="ajuda">Para melhorar o programa, ele envia ao desenvolvedor só contagens: as mensagens de erro e quais campos você mais corrige (por exemplo, "Cultivar"). Nunca envia dados das notas, das empresas nem da planilha.</div>
@@ -1124,6 +1788,8 @@
           <button type="button" id="btSair" title="Fecha o programa. Para abrir de novo, use o atalho.">Fechar o programa</button>
         </div>
       </div>
+      </div>
+     </div>
     </div>
     <div class="botoes">
       <button value="cancelar" formnovalidate>Cancelar</button>
@@ -1182,27 +1848,31 @@ const estado = {
   tentativas: {}, // nome -> quantas vezes a leitura falhou por IA ocupada
   proximaTentativa: {},
   regrasDesfeitas: {}, // nome -> Set(id das regras aprendidas que a pessoa desfez nesta nota)
+  vistos: {}, // nome -> Set(texto dos avisos que a pessoa já conferiu, um por um)
+  nfAberta: new Set(), // notas em que a pessoa abriu "Ver e editar" da nota fiscal
+  zonaAtual: null, paginaNota: null, // zoom ligado ao campo
   aprender: { fila: [], mostrando: null }, // sugestões "posso aprender isso?" e avisos esperando na tela
 };
 const MAX_TENTATIVAS = 5;
 
 // ---------- Tema (automático / claro / escuro) ----------
-const TEMAS = ['auto', 'claro', 'escuro'];
-const NOMES_TEMA = { auto: 'Tema: automático (igual ao Windows)', claro: 'Tema: claro', escuro: 'Tema: escuro' };
-function aplicarTema(t) {
-  if (t === 'auto') delete document.documentElement.dataset.tema; else document.documentElement.dataset.tema = t;
-  $('#btTema').innerHTML = icone({ auto: 'auto', claro: 'sol', escuro: 'lua' }[t]);
-  $('#btTema').title = NOMES_TEMA[t] + ' · clique para trocar';
-  try { localStorage.setItem('tema', t); } catch {}
+// Botão lua/sol: troca entre claro e escuro e guarda a escolha. Sem escolha, segue o Windows.
+const temaDoWindows = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro');
+function temaEfetivo() { return document.documentElement.dataset.tema || temaDoWindows(); }
+function desenharBotaoTema() {
+  const t = temaEfetivo();
+  $('#btTema').innerHTML = icone(t === 'escuro' ? 'sol' : 'lua');
+  $('#btTema').title = t === 'escuro' ? 'Mudar para o modo claro' : 'Mudar para o modo escuro';
+  $('#btTema').setAttribute('aria-label', $('#btTema').title);
 }
-let temaAtual = 'auto';
-try { temaAtual = localStorage.getItem('tema') || 'auto'; } catch {}
-aplicarTema(temaAtual);
-$('#btTema').onclick = () => {
-  temaAtual = TEMAS[(TEMAS.indexOf(temaAtual) + 1) % TEMAS.length];
-  aplicarTema(temaAtual);
-  toast(NOMES_TEMA[temaAtual]);
-};
+function aplicarTema(t) {
+  document.documentElement.dataset.tema = t;
+  try { localStorage.setItem('tema', t); } catch {}
+  desenharBotaoTema();
+}
+desenharBotaoTema();
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', desenharBotaoTema);
+$('#btTema').onclick = () => aplicarTema(temaEfetivo() === 'escuro' ? 'claro' : 'escuro');
 
 function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -1218,7 +1888,7 @@ function toast(msg, erro) {
   if (erro && /sem créditos/i.test(String(msg))) {
     t.innerHTML = '<span class="ic">' + icone('cartao') + '</span><span class="txt"><b>Você está sem créditos</b><small>Quer adicionar mais para continuar?</small></span><button type="button" id="btToastComprar">Adicionar créditos</button>';
     t.className = 'visivel acao';
-    $('#btToastComprar').onclick = () => { location.href = '/planos'; };
+    $('#btToastComprar').onclick = () => { t.className = ''; abrirCompra(); };
     clearTimeout(t._h);
     t._h = setTimeout(() => (t.className = ''), 14000);
     return;
@@ -1240,6 +1910,7 @@ async function api(url, corpo) {
   if (!r.ok) {
     const e = new Error(j.erro || 'Erro');
     e.codigo = j.codigo;
+    e.nota = j.nota;
     if (j.codigo === 'SEM_CREDITO') { if (creditosEstado) creditosEstado.saldo = 0; toast(e.message, true); atualizarCreditos(); }
     throw e;
   }
@@ -1265,6 +1936,9 @@ async function atualizar() {
   const temIA = c.ia === 'claude' ? c.temChave : c.temChaveGemini;
   $('#chipIA span').textContent = (c.ia === 'claude' ? 'Claude' : 'Gemini') + (temIA ? '' : ' · sem chave');
   $('#chipIA').classList.toggle('ok', temIA);
+  // Bolinha verde = conectado; amarela = falta configurar.
+  $('#chipPlanilha').title = e.problema ? 'Planilha: ' + e.problema : 'Planilha conectada · para onde as notas vão';
+  $('#chipIA').title = temIA ? 'IA conectada · lê as notas' : 'Falta a chave da IA (Configurações)';
   desenharLista();
   atualizarCreditos();
   if (e.problema) { toast(e.problema, true); abrirConfig(); }
@@ -1300,13 +1974,14 @@ function statusDe(nome) {
     const n = estado.tentativas[nome] || 0;
     if (/ocupad|Limite|conexão/i.test(estado.erros[nome]) && n < MAX_TENTATIVAS) return ['conferir', `IA ocupada · nova tentativa (${n + 1}/${MAX_TENTATIVAS})`];
     if (/sem créditos/i.test(estado.erros[nome])) return ['conferir', 'Sem créditos'];
+    if (/carta de correção/i.test(estado.erros[nome])) return ['conferir', 'É carta de correção'];
     return ['erro', 'Erro na leitura'];
   }
   const r = leitura(nome);
   if (r) {
     if (jaLancada(nome)) return ['lancada-ja', 'Já lançada'];
     if (precisaConferir(nome, r)) {
-      return estado.conferidas.has(nome) ? ['pronta', 'Pronta · conferida'] : ['conferir', 'Pronta · conferir'];
+      return estado.conferidas.has(nome) ? ['pronta', 'Pronta · conferida'] : ['conferir', 'Conferir avisos'];
     }
     return ['pronta', 'Pronta'];
   }
@@ -1372,7 +2047,7 @@ function desenharLista() {
     if (cls === 'nova') txt = `Na fila · ${++posicaoFila}º`;
     return `<div class="item ${p.nome === estado.atual ? 'atual' : ''}" data-nome="${esc(p.nome)}" title="${esc(p.nome)}">
       <input type="checkbox" class="marcar" ${marcavel ? '' : 'disabled'} ${estado.selecionadas.has(p.nome) ? 'checked' : ''} title="${marcavel ? 'Selecionar para inserir junto' : 'Ainda não dá para selecionar'}">
-      <span class="tipo ${tipo(p.nome)[0]}">${tipo(p.nome)[1]}</span>
+      ${miniHtml(p.nome)}
       <span class="info"><div class="nome">${esc(p.nome)}${p.carta ? '<span class="tag-cc" title="Tem carta de correção">CC</span>' : ''}</div><span class="status ${cls}">${txt}</span>
         ${comBarra ? `<div class="barra" data-progresso="${esc(p.nome)}"><i style="width:${progresso(p.nome)}%"></i></div>` : ''}</span></div>`;
   }).join('');
@@ -1398,15 +2073,17 @@ function desenharLista() {
     };
   });
   desenharLote();
+  desenharTrilho();
 }
 
 function desenharLote() {
   for (const n of [...estado.selecionadas]) if (!pronta(n)) estado.selecionadas.delete(n);
-  $('#loteQtd').textContent = estado.selecionadas.size;
-  $('#loteTxt').textContent = estado.selecionadas.size === 1 ? 'selecionada' : 'selecionadas';
-  $('#loteBt').textContent = estado.selecionadas.size === 1 ? 'Inserir a selecionada' : `Inserir as ${estado.selecionadas.size} selecionadas`;
-  $('#lote').classList.toggle('ativo', estado.selecionadas.size > 0);
-  $('#btSelTodas').style.visibility = estado.pendentes.some((p) => pronta(p.nome)) ? '' : 'hidden';
+  const n = estado.selecionadas.size;
+  $('#loteQtd').textContent = n;
+  $('#selTxt').textContent = !n ? 'Nenhuma selecionada' : n === 1 ? '1 selecionada' : `${n} selecionadas`;
+  $('#btLimparSel').hidden = !n;
+  $('#btInserirLote').disabled = !n;
+  $('#btSelTodas').disabled = !estado.pendentes.some((p) => pronta(p.nome));
 }
 
 function registrarLancada(nf, linhas, nome) {
@@ -1452,7 +2129,15 @@ async function desfazerUltima(bt) {
 }
 
 function botoes(ligados) {
-  ['#btReler', '#btInserir', '#btRemover'].forEach((b) => ($(b).disabled = !ligados.includes(b)));
+  // O Remover fica no topo da nota (só existe quando há uma nota aberta).
+  ['#btReler', '#btInserir', '#btRemover'].forEach((b) => { if ($(b)) $(b).disabled = !ligados.includes(b); });
+  mostrarGastaCredito();
+}
+// "Gasta 1 crédito" ao lado do botão: só quando a nota realmente gasta crédito (sem plano mensal e com cobrança ligada).
+function mostrarGastaCredito() {
+  let c = null;
+  try { c = creditosEstado; } catch { /* ainda carregando */ }
+  $('#gastaCredito').hidden = !(c && c.ligado && c.cobranca !== false && !c.mensalAte && !c.offline) || $('#btInserir').disabled;
 }
 
 function telaVazia() {
@@ -1478,45 +2163,134 @@ function recolherFila(sim) {
   $('main').classList.toggle('fila-recolhida', sim);
   try { localStorage.setItem('filaRecolhida', sim ? '1' : ''); } catch {}
 }
-$('#btRecolher').onclick = () => recolherFila(true);
-$('#btMostrarFila').onclick = () => recolherFila(false);
+$('#btRecolher').onclick = () => { $('main').classList.remove('abrir-fila'); recolherFila(true); };
+// Em tela menor a fila vira trilho sozinha; "Abrir a fila" mostra a lista inteira mesmo assim.
+$('#btMostrarFila').onclick = () => { if (innerWidth <= 1180) $('main').classList.add('abrir-fila'); recolherFila(false); };
+$('#btTrilhoAdd').onclick = () => $('#arquivos').click();
+window.addEventListener('resize', () => { if (innerWidth > 1180) $('main').classList.remove('abrir-fila'); });
+
+// ---- Miniaturas das notas (trilho da fila) ----
+// Foto: a própria imagem. PDF: a 1ª página desenhada pelo pdf.js, pequena, guardada enquanto o programa está aberto.
+const miniaturas = new Map(); // nome -> url da miniatura (ou Promise enquanto desenha)
+async function miniaturaDe(nome) {
+  if (!/\.pdf$/i.test(nome)) return '/arquivo?nome=' + encodeURIComponent(nome);
+  if (!pdfjsLib) {
+    pdfjsLib = await import('/pdfjs/pdf.min.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+  }
+  const doc = await pdfjsLib.getDocument('/arquivo?nome=' + encodeURIComponent(nome)).promise;
+  try {
+    const pg = await doc.getPage(1);
+    const vp = pg.getViewport({ scale: 0.35 });
+    const c = document.createElement('canvas');
+    c.width = vp.width; c.height = vp.height;
+    await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    return c.toDataURL('image/jpeg', 0.7);
+  } finally { doc.destroy(); }
+}
+// Miniatura da nota para a lista da fila (igual ao design). Enquanto não desenhou, mostra um ícone de folha.
+function miniHtml(nome) {
+  const m = miniaturas.get(nome);
+  return `<span class="th-fila ${semCredito() ? 'semcred' : ''}">${typeof m === 'string' && m ? `<img src="${m}" alt="">` : icone('doc')}</span>`;
+}
+function desenharTrilho() {
+  const caixa = $('#trilhoNotas');
+  if (!caixa) return;
+  const bloqueada = semCredito();
+  caixa.innerHTML = estado.pendentes.map((p) => {
+    const m = miniaturas.get(p.nome);
+    const [cls] = statusDe(p.nome);
+    return `<button type="button" class="th ${p.nome === estado.atual ? 'atual' : ''} ${bloqueada ? 'semcred' : ''}" data-nome="${esc(p.nome)}" title="${esc(p.nome)}" aria-label="Abrir ${esc(p.nome)}">${typeof m === 'string' ? `<img src="${m}" alt="">` : icone('doc')}<i class="${cls}"></i></button>`;
+  }).join('');
+  caixa.querySelectorAll('[data-nome]').forEach((b) => (b.onclick = () => selecionar(b.dataset.nome)));
+  // Desenha as que faltam (uma de cada vez, para não pesar).
+  const falta = estado.pendentes.find((p) => !miniaturas.has(p.nome));
+  if (falta) {
+    miniaturas.set(falta.nome, null);
+    // Ao terminar, troca só a imagem (sem redesenhar a lista, para não atrapalhar cliques) e passa para a próxima.
+    const pronto = (url) => {
+      miniaturas.set(falta.nome, url);
+      const el = [...document.querySelectorAll('#lista .item[data-nome]')].find((d) => d.dataset.nome === falta.nome)?.querySelector('.th-fila');
+      if (el && url) el.innerHTML = `<img src="${url}" alt="">`;
+      desenharTrilho();
+    };
+    miniaturaDe(falta.nome).then(pronto).catch(() => pronto(''));
+  }
+}
+window.addEventListener('resize', () => desenharTrilho());
+
+// Alt + ← / → : nota anterior / próxima (não insere nada).
+window.addEventListener('keydown', (e) => {
+  if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+  if (document.querySelector('dialog[open]')) return;
+  const i = estado.pendentes.findIndex((p) => p.nome === estado.atual);
+  const alvo = estado.pendentes[e.key === 'ArrowLeft' ? i - 1 : i + 1];
+  if (!alvo) return;
+  e.preventDefault();
+  selecionar(alvo.nome);
+});
 try { if (localStorage.getItem('filaRecolhida')) $('main').classList.add('fila-recolhida'); } catch {}
 
-function larguraPainel(px) {
-  if (px) $('main').style.setProperty('--largura-painel', px + 'px');
-  else $('main').style.removeProperty('--largura-painel');
-  try { localStorage.setItem('larguraPainel', px ? String(px) : ''); } catch {}
+// Divisores entre as 3 colunas (fila | nota | dados). As larguras ficam guardadas neste computador.
+// Fila: 200 a 420 px (arrastando abaixo de 150 px ela vira trilho). Nota: 26% a 68% do que sobra.
+const LAYOUT = { fila: 256, nota: 0.44, filaMin: 200, filaMax: 420, notaMin: 0.26, notaMax: 0.68 };
+function aplicarLayout(fila, nota, guardar) {
+  const m = $('main');
+  if (fila) m.style.setProperty('--lf-usuario', fila + 'px'); else m.style.removeProperty('--lf-usuario');
+  if (nota) m.style.setProperty('--pn-usuario', String(nota)); else m.style.removeProperty('--pn-usuario');
+  $('#gutFila').setAttribute('aria-valuenow', String(fila || LAYOUT.fila));
+  $('#divisoria').setAttribute('aria-valuenow', String(Math.round((nota || LAYOUT.nota) * 100)));
+  if (guardar) try { localStorage.setItem('layout', JSON.stringify({ fila: fila || 0, nota: nota || 0 })); } catch {}
 }
-// A largura guardada do painel nunca pode deixar a nota sem espaço: em tela pequena ela encolhe (sem apagar o que ficou guardado).
-function ajustarPainelAoTamanho() {
-  let px = 0;
-  try { px = Number(localStorage.getItem('larguraPainel')); } catch {}
-  if (!(px >= 400)) { $('main').style.removeProperty('--largura-painel'); return; }
-  const largura = $('main').getBoundingClientRect().width;
-  const fila = $('main').classList.contains('fila-recolhida') ? 46 : $('#fila').getBoundingClientRect().width;
-  $('main').style.setProperty('--largura-painel', Math.min(px, Math.max(340, largura - fila - 420)) + 'px');
+function layoutAtual() {
+  const m = $('main');
+  return { fila: parseInt(m.style.getPropertyValue('--lf-usuario'), 10) || LAYOUT.fila, nota: Number(m.style.getPropertyValue('--pn-usuario')) || LAYOUT.nota };
 }
-ajustarPainelAoTamanho();
-window.addEventListener('resize', ajustarPainelAoTamanho);
-$('#divisoria').onpointerdown = (e) => {
+try { const g = JSON.parse(localStorage.getItem('layout') || 'null'); if (g) aplicarLayout(g.fila, g.nota, false); } catch {}
+const limitar = (v, a, b) => Math.min(b, Math.max(a, v));
+function arrastar(gut, mover) {
+  gut.onpointerdown = (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    gut.setPointerCapture(e.pointerId);
+    gut.classList.add('ativo');
+    document.body.classList.add('arrastando');
+    gut.onpointermove = (ev) => mover(ev.clientX, false);
+    gut.onpointerup = gut.onpointercancel = (ev) => {
+      gut.onpointermove = gut.onpointerup = gut.onpointercancel = null;
+      gut.classList.remove('ativo');
+      document.body.classList.remove('arrastando');
+      mover(ev.clientX, true);
+    };
+  };
+}
+arrastar($('#gutFila'), (x, fim) => {
+  const m = $('main').getBoundingClientRect();
+  const px = x - m.left - parseFloat(getComputedStyle($('main')).paddingLeft);
+  if (px < 150) { if (fim) recolherFila(true); return; }
+  recolherFila(false);
+  aplicarLayout(Math.round(limitar(px, LAYOUT.filaMin, LAYOUT.filaMax)), layoutAtual().nota, fim);
+});
+arrastar($('#divisoria'), (x, fim) => {
+  const v = $('#visor').getBoundingClientRect();
+  const area = v.width + $('#painel').getBoundingClientRect().width;
+  aplicarLayout(layoutAtual().fila, Number(limitar((x - v.left) / area, LAYOUT.notaMin, LAYOUT.notaMax).toFixed(3)), fim);
+});
+$('#gutFila').ondblclick = () => { recolherFila(false); aplicarLayout(0, layoutAtual().nota, true); };
+$('#divisoria').ondblclick = () => aplicarLayout(layoutAtual().fila, 0, true);
+// Setas do teclado também ajustam (o divisor tem foco com Tab).
+$('#gutFila').onkeydown = (e) => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   e.preventDefault();
-  const div = $('#divisoria');
-  div.setPointerCapture(e.pointerId);
-  document.body.classList.add('arrastando');
-  const main = $('main').getBoundingClientRect();
-  const fila = $('#fila').getBoundingClientRect().width;
-  div.onpointermove = (ev) => {
-    // O painel fica entre 400 px e o que sobra deixando pelo menos 280 px para a nota.
-    const px = Math.round(Math.min(main.width - fila - 280, Math.max(400, main.right - ev.clientX)));
-    $('main').style.setProperty('--largura-painel', px + 'px');
-  };
-  div.onpointerup = () => {
-    div.onpointermove = div.onpointerup = null;
-    document.body.classList.remove('arrastando');
-    larguraPainel(parseInt($('main').style.getPropertyValue('--largura-painel'), 10) || 0);
-  };
+  aplicarLayout(limitar(layoutAtual().fila + (e.key === 'ArrowRight' ? 16 : -16), LAYOUT.filaMin, LAYOUT.filaMax), layoutAtual().nota, true);
 };
-$('#divisoria').ondblclick = () => larguraPainel(0);
+$('#divisoria').onkeydown = (e) => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  aplicarLayout(layoutAtual().fila, Number(limitar(layoutAtual().nota + (e.key === 'ArrowRight' ? 0.02 : -0.02), LAYOUT.notaMin, LAYOUT.notaMax).toFixed(3)), true);
+};
+$('#gutFila').setAttribute('aria-valuemin', LAYOUT.filaMin); $('#gutFila').setAttribute('aria-valuemax', LAYOUT.filaMax);
+$('#divisoria').setAttribute('aria-valuemin', 26); $('#divisoria').setAttribute('aria-valuemax', 68);
 
 // ---------- Envio de arquivos ----------
 async function enviarArquivos(lista) {
@@ -1533,7 +2307,11 @@ async function enviarArquivos(lista) {
       const r = await fetch('/api/enviar', { method: 'POST', headers: { 'X-Nome': encodeURIComponent(f.name) }, body: f });
       const j = await r.json();
       if (!r.ok) throw new Error(j.erro);
-      enviados.push(j.nome);
+      if (j.cartaDe) {
+        // Carta de correção: foi para a nota dela, que vai ser lida de novo com a carta.
+        toast(`Carta de correção anexada na nota ${j.cartaDe}`);
+        delete estado.leituras[j.cartaDe]; delete estado.forms[j.cartaDe];
+      } else enviados.push(j.nome);
     } catch (e) {
       toast(e.message, true);
     }
@@ -1549,6 +2327,9 @@ $('#btEnviar').onclick = () => $('#arquivos').click();
 $('#arquivos').onchange = (e) => { enviarArquivos(e.target.files); e.target.value = ''; };
 
 let profundidade = 0;
+// Arrastar a imagem da nota, o zoom ou as miniaturas não pode virar "enviar arquivo" (seria a mesma nota de novo).
+// Só vale arrastar arquivos que vêm de fora do programa (do Windows).
+document.addEventListener('dragstart', (e) => { if (e.target.closest && e.target.closest('img, #visor, #lista, #trilhoNotas')) e.preventDefault(); });
 window.addEventListener('dragenter', (e) => { if ([...e.dataTransfer.types].includes('Files')) { profundidade++; $('#sobrepor').classList.add('ativo'); } });
 window.addEventListener('dragleave', () => { if (--profundidade <= 0) { profundidade = 0; $('#sobrepor').classList.remove('ativo'); } });
 window.addEventListener('dragover', (e) => e.preventDefault());
@@ -1578,7 +2359,7 @@ const cartaDaNota = (nome) => estado.pendentes.find((p) => p.nome === nome)?.car
 // qual: 'nota' ou 'carta' (a carta de correção, quando a nota tem uma).
 function mostrarArquivo(nome, qual = 'nota') {
   // Sem crédito não mostra a nota de verdade: só uma folha de exemplo, sempre embaçada.
-  $('#visor').classList.remove('embacado');
+  $('#visor').classList.remove('embacado', 'lendo');
   $('#visor .selo')?.remove();
   if (semCredito()) { visorBloqueado(nome); return; }
   mostrarArquivoReal(nome, qual);
@@ -1589,8 +2370,8 @@ function visorBloqueado(nome) {
   if (nome) mostrarArquivoReal(nome, 'nota');
   const v = $('#visor');
   v.classList.add('embacado');
-  v.querySelectorAll('a, [data-ver]').forEach((x) => x.remove());
-  if (!v.querySelector('.selo')) v.insertAdjacentHTML('beforeend', '<div class="selo"><span class="ic">' + icone('cartao') + '</span><b>Nota bloqueada</b><span>Adicione créditos para ver e lançar esta nota.</span></div>');
+  v.querySelectorAll('a, [data-ver], .lupa').forEach((x) => x.remove());
+  if (!v.querySelector('.selo')) v.insertAdjacentHTML('beforeend', '<div class="selo"><span class="ic">' + icone('cartao') + '</span><b>Nota bloqueada</b><span>Adicione créditos para ver e lançar esta nota.</span><button type="button" class="btn pri sm" data-comprar style="margin-top:6px">Adicionar créditos</button></div>');
 }
 
 function mostrarArquivoReal(nome, qual = 'nota') {
@@ -1599,20 +2380,132 @@ function mostrarArquivoReal(nome, qual = 'nota') {
   const arquivo = qual === 'carta' ? carta : nome;
   // ?v= muda quando a carta é trocada, para o navegador não mostrar a antiga.
   const url = qual === 'carta' ? `/carta?nota=${encodeURIComponent(nome)}&v=${estado.versaoCarta[nome] || 0}` : '/arquivo?nome=' + encodeURIComponent(nome);
-  const abas = `<div class="abas-visor">${carta ? `
-      <button type="button" data-ver="nota" class="${qual === 'nota' ? 'ativa' : ''}">Nota</button>
-      <button type="button" data-ver="carta" class="${qual === 'carta' ? 'ativa' : ''}">Carta de correção</button><span class="separa"></span>` : ''}
-      <a href="${url}" target="_blank" title="Abre numa aba nova, em tela cheia">${icone('fora')}Abrir em outra aba</a></div>`;
   const titulo = qual === 'carta' ? 'Carta de correção' : 'Nota';
-  if (/\.pdf$/i.test(arquivo)) {
-    // navpanes=0 esconde a coluna de miniaturas do Chrome; FitH ocupa a largura toda.
-    $('#visor').innerHTML = `${abas}<iframe src="${url}#navpanes=0&view=FitH" title="${titulo}"></iframe>`;
-  } else {
-    $('#visor').innerHTML = `${abas}<div class="imagem"><img src="${url}" alt="${titulo}"></div><span class="dica">Clique na foto para ampliar</span>`;
-    const img = $('#visor img');
-    img.onclick = () => img.classList.toggle('zoom');
-  }
+  const pdf = /\.pdf$/i.test(arquivo);
+  // Topo da nota: nome do arquivo, Nota/Carta, abrir em outra aba e Remover (saiu de perto do "Ler de novo").
+  $('#visor').innerHTML = `<div class="vh">
+      <span class="t" title="${esc(nome)}">${esc(nome)}<span class="mu" id="vhPaginas">${pdf ? '' : ' · 1 página'}</span></span>
+      ${carta ? `<span class="abas-nc"><button type="button" data-ver="nota" class="${qual === 'nota' ? 'ativa' : ''}">Nota</button><button type="button" data-ver="carta" class="${qual === 'carta' ? 'ativa' : ''}">Carta de correção</button></span>` : ''}
+      <a class="bvh verde" href="${url}" target="_blank" title="Abrir em outra aba, em tela cheia">${icone('fora')}<span>Outra aba</span></a>
+      <button type="button" class="bvh vermelho" id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)">${icone('lixo')}<span>Remover</span></button>
+    </div>
+    <div class="lupa" id="lupa" hidden><div class="hd">${icone('lupa')}<span>De onde veio: <b id="lupaNome"></b></span></div><div class="crop" id="lupaCrop"></div></div>
+    <div class="vb" id="vb"><div class="pg" id="pagina">${pdf
+      ? '<div class="carregando"><div class="girando"></div>Abrindo a nota...</div>'
+      : `<img src="${url}" alt="${titulo}">`}<div class="hl" id="realce" hidden></div></div></div>
+    <div class="vf">Clique num campo à direita para ver de onde ele veio.</div>`;
+  $('#btRemover').onclick = removerAtual;
+  $('#btRemover').disabled = !estado.atual;
   $('#visor').querySelectorAll('[data-ver]').forEach((b) => (b.onclick = () => mostrarArquivo(nome, b.dataset.ver)));
+  const pronto = (src) => {
+    estado.paginaNota = { nome, qual, src };
+    // Zona padrão: Dados adicionais (a cultivar é o campo que mais erra).
+    if (qual === 'nota') mostrarZona(estado.zonaAtual || 'adicionais');
+  };
+  if (pdf) desenharPdf(url, nome, qual).then((src) => src && pronto(src)).catch(() => {
+    // Sem pdf.js: mostra o PDF do jeito antigo (sem zoom por campo).
+    if (estado.atual !== nome) return;
+    $('#vb').innerHTML = `<iframe src="${url}#navpanes=0&view=FitH" title="${titulo}"></iframe>`;
+  });
+  else { const img = $('#pagina img'); img.onload = () => pronto(url); if (img.complete && img.naturalWidth) pronto(url); }
+}
+
+// ---- Página da nota desenhada (pdf.js) + zoom ligado a cada campo ----
+let pdfjsLib = null;
+const cachePaginas = new Map(); // url -> [dataURL de cada página]
+async function desenharPdf(url, nome, qual) {
+  let paginas = cachePaginas.get(url);
+  if (!paginas) {
+    if (!pdfjsLib) {
+      pdfjsLib = await import('/pdfjs/pdf.min.mjs');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+    }
+    const doc = await pdfjsLib.getDocument(url).promise;
+    paginas = [];
+    paginas.total = doc.numPages;
+    for (let i = 1; i <= Math.min(doc.numPages, 4); i++) {
+      const pg = await doc.getPage(i);
+      const vp = pg.getViewport({ scale: 2.2 });
+      const c = document.createElement('canvas');
+      c.width = vp.width; c.height = vp.height;
+      await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+      paginas.push(c.toDataURL('image/png'));
+    }
+    cachePaginas.set(url, paginas);
+    if (cachePaginas.size > 12) cachePaginas.delete(cachePaginas.keys().next().value);
+  }
+  if (estado.atual !== nome || !$('#pagina')) return null;
+  const tot = paginas.total || paginas.length;
+  if ($('#vhPaginas')) $('#vhPaginas').textContent = ` · ${tot} ${tot === 1 ? 'página' : 'páginas'}`;
+  $('#pagina').innerHTML = `<img src="${paginas[0]}" alt="${qual === 'carta' ? 'Carta de correção' : 'Nota'}"><div class="hl" id="realce" hidden></div>`;
+  for (const p of paginas.slice(1)) $('#vb').insertAdjacentHTML('beforeend', `<div class="pg"><img src="${p}" alt="Página seguinte"></div>`);
+  return paginas[0];
+}
+
+// Zonas fixas da DANFE (em % da página: esquerda, topo, largura, altura). Valem para qualquer nota.
+const ZONAS = {
+  numero: { nome: 'Número e chave de acesso', r: [44, 9, 54, 13] },
+  emitente: { nome: 'Emitente', r: [2, 9, 56, 13] },
+  destinatario: { nome: 'Destinatário, data e hora', r: [2, 24.5, 96, 9.5] },
+  pesos: { nome: 'Volumes e produtos (pesos)', r: [2, 52.5, 96, 9.5] },
+  adicionais: { nome: 'Dados adicionais (cultivar e safra)', r: [2, 83, 60, 6] },
+};
+// Campo do formulário -> zona da nota. A empresa vai para "Emitente" ou "Destinatário" conforme quem emitiu.
+function zonaDoCampo(c) {
+  if (!c) return null;
+  if (c === 'nf' || c === 'chave') return 'numero';
+  if (c === 'data' || c === 'hora') return 'destinatario';
+  if (/^itens\.\d+\.(entrada|saida|semDeslintar|quebra)$/.test(c) || c === 'tipoCarga') return 'pesos';
+  if (/^itens\.\d+\.(cultivar|safra|comentario|cliente)$/.test(c) || c === 'obsAuditor') return 'adicionais';
+  const lado = c.split('.')[0];
+  if (lado === 'deslint' || lado === 'licenc') {
+    const r = leitura(estado.atual);
+    const emit = r && r.origem && r.origem.emitente;
+    const doc = String((estado.form && estado.form[lado] && estado.form[lado].cnpj) || '').replace(/\D/g, '');
+    return emit && doc && emit === doc ? 'emitente' : 'destinatario';
+  }
+  return null;
+}
+function mostrarZona(z) {
+  estado.zonaAtual = z;
+  const p = estado.paginaNota;
+  const lupa = $('#lupa'), hl = $('#realce');
+  if (!lupa || !hl || !p || p.nome !== estado.atual || $('#visor').classList.contains('embacado')) return;
+  const [x, y, w, h] = ZONAS[z].r;
+  hl.hidden = false;
+  Object.assign(hl.style, { left: x + '%', top: y + '%', width: w + '%', height: h + '%' });
+  lupa.hidden = false;
+  $('#lupaNome').textContent = ZONAS[z].nome;
+  const crop = $('#lupaCrop');
+  const pgImg = $('#pagina img');
+  const asp = pgImg && pgImg.naturalWidth ? pgImg.naturalHeight / pgImg.naturalWidth : 1.414; // altura / largura da página
+  const larg = crop.clientWidth || 300;
+  const escala = larg / (w / 100); // largura da página inteira para o trecho ocupar a caixa
+  crop.style.height = Math.min(Math.round(escala * asp * (h / 100)), Math.round(innerHeight * 0.3)) + 'px';
+  crop.innerHTML = `<img src="${p.src}" alt="" style="width:${escala}px;margin-left:${-escala * x / 100}px;margin-top:${-escala * asp * y / 100}px">`;
+  // Rola a página até o trecho destacado.
+  const vb = $('#vb'), pg = $('#pagina');
+  if (vb && pg) vb.scrollTo({ top: Math.max(0, pg.offsetTop + pg.clientHeight * y / 100 - 40), behavior: 'smooth' });
+}
+$('#campos').addEventListener('focusin', (e) => {
+  const c = e.target.closest('[data-c]')?.dataset.c || (e.target.id === 'novaChave' ? 'chave' : null);
+  const z = zonaDoCampo(c);
+  if (z) mostrarZona(z);
+});
+
+async function removerAtual() {
+  const nome = estado.atual;
+  if (!nome) return;
+  const prox = proxima(nome);
+  try {
+    await api('/api/remover', { nome });
+    toast('Nota tirada da fila (está na pasta "Removidas")');
+    delete estado.leituras[nome];
+    delete estado.forms[nome];
+    estado.atual = null;
+    await atualizar();
+    if (prox && estado.pendentes.some((p) => p.nome === prox.nome)) selecionar(prox.nome);
+  } catch (e) { toast(e.message, true); }
 }
 
 // ---- Carta de correção ----
@@ -1668,6 +2561,14 @@ function ler(nome, forcar, atualizar) {
     .then((r) => { estado.leituras[nome] = r; return r; })
     .then((r) => { delete estado.tentativas[nome]; return r; })
     .catch((e) => {
+      // Era uma carta de correção na fila: foi anexada na nota dela.
+      if (e.codigo === 'VIROU_CARTA') {
+        toast(e.message);
+        delete estado.leituras[e.nota]; delete estado.forms[e.nota];
+        if (estado.atual === nome) estado.atual = null;
+        setTimeout(() => atualizar().then(() => selecionar(e.nota)), 300);
+        throw e;
+      }
       estado.erros[nome] = e.message;
       // IA ocupada ou limite momentâneo: tenta de novo sozinho, até 5 vezes, esperando cada vez mais.
       if (/ocupad|Limite|conexão/i.test(e.message)) {
@@ -1692,6 +2593,7 @@ function ler(nome, forcar, atualizar) {
 }
 
 async function selecionar(nome, forcar) {
+  if (estado.atual !== nome) estado.zonaAtual = null;
   estado.atual = nome;
   desenharLista();
   mostrarArquivo(nome);
@@ -1700,14 +2602,20 @@ async function selecionar(nome, forcar) {
   // Já lida nesta tela: mostra na hora, sem pedir de novo ao servidor (isso redesenhava o formulário
   // e apagava o que estava sendo digitado). Depois de cada inserção, revalidarFila() força a conferência.
   if (jaTinha && !forcar) { desenharFormulario(nome, jaTinha); return; }
-  if (estado.leituras[nome] === 'em-disco' && !forcar) $('#campos').innerHTML = `<div class="carregando"><div class="girando"></div><b>Conferindo com a planilha...</b></div>`;
-  else $('#campos').innerHTML = `<div class="carregando"><div class="girando"></div><b>Lendo a nota com a IA...</b><br><span style="font-size:12px">costuma levar poucos segundos · pode abrir outra nota enquanto isso</span></div>`;
+  // Carregando: a nota fica embaçada com a "linha de leitura" passando e os campos aparecem em skeleton.
+  if (estado.leituras[nome] === 'em-disco' && !forcar) $('#campos').innerHTML = skeletonFormulario('Conferindo com a planilha...', 'só um instante');
+  else {
+    $('#campos').innerHTML = skeletonFormulario('Lendo a nota com a IA...', 'costuma levar poucos segundos · pode abrir outra nota enquanto isso');
+    if (!semCredito()) $('#visor').classList.add('lendo');
+  }
   try {
     const r = await ler(nome, forcar, !forcar);
     if (estado.atual !== nome) return;
     desenharFormulario(nome, r);
   } catch (e) {
     if (estado.atual !== nome) return;
+    $('#visor').classList.remove('lendo');
+    if (e.codigo === 'VIROU_CARTA') return;
     const n = estado.tentativas[nome] || 0;
     const vaiTentar = /ocupad|Limite|conexão/i.test(e.message) && n < MAX_TENTATIVAS;
     const segundos = Math.max(1, Math.round(((estado.proximaTentativa[nome] || Date.now()) - Date.now()) / 1000));
@@ -1716,13 +2624,33 @@ async function selecionar(nome, forcar) {
       : n >= MAX_TENTATIVAS ? `<br><b>Já tentei ${MAX_TENTATIVAS} vezes. Clique em "Ler de novo" mais tarde.</b>` : '';
     if (/sem créditos/i.test(e.message)) {
       visorBloqueado(nome);
-      $('#campos').innerHTML = `<div class="semcred"><span class="ic">${icone('cartao')}</span><h3>Você está sem créditos</h3><p>Para ler e lançar esta nota, adicione créditos. Ela continua aqui na fila esperando.</p><button class="primario grande" onclick="location.href='/planos'">Adicionar créditos</button></div>`;
+      $('#campos').innerHTML = `<div class="semcred"><span class="ic">${icone('cartao')}</span><h3>Você está sem créditos</h3><p>Para ler e lançar esta nota, adicione créditos. Ela continua aqui na fila esperando.</p><button class="primario grande" type="button" id="btSemCredComprar">Adicionar créditos</button></div>`;
       botoes(['#btRemover']);
       return;
     }
     $('#campos').innerHTML = `<div class="avisos"><div class="aviso ${vaiTentar ? 'alerta' : 'erro'}">${icone('alerta')}<span>Não consegui ler esta nota: ${esc(e.message)}${extra}</span></div></div>`;
     botoes(['#btReler', '#btRemover']);
   }
+}
+
+// Skeleton do formulário enquanto a nota é lida (mesmo desenho do formulário de verdade).
+function skeletonFormulario(titulo, sub) {
+  const linha = (w) => `<span class="sk" style="width:${w}"></span>`;
+  const campoSk = (cls) => `<div class="${cls}">${linha('46%')}<span class="sk sk-in"></span></div>`;
+  return `<div class="esqueleto" aria-busy="true" aria-live="polite">
+    <div class="fh"><div class="nfbig"><small>NF</small><span class="sk" style="width:74px;height:24px;margin-top:4px"></span></div>
+      <div class="who"><small>Destinatário</small>${linha('70%')}${linha('40%')}</div>
+      <span class="bdg b-i"><span class="girando" style="width:12px;height:12px;border-width:2px;margin:0"></span>${esc(titulo)}</span></div>
+    <p class="sk-sub">${esc(sub)}</p>
+    <div class="cartao"><div class="cartao-titulo">${icone('caixa')}Itens</div><div class="item-nota"><div class="grade">
+      ${campoSk('c2')}${campoSk('c2')}${campoSk('c2')}${campoSk('c3')}${campoSk('c3')}${campoSk('c3')}${campoSk('c3')}
+      <div class="c6">${linha('30%')}<span class="sk sk-in" style="height:64px"></span></div></div></div></div>
+    <div class="cartao"><div class="cartao-titulo">${icone('fabrica')}Empresas</div>
+      <div class="grp">${linha('28%')}<div class="grade">${campoSk('c6')}${campoSk('c2')}${campoSk('c3')}${campoSk('c1')}</div></div>
+      <div class="grp">${linha('22%')}<div class="grade">${campoSk('c6')}${campoSk('c2')}${campoSk('c3')}${campoSk('c1')}</div></div></div>
+    <div class="cartao"><div class="cartao-titulo">${icone('nota')}Nota fiscal</div><div class="grade grade-nota">${campoSk('')}${campoSk('')}${campoSk('')}${campoSk('')}</div>
+      <span class="sk sk-in" style="margin-top:10px"></span></div>
+  </div>`;
 }
 
 function campo(rotulo, chave, valor, classe, incerto, extra = '') {
@@ -1796,18 +2724,34 @@ function editarChave(nome, r) {
 }
 
 // Resumo no topo do formulário: o que a pessoa mais olha (nº da nota, data, cliente).
-function resumoNF(f) {
-  const it = (f.itens && f.itens[0]) || {};
+// Cabeçalho do formulário: nº da NF, destinatário, data e itens, selo de situação e setas de nota anterior/próxima.
+// avisos: quantos quadros de aviso estão abertos (-1 = nota repetida).
+function cabecalhoNF(f, r, nome, avisos) {
   const qtd = (f.itens || []).length;
-  const info = [f.data, it.cultivar, qtd + (qtd === 1 ? ' item' : ' itens')].filter(Boolean).join(' · ');
-  const chave = !f.chave ? '<span class="rn-chave ruim">Chave não lida</span>'
-    : f.chaveOk ? '<span class="rn-chave ok">✓ Chave confere</span>' : '<span class="rn-chave ruim">✗ Chave não confere</span>';
-  return '<div class="resumo-nf"><div class="rn-num"><small>Nota fiscal</small><b>' + esc(f.nf || '—') + '</b></div>'
-    + '<div class="rn-info"><small>Cliente</small><b>' + esc(it.cliente || f.licenc?.razao || 'Cliente não lido') + '</b><span>' + esc(info) + '</span></div>'
-    + chave + '</div>';
+  const emit = r.origem && r.origem.emitente;
+  const docDe = (p) => String((p && p.cnpj) || '').replace(/\D/g, '');
+  const dest = emit && docDe(f.deslint) === emit ? f.licenc : emit && docDe(f.licenc) === emit ? f.deslint : f.licenc;
+  const selo = avisos < 0 ? `<span class="bdg b-b">${icone('alerta')}Já lançada</span>`
+    : avisos > 1 ? `<span class="bdg b-w">${icone('alerta')}${avisos} avisos para conferir</span>`
+      : avisos === 1 ? `<span class="bdg b-w">${icone('alerta')}1 aviso</span>`
+        : `<span class="bdg b-ok">${icone('check')}Pronta para inserir</span>`;
+  const i = estado.pendentes.findIndex((p) => p.nome === nome);
+  const ant = i > 0 ? estado.pendentes[i - 1].nome : null;
+  const prox = i >= 0 && i < estado.pendentes.length - 1 ? estado.pendentes[i + 1].nome : null;
+  // Igual ao design: "NOTA FISCAL" + número e destinatário em cima; selo e setas numa linha embaixo (nada pula de linha).
+  // O selo "Lido do texto do PDF" saiu da tela (pedido do Carlos).
+  return `<div class="fh">
+    <div class="fh-l1"><div class="nfbig"><small>Nota fiscal</small><b>${esc(f.nf || '—')}</b></div>
+    <div class="who"><small>Destinatário</small><b title="${esc(dest && dest.razao)}">${esc((dest && dest.razao) || 'não lido')}</b>
+      <span>${esc([f.data, qtd + (qtd === 1 ? ' item' : ' itens')].filter(Boolean).join(' · '))}</span></div></div>
+    <div class="fh-l2"><div class="fh-selos">${selo}</div>
+    <div class="fh-nav"><button type="button" class="bvh" ${ant ? `data-ir-nota="${esc(ant)}"` : 'disabled'} title="Nota anterior (Alt + ←)" aria-label="Nota anterior">${icone('seta-esq')}</button>
+      <button type="button" class="bvh" ${prox ? `data-ir-nota="${esc(prox)}"` : 'disabled'} title="Próxima nota (Alt + →)" aria-label="Próxima nota">${icone('seta-dir')}</button></div></div>
+  </div>`;
 }
 
 function desenharFormulario(nome, r) {
+  $('#visor').classList.remove('lendo');
   if (!estado.forms[nome]) estado.forms[nome] = JSON.parse(JSON.stringify(r.formulario));
   const f = estado.forms[nome];
   estado.form = f;
@@ -1837,23 +2781,67 @@ function desenharFormulario(nome, r) {
   const obs = (campo) => r.avisos.filter((a) => a.campo === campo && a.nivel === 'info')
     .map((a) => (a.regra ? obsRegra(a) : `<div class="obs-campo">${icone('info')}<span>${esc(a.texto)}</span></div>`)).join('');
   if (!conferir.length && ativos.incertos.length) conferir.push({ texto: 'A IA não teve certeza dos campos em amarelo.' });
-  const quadroConferir = !conferir.length || duplicada ? ''
-    : conferida
-      ? `<div class="aviso conferida">${icone('check')}<span>Você marcou esta nota como conferida. <button type="button" class="link" id="btDesconferir">Mostrar os avisos de novo</button></span></div>`
-      : `<div class="aviso alerta">${icone('alerta')}<span><span class="titulo-aviso">Confira antes de inserir</span>${
-        conferir.length === 1 ? esc(conferir[0].texto) : `<ul>${conferir.map((a) => `<li>${esc(a.texto)}</li>`).join('')}</ul>`}
-        <button type="button" class="bt-conferi" id="btConferi">${icone('check')}Já conferi, está certa</button></span></div>`;
-  const topo = [
-    ...erros.map((a) => `<div class="aviso erro">${icone('alerta')}<span>${esc(a.texto)}</span></div>`),
-    quadroConferir,
-  ].join('');
+  // Avisos que viram quadro próprio (com botões); o resto fica junto em "Confira antes de inserir".
+  const vistos = estado.vistos[nome] || new Set();
+  const avSaldo = conferir.filter((a) => a.tipo === 'saldo' && !vistos.has(a.texto));
+  // Some quando todos os itens já têm uma cultivar da base (a pessoa corrigiu).
+  const naBase = (c) => (r.listas.cultivares || []).some((x) => x.replace(/\s+/g, '') === String(c || '').trim().toUpperCase().replace(/\s+/g, ''));
+  const avCultivar = f.itens.every((it) => naBase(it.cultivar)) ? [] : conferir.filter((a) => a.tipo === 'cultivar');
+  const avGerais = conferir.filter((a) => a.tipo !== 'saldo' && a.tipo !== 'cultivar' && !vistos.has(a.texto));
+  const kgs = (n) => Number(n || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+  const repetida = erros.find((a) => a.duplicada);
+  const quadros = [];
+  if (repetida) {
+    quadros.push(`<div class="al bd" role="alert">${icone('alerta')}<div><b>Nota já lançada</b>${esc(repetida.texto)} Se ela não entrou na planilha por algum problema, dá para lançar de novo.
+      <div class="acts"><button type="button" class="btn sm f" id="btRepRemover">Remover da fila</button><button type="button" class="btn sm" id="btRepHist">Ver no histórico</button><button type="button" class="btn sm sub" id="btRepLancar">Lançar mesmo assim</button></div></div></div>`);
+  }
+  for (const a of erros.filter((x) => !x.duplicada)) quadros.push(`<div class="al bd" role="alert">${icone('alerta')}<div>${esc(a.texto)}</div></div>`);
+  if (!repetida && !conferida) {
+    // Ordem do design: saldo negativo (vermelho) primeiro, depois a cultivar.
+    for (const a of avSaldo) {
+      quadros.push(`<div class="al bd" role="alert">${icone('saldo')}<div><b>Esta nota deixa o saldo de ${esc(a.licenciado || 'licenciado')} negativo</b>${esc(a.texto)}
+        <div class="acts"><button type="button" class="btn sm f" data-ver-saldo>Ver as notas</button><button type="button" class="btn sm" data-visto="${esc(a.texto)}">Já conferi, está certo</button></div></div></div>`);
+    }
+    for (const a of avCultivar) {
+      quadros.push(`<div class="al" role="alert">${icone('alerta')}<div><b>Cultivar não está na base</b>Lida: <span class="mono">${esc(a.lida || '—')}</span>. Nenhuma cultivar da base é parecida. Se for de outra empresa (ex.: BASF), não precisa lançar.
+        ${a.sugestao ? `<div class="sgb"><span>Na planilha, ${esc(a.licenciado || 'este licenciado')} lança a cultivar <b class="mono">${esc(a.sugestao)}</b>. É ela?</span><button type="button" class="btn pri sm" id="btUsarCult" data-cult="${esc(a.sugestao)}">Usar ${esc(a.sugestao)}</button></div>` : ''}
+        <div class="acts"><button type="button" class="btn sm f" id="btIrCultivar">Escolher a cultivar</button><button type="button" class="btn sm" id="btOutraEmpresa">É de outra empresa: remover</button></div></div></div>`);
+    }
+    if (avGerais.length) {
+      quadros.push(`<div class="al" role="alert">${icone('alerta')}<div><b>Confira antes de inserir</b>${avGerais.length === 1 ? esc(avGerais[0].texto) : `<ul>${avGerais.map((a) => `<li>${esc(a.texto)}</li>`).join('')}</ul>`}
+        <div class="acts"><button type="button" class="btn sm" id="btConferi">${icone('check')}Já conferi, está certa</button></div></div></div>`);
+    }
+  } else if (conferida && conferir.length && !repetida) {
+    quadros.push(`<div class="aviso conferida">${icone('check')}<span>Você marcou esta nota como conferida. <button type="button" class="link" id="btDesconferir">Mostrar os avisos de novo</button></span></div>`);
+  }
+  const topo = quadros.join('');
   const chave = f.chave
     ? `<span>${f.chave.replace(/(\d{4})/g, '$1 ').trim()}</span>${f.chaveOk ? '<span class="selo ok">✓ chave confere</span>' : '<span class="selo ruim">✗ chave não confere</span>'}`
     : '<span>Chave de acesso não lida</span><span class="selo ruim">confira o nº</span>';
+  // Nota fiscal: com a chave conferindo e nada em dúvida, vira uma linha resumida que abre em "Ver e editar".
+  const nfResumida = f.chaveOk && !inc.has('numero_nf') && !inc.has('chave_acesso') && !inc.has('data_emissao') && !inc.has('hora') && !estado.nfAberta.has(nome);
   $('#campos').innerHTML = `
-    ${resumoNF(f)}
+    ${cabecalhoNF(f, r, nome, quadros.length && !conferida ? (repetida ? -1 : quadros.length) : 0)}
     ${topo ? `<div class="avisos">${topo}</div>` : ''}
+    <div class="cartao" id="cartaoItens">
+      <div class="cartao-titulo">${icone('caixa')}Itens <small class="explica">· Unidade: kg</small>
+        <button type="button" class="link direita" id="btMaisItem">+ adicionar item</button></div>
+      ${obs('itens')}
+      <div id="itens"></div>
+    </div>
     <div class="cartao">
+      <div class="cartao-titulo">${icone('fabrica')}Empresas
+        <button type="button" class="link direita" id="btInverter" title="Use se a IA colocou as empresas trocadas: o que está em Deslintamento vai para Licenciado e vice-versa">${icone('trocar')} Trocar</button></div>
+      <div class="grp"><span class="sub-tit">Deslintamento <span class="explica">· empresa que deslinta o caroço</span></span>
+        ${obs('deslint')}
+        ${parte('deslint', f.deslint)}</div>
+      <div class="grp"><span class="sub-tit">Licenciado <span class="explica">· produtor da semente</span></span>
+        ${obs('licenc')}
+        ${parte('licenc', f.licenc)}</div>
+    </div>
+    ${nfResumida
+      ? `<div class="sum"><span class="ok">${icone('check')}</span><span><b>NF ${esc(f.nf)}</b> · chave confere · ${esc([f.data, f.hora].filter(Boolean).join(' '))}</span><button type="button" class="link direita" id="btAbrirNF">Ver e editar</button></div>`
+      : `<div class="cartao">
       <div class="cartao-titulo">${icone('nota')}Nota fiscal</div>
       ${obs('nota')}
       <div class="grade grade-nota">
@@ -1866,45 +2854,51 @@ function desenharFormulario(nome, r) {
         <button type="button" class="link" id="btAlterarChave" title="Digite a chave certa, olhando a nota">${icone('lapis')} alterar</button></div>
         <div class="linha-chave">${chave}</div></div>
       ${f.natureza ? `<div class="natureza"><span class="rotulo-mini">Natureza da operação</span>${esc(f.natureza)}</div>` : ''}
-      <div class="carta">${r.carta
+    </div>`}
+    <div class="carta">${r.carta
         ? `<div class="topo-carta"><span class="tem-carta">${icone('doc')}Lida junto com a carta de correção</span>
             <span class="acoes-carta"><button type="button" class="link" id="btVerCarta">ver</button>
             <button type="button" class="link" id="btTrocarCarta">trocar</button>
             <button type="button" class="link" id="btTirarCarta">tirar</button></span></div>
-          <div>O que a carta corrige já está nos campos abaixo. Confira na aba "Carta de correção" do visor.</div>`
+          <div>O que a carta corrige já está nos campos acima. Confira na aba "Carta de correção" do visor.</div>`
         : `<div class="topo-carta"><span>Os dados adicionais não trazem tudo e veio carta de correção?</span>
             <button type="button" class="link" id="btAnexarCarta">${icone('upload')} Anexar carta de correção</button></div>`}</div>
-    </div>
-    <div class="cartao">
-      <div class="cartao-titulo">${icone('fabrica')}Deslintamento <span class="explica">· empresa que deslinta o caroço</span>
-        <button type="button" class="link direita" id="btInverter" title="Use se a IA colocou as empresas trocadas: o que está em Deslintamento vai para Licenciado e vice-versa">${icone('trocar')} Trocar com licenciado</button></div>
-      ${obs('deslint')}
-      ${parte('deslint', f.deslint)}
-    </div>
-    <div class="cartao">
-      <div class="cartao-titulo">${icone('pessoa')}Licenciado <span class="explica">· produtor da semente</span></div>
-      ${obs('licenc')}
-      ${parte('licenc', f.licenc)}
-    </div>
-    <div class="cartao">
-      <div class="cartao-titulo">${icone('caixa')}Itens
-        <button type="button" class="link direita" id="btMaisItem">+ adicionar item</button></div>
-      ${obs('itens')}
-      <div id="itens"></div>
-    </div>
     <div class="cartao">
       <div class="cartao-titulo">${icone('lapis')}Observações do auditor</div>
       <div class="${inc.has('informacoes_complementares') ? 'incerto' : ''}"><textarea data-c="obsAuditor" placeholder="Ex.: NÃO INFORMA SAFRA.">${esc(f.obsAuditor)}</textarea></div>
     </div>`;
+  // Botões dos quadros de aviso.
+  const ir = (sel) => { const el = $(sel); if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.focus({ preventScroll: true }); } };
+  if ($('#btRepRemover')) $('#btRepRemover').onclick = removerAtual;
+  if ($('#btRepHist')) $('#btRepHist').onclick = () => abrirHistorico(f.nf);
+  if ($('#btRepLancar')) $('#btRepLancar').onclick = () => lancarRepetida(nome, repetida);
+  if ($('#btUsarCult')) $('#btUsarCult').onclick = () => {
+    const c = $('#btUsarCult').dataset.cult;
+    for (const it of f.itens) if (!String(it.cultivar || '').trim()) it.cultivar = c;
+    desenharFormulario(nome, r);
+    toast(`Cultivar trocada para ${c}`);
+  };
+  if ($('#btIrCultivar')) $('#btIrCultivar').onclick = () => ir('[data-c="itens.0.cultivar"]');
+  if ($('#btOutraEmpresa')) $('#btOutraEmpresa').onclick = removerAtual;
+  $('#campos').querySelectorAll('[data-ver-saldo]').forEach((b) => (b.onclick = () => $('#btSaldo').click()));
+  $('#campos').querySelectorAll('[data-visto]').forEach((b) => (b.onclick = () => {
+    (estado.vistos[nome] ||= new Set()).add(b.dataset.visto);
+    const faltam = conferir.filter((a) => a.tipo !== 'cultivar' && !estado.vistos[nome].has(a.texto));
+    if (!faltam.length && !avCultivar.length) estado.conferidas.add(nome);
+    desenharLista();
+    desenharFormulario(nome, r);
+  }));
+  if ($('#btAbrirNF')) $('#btAbrirNF').onclick = () => { estado.nfAberta.add(nome); desenharFormulario(nome, r); ir('[data-c="nf"]'); };
+  $('#campos').querySelectorAll('[data-ir-nota]').forEach((b) => (b.onclick = () => selecionar(b.dataset.irNota)));
   desenharItens(inc);
   ligarCampos($('#campos'));
   const marcarConferida = (sim) => {
-    if (sim) estado.conferidas.add(nome); else estado.conferidas.delete(nome);
+    if (sim) estado.conferidas.add(nome); else { estado.conferidas.delete(nome); delete estado.vistos[nome]; }
     desenharLista();
     desenharFormulario(nome, r);
     if (sim) toast('Nota marcada como conferida');
   };
-  $('#btAlterarChave').onclick = () => editarChave(nome, r);
+  if ($('#btAlterarChave')) $('#btAlterarChave').onclick = () => editarChave(nome, r);
   const escolherCarta = () => $('#arquivoCarta').click();
   if ($('#btAnexarCarta')) $('#btAnexarCarta').onclick = escolherCarta;
   if ($('#btTrocarCarta')) $('#btTrocarCarta').onclick = escolherCarta;
@@ -1927,7 +2921,13 @@ function desenharFormulario(nome, r) {
     estado.regrasDesfeitas[nome]?.delete(id);
     desenharFormulario(nome, r);
   }));
-  if ($('#btConferi')) $('#btConferi').onclick = () => marcarConferida(true);
+  if ($('#btConferi')) $('#btConferi').onclick = () => {
+    // Confere só os avisos deste quadro; a nota fica "conferida" quando não sobra nenhum.
+    for (const a of avGerais) (estado.vistos[nome] ||= new Set()).add(a.texto);
+    const faltam = conferir.filter((a) => a.tipo !== 'cultivar' && !estado.vistos[nome].has(a.texto));
+    if (!faltam.length && !avCultivar.length) marcarConferida(true);
+    else { desenharLista(); desenharFormulario(nome, r); }
+  };
   if ($('#btDesconferir')) $('#btDesconferir').onclick = () => marcarConferida(false);
   $('#btInverter').onclick = () => {
     const d = f.deslint; f.deslint = f.licenc; f.licenc = d;
@@ -1989,7 +2989,7 @@ function problemaDoFormulario(f) {
   return null;
 }
 
-async function inserirUma(nome) {
+async function inserirUma(nome, opcoes = {}) {
   const r = leitura(nome);
   const f = estado.forms[nome] || JSON.parse(JSON.stringify(r.formulario));
   const problema = problemaDoFormulario(f);
@@ -2006,7 +3006,7 @@ async function inserirUma(nome) {
   desenharLista();
   try {
     // proposta/contexto: o que o programa propôs. O servidor compara com o que foi lançado para aprender.
-    const resp = await api('/api/inserir', { nome, formulario: f, proposta: r.formulario, contexto: r.contexto || null });
+    const resp = await api('/api/inserir', { nome, formulario: f, proposta: r.formulario, contexto: r.contexto || null, forcarRepetida: opcoes.forcarRepetida === true });
     estado.desfazer = resp.desfazer || null;
     if (resp.aprendizado) mostrarAprendizado(resp.aprendizado);
     if (typeof resp.saldo === 'number') mostrarSaldo(resp.saldo);
@@ -2032,16 +3032,17 @@ function proxima(nomeAtual) {
   return estado.pendentes.slice(i + 1).concat(estado.pendentes.slice(0, Math.max(i, 0))).find((p) => p.nome !== nomeAtual) || null;
 }
 
-$('#btInserir').onclick = async () => {
+async function inserirAtual(opcoes = {}) {
   const nome = estado.atual;
   if (!nome || !leitura(nome)) return;
   const bt = $('#btInserir');
   bt.disabled = true;
   bt.innerHTML = '<span class="girando" style="width:16px;height:16px;border-width:2px;margin:0"></span>Inserindo...';
   const prox = proxima(nome);
+  const nf = (estado.forms[nome] || leitura(nome).formulario).nf;
   try {
-    const resp = await inserirUma(nome);
-    toast(resp.linhas.length > 1 ? `NF inserida nas linhas ${resp.linhas.join(', ')}` : `NF inserida na linha ${resp.linhas[0]}`);
+    const resp = await inserirUma(nome, opcoes);
+    avisoInserida(nf, resp.linhas);
     revalidarFila();
     estado.atual = null;
     await atualizar();
@@ -2051,7 +3052,114 @@ $('#btInserir').onclick = async () => {
     revalidarFila();
     selecionar(nome);
   }
+}
+$('#btInserir').onclick = () => inserirAtual();
+
+// Nota repetida: "Lançar mesmo assim" sempre pede confirmação.
+function lancarRepetida(nome, aviso) {
+  const dlg = $('#dlgConfirmar');
+  $('#confTitulo').textContent = 'Deseja realmente continuar?';
+  $('#confTexto').innerHTML = `${esc(aviso.texto)}<br><br>Lançar de novo cria outra linha na planilha${creditosEstado.ligado && creditosEstado.cobranca !== false && !creditosEstado.mensalAte ? ' e gasta 1 crédito' : ''}. Faça isso só se a nota não entrou na planilha (por exemplo, por algum problema no programa).`;
+  $('#confSim').textContent = 'Sim, lançar mesmo assim';
+  $('#confSim').onclick = (ev) => { ev.preventDefault(); dlg.close(); if (estado.atual === nome) inserirAtual({ forcarRepetida: true }); };
+  dlg.showModal();
+  $('#confNao').focus();
+}
+
+// Depois de inserir: "NF X inserida na linha N · Desfazer · Histórico" (o Desfazer vale só para o último lançamento).
+function avisoInserida(nf, linhas) {
+  const el = $('#avisoInserida');
+  el.querySelector('.txt').innerHTML = `<b>NF ${esc(nf)} inserida</b><small>${linhas.length > 1 ? 'nas linhas ' + linhas.join(', ') : 'na linha ' + linhas[0]} da planilha</small>`;
+  el.hidden = false;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => (el.hidden = true), 12000);
+}
+$('#insFechar').onclick = () => ($('#avisoInserida').hidden = true);
+$('#insHist').onclick = () => { $('#avisoInserida').hidden = true; abrirHistorico(); };
+$('#insDesfazer').onclick = async () => {
+  const bt = $('#insDesfazer');
+  if (!estado.desfazer) { toast('Não há lançamento para desfazer.', true); return; }
+  if (!bt.classList.contains('confirmar')) {
+    bt.classList.add('confirmar');
+    bt.innerHTML = `${icone('alerta')}Apagar da planilha?`;
+    clearTimeout(bt._t);
+    bt._t = setTimeout(() => { bt.classList.remove('confirmar'); bt.innerHTML = `${icone('desfazer')}Desfazer`; }, 5000);
+    clearTimeout($('#avisoInserida')._t);
+    return;
+  }
+  bt.classList.remove('confirmar');
+  bt.innerHTML = `${icone('desfazer')}Desfazer`;
+  $('#avisoInserida').hidden = true;
+  await desfazerPorId(estado.desfazer);
 };
+async function desfazerPorId(alvo) {
+  try {
+    const r = await api('/api/desfazer', { id: alvo.id });
+    estado.lancadas = estado.lancadas.filter((x) => !(x.nome === alvo.nome && x.linhas.join(',') === alvo.linhas.join(',')));
+    guardarLancadas();
+    estado.desfazer = r.desfazer;
+    if (r.nome && r.formulario) estado.forms[r.nome] = r.formulario;
+    revalidarFila();
+    toast(`Desfeito: NF ${r.nf} apagada da planilha (${r.linhas.length > 1 ? 'linhas ' + r.linhas.join(', ') : 'linha ' + r.linhas[0]}). A nota voltou para a fila.`);
+    await atualizar();
+    if (r.nome) selecionar(r.nome);
+    return true;
+  } catch (e) { toast(e.message, true); return false; }
+}
+
+// ---------- Histórico de lançamentos ----------
+const hist = { lista: [], desfazer: null };
+async function abrirHistorico(busca = '') {
+  const dlg = $('#dlgHistorico');
+  $('#histBusca').value = busca ? String(busca) : '';
+  $('#histCorpo').innerHTML = '<div class="carregando"><div class="girando"></div>Carregando...</div>';
+  if (!dlg.open) dlg.showModal();
+  try {
+    const r = await api('/api/historico');
+    hist.lista = r.lancamentos || [];
+    hist.desfazer = r.desfazer;
+    const auditores = [...new Set(hist.lista.map((l) => l.auditor).filter(Boolean))].sort();
+    $('#histAuditor').innerHTML = '<option value="">Todos</option>' + auditores.map((a) => `<option>${esc(a)}</option>`).join('');
+    desenharHistorico();
+  } catch (e) { $('#histCorpo').innerHTML = `<div class="saldo-vazio">${esc(e.message)}</div>`; }
+}
+function historicoFiltrado() {
+  const q = $('#histBusca').value.trim().toLowerCase();
+  const per = $('#histPeriodo').value;
+  const aud = $('#histAuditor').value;
+  const desde = per ? Date.now() - Number(per) * 864e5 : 0;
+  return hist.lista.filter((l) => (!aud || l.auditor === aud) && (!desde || new Date(l.quando).getTime() >= desde)
+    && (!q || [l.nf, l.deslint, l.licenc, (l.cultivares || []).join(' '), (l.linhas || []).join(' '), l.arquivo].join(' ').toLowerCase().includes(q)));
+}
+function desenharHistorico() {
+  const lista = historicoFiltrado();
+  const kg = (n) => Number(n || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+  $('#histResumo').textContent = `${lista.length} ${lista.length === 1 ? 'lançamento' : 'lançamentos'}`;
+  if (!lista.length) { $('#histCorpo').innerHTML = '<div class="saldo-vazio">Nenhum lançamento encontrado.</div>'; return; }
+  $('#histCorpo').innerHTML = `<div class="saldo-tabela" style="max-height:none"><table><thead><tr><th>Data e hora</th><th>NF</th><th>Empresas</th><th>Cultivar</th><th class="n">Peso (kg)</th><th class="n">Linha</th><th>Auditor</th><th>Situação</th></tr></thead><tbody>${lista.map((l) => {
+    const ultimo = hist.desfazer && hist.desfazer.id === l.id && l.situacao !== 'desfeita';
+    const sit = l.situacao === 'desfeita' ? '<span class="bdg b-n">Desfeita</span>'
+      : `<span class="bdg b-ok">Lançada</span>${l.repetida ? ' <span class="bdg b-w" title="Lançada mesmo parecendo repetida">repetida</span>' : ''}`;
+    return `<tr><td class="n" style="text-align:left">${esc(new Date(l.quando).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }))}</td>
+      <td><b>${esc(l.nf)}</b></td>
+      <td><span class="emp" style="min-width:0">${esc(l.licenc || '—')}</span><span class="doc">${esc(l.deslint || '')}</span></td>
+      <td class="mono" style="font-size:12px">${esc((l.cultivares || []).join(', '))}</td>
+      <td class="n">${kg(l.pesoKg)}</td><td class="n">${esc((l.linhas || []).join(', '))}</td><td>${esc(l.auditor || '—')}</td>
+      <td><span style="display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap">${sit}${ultimo ? `<button type="button" class="btn sm" data-hist-desfazer>${icone('desfazer')}Desfazer</button>` : ''}</span></td></tr>`;
+  }).join('')}</tbody></table></div>`;
+  const bt = $('#histCorpo [data-hist-desfazer]');
+  if (bt) bt.onclick = async () => {
+    if (!bt.classList.contains('confirmar')) { bt.classList.add('confirmar'); bt.innerHTML = `${icone('alerta')}Apagar da planilha?`; return; }
+    bt.disabled = true;
+    if (await desfazerPorId(hist.desfazer)) abrirHistorico();
+  };
+}
+['#histBusca', '#histPeriodo', '#histAuditor'].forEach((s) => ($(s).oninput = desenharHistorico));
+$('#histExcel').onclick = () => {
+  const lista = historicoFiltrado();
+  location.href = '/api/historico.xlsx' + (lista.length === hist.lista.length ? '' : '?ids=' + encodeURIComponent(lista.map((l) => l.id).join(',')));
+};
+$('#btHistorico').onclick = () => abrirHistorico();
 
 $('#btInserirLote').onclick = async () => {
   const nomes = estado.pendentes.map((p) => p.nome).filter((n) => estado.selecionadas.has(n));
@@ -2082,20 +3190,6 @@ $('#btSelTodas').onclick = () => {
 };
 
 $('#btReler').onclick = () => selecionar(estado.atual, true);
-$('#btRemover').onclick = async () => {
-  const nome = estado.atual;
-  if (!nome) return;
-  const prox = proxima(nome);
-  try {
-    await api('/api/remover', { nome });
-    toast('Nota tirada da fila (está na pasta "Removidas")');
-    delete estado.leituras[nome];
-    delete estado.forms[nome];
-    estado.atual = null;
-    await atualizar();
-    if (prox && estado.pendentes.some((p) => p.nome === prox.nome)) selecionar(prox.nome);
-  } catch (e) { toast(e.message, true); }
-};
 $('#btAbrirPasta').onclick = () => api('/api/abrir-pasta', {}).catch((e) => toast(e.message, true));
 $('#btConfig').onclick = () => abrirConfig();
 
@@ -2232,18 +3326,77 @@ function gruposFiltrados() {
 
 // Barra de "para onde foi o que entrou": voltou (azul), sem deslintar (azul claro), quebra (amarelo), o que falta voltar (cinza).
 // Se voltou mais do que entrou, o excesso aparece listrado de vermelho e a risca marca onde a entrada termina.
-function barraSaldo(t, fina) {
+// parados/aMais: no total geral, o que ainda está parado e o que voltou a mais somados grupo a grupo
+// (um grupo negativo não "come" o que outro ainda tem parado).
+function barraSaldo(t, fina, parados, aMais) {
   const entrada = t.entrada || 0;
   const voltou = (t.saida || 0) + (t.semDeslintar || 0) + (t.quebra || 0);
-  const escala = Math.max(entrada, voltou);
+  const resta = parados != null ? parados : Math.max(0, entrada - voltou);
+  const excesso = aMais != null ? aMais : Math.max(0, voltou - entrada);
+  const escala = Math.max(entrada + excesso, voltou + resta);
   if (!(escala > 0)) return '';
   const w = (v) => Math.max(0, (v / escala) * 100).toFixed(2) + '%';
-  const resta = Math.max(0, entrada - voltou);
-  const excesso = Math.max(0, voltou - entrada);
   return `<div class="sb ${fina ? 'fino' : ''}">
       <i class="v" style="width:${w(t.saida)}"></i><i class="sd" style="width:${w(t.semDeslintar)}"></i><i class="q" style="width:${w(t.quebra)}"></i><i class="r" style="width:${w(resta)}"></i>
       ${excesso ? `<i class="x" style="left:${w(entrada)};right:0"></i>` : ''}${excesso ? `<i class="marca" style="left:${w(entrada)}"></i>` : ''}
     </div>`;
+}
+
+// "Voltou / entrou": barra por linha; acima de 100% fica vermelha (voltou mais do que entrou).
+function barraVoltou(g) {
+  const voltou = (g.saida || 0) + (g.semDeslintar || 0) + (g.quebra || 0);
+  if (!(g.entrada > 0)) return voltou > 0 ? '<span class="rb"><span class="t"><i style="width:100%;background:#D9573B"></i></span><span class="negativo">—</span></span>' : '<span class="zero">–</span>';
+  const pct = (voltou / g.entrada) * 100;
+  const tit = `title="Voltou ${kgFmt(voltou)} kg de ${kgFmt(g.entrada)} kg que entraram"`;
+  // Acima de 100%: barra toda vermelha. Senão: verde (deslintado + sem deslintar) e amarelo (quebra).
+  if (pct > 100.5) return `<span class="rb" ${tit}><span class="t"><i style="width:100%;background:#D9573B"></i></span><span class="negativo">${Math.round(pct)}%</span></span>`;
+  const wv = (((g.saida || 0) + (g.semDeslintar || 0)) / g.entrada) * 100, wq = ((g.quebra || 0) / g.entrada) * 100;
+  return `<span class="rb" ${tit}><span class="t"><i style="width:${wv.toFixed(1)}%;background:var(--verde)"></i><i style="width:${wq.toFixed(1)}%;background:${quebraAlta(g) ? '#D9573B' : '#E0A23B'}"></i></span><span>${Math.round(pct)}%</span></span>`;
+}
+
+// "Na deslintadora, mês a mês": quanto ficou na deslintadora no fim de cada mês (soma acumulada das notas).
+function graficoMeses(lista) {
+  const porMes = new Map();
+  for (const g of lista) for (const n of g.notas || []) {
+    const m = String(n.data || '').slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(m)) continue;
+    porMes.set(m, (porMes.get(m) || 0) + (n.entrada || 0) - (n.saida || 0) - (n.semDeslintar || 0) - (n.quebra || 0));
+  }
+  const meses = [...porMes.keys()].sort();
+  if (!meses.length) return '';
+  let acc = 0;
+  const serie = meses.map((m) => ({ m, v: (acc += porMes.get(m)) })).slice(-8);
+  const max = Math.max(...serie.map((x) => Math.abs(x.v)), 1);
+  const NOMES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  // Frase de apoio: qual nota deixou um saldo negativo (a suspeita) e em que mês.
+  let frase = '';
+  for (const g of lista) {
+    if (!g.voltouMais) continue;
+    const n = (g.notas || []).find((x) => x.suspeita && x.data);
+    if (n) { frase = `Em ${MESES[Number(n.data.slice(5, 7)) - 1]} a NF ${n.nf} de ${g.licenciado.split(' ').slice(0, 2).join(' ')} deixou o saldo negativo e puxou o total para baixo.`; break; }
+  }
+  return `<div class="saldo-grafico"><div class="sg-tit"><b>Na deslintadora, mês a mês</b><span class="mu">Soma de todas as linhas no fim de cada mês</span></div><div class="mb" role="img" aria-label="Quanto ficou na deslintadora no fim de cada mês">${serie.map((x, i) => `<div title="${NOMES[Number(x.m.slice(5)) - 1]}/${x.m.slice(0, 4)}: ${kgFmt(x.v)} kg">
+      <span class="num ${x.v < -0.5 ? 'negativo' : i === serie.length - 1 ? 'forte' : ''}">${kgFmt(x.v)}</span><i class="${i === serie.length - 1 ? 'on' : ''} ${x.v < -0.5 ? 'neg' : ''}" style="height:${Math.max(3, (Math.abs(x.v) / max) * 80).toFixed(0)}px"></i></div>`).join('')}</div>
+    <div class="mb-meses">${serie.map((x) => `<span>${NOMES[Number(x.m.slice(5)) - 1]}</span>`).join('')}</div>${frase ? `<span class="mu sg-frase">${esc(frase)}</span>` : ''}</div>`;
+}
+const kgCurto = (v) => (Math.abs(v) >= 1000 ? (v / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' t' : kgFmt(v));
+
+// "Quebra por licenciado": % de quebra sobre o que voltou, com a linha do limite configurado.
+function graficoQuebra(lista) {
+  const por = new Map();
+  for (const g of lista) {
+    const v = por.get(g.licenciado) || { quebra: 0, voltou: 0 };
+    v.quebra += g.quebra || 0;
+    v.voltou += (g.saida || 0) + (g.semDeslintar || 0) + (g.quebra || 0);
+    por.set(g.licenciado, v);
+  }
+  const linhas = [...por].filter(([, v]) => v.voltou > 0).map(([nome, v]) => ({ nome, pct: (v.quebra / v.voltou) * 100 })).sort((a, b) => b.pct - a.pct).slice(0, 8);
+  if (!linhas.length) return '';
+  const escala = Math.max(saldo.limite * 2, ...linhas.map((l) => l.pct), 1);
+  const lim = (saldo.limite / escala) * 100;
+  return `<div class="saldo-grafico"><div class="sg-tit"><b>Quebra por licenciado</b><span class="mu">Linha vermelha = aviso em ${pctFmt(saldo.limite).replace(',0%', '%')} (escala até ${pctFmt(escala).replace(',0%', '%')})</span></div><div class="hb">${linhas.map((l) => `<div class="r" title="${esc(l.nome)}: ${pctFmt(l.pct)}">
+      <span>${esc(l.nome)}</span><span class="tr"><i style="width:${((l.pct / escala) * 100).toFixed(1)}%;background:${l.pct > saldo.limite ? '#D9573B' : '#E0A23B'}"></i><span class="lim" style="left:${lim.toFixed(1)}%"></span></span><span class="num ${l.pct > saldo.limite ? 'negativo' : ''}">${pctFmt(l.pct)}</span></div>`).join('')}</div></div>`;
 }
 
 function desenharSaldo() {
@@ -2251,22 +3404,29 @@ function desenharSaldo() {
   const soma = (k) => lista.reduce((t, g) => t + g[k], 0);
   const total = { entrada: soma('entrada'), saida: soma('saida'), semDeslintar: soma('semDeslintar'), quebra: soma('quebra'), naDeslintadora: soma('naDeslintadora') };
   const atencao = saldo.grupos.filter(precisaAtencao).length;
+  const negativos = saldo.grupos.filter((g) => g.voltouMais).length;
+  const altas = saldo.grupos.filter(quebraAlta).length;
+  const parados = lista.reduce((t, g) => t + Math.max(0, g.naDeslintadora), 0);
+  const aMais = lista.reduce((t, g) => t + Math.max(0, -g.naDeslintadora), 0);
+  const pctE = (v) => (total.entrada ? pctFmt((v / total.entrada) * 100) : '—');
   $('#saldoKpis').innerHTML = `
-    <div class="kpi"><small>Entrou</small><b>${kgFmt(total.entrada)}<em>kg</em></b><span>${lista.length} ${lista.length === 1 ? 'grupo' : 'grupos'}</span></div>
-    <div class="kpi azul"><small>Voltou deslintado</small><b>${kgFmt(total.saida)}<em>kg</em></b><span>+ ${kgFmt(total.semDeslintar)} kg sem deslintar</span></div>
-    <div class="kpi ambar"><small>Quebra</small><b>${kgFmt(total.quebra)}<em>kg</em></b><span>${total.entrada ? pctFmt((total.quebra / total.entrada) * 100) + ' da entrada' : '—'}</span></div>
-    <div class="kpi ${total.naDeslintadora < -0.5 ? 'neg' : 'cinza'}"><small>Na deslintadora</small><b>${kgFmt(total.naDeslintadora)}<em>kg</em></b><span>${total.naDeslintadora < -0.5 ? 'voltou mais do que entrou' : 'ainda não voltou'}</span></div>
-    <div class="kpi ${atencao ? 'atencao' : ''}"><small>Precisam de atenção</small><b>${atencao ? icone('alerta') : ''}${atencao}</b><span>${atencao ? 'veja os selos na tabela' : 'tudo certo'}</span></div>`;
-  const pe = (v) => (total.entrada ? ' · ' + pctFmt((v / total.entrada) * 100) : '');
+    <div class="kp"><span class="eb">Entrou</span><span class="v">${kgFmt(total.entrada)}<small>kg</small></span><span class="s">${lista.length} ${lista.length === 1 ? 'grupo' : 'grupos'}</span></div>
+    <div class="kp"><span class="eb">Voltou deslintado</span><span class="v">${kgFmt(total.saida)}<small>kg</small></span><span class="s">+ ${kgFmt(total.semDeslintar)} kg sem deslintar</span></div>
+    <div class="kp"><span class="eb">Quebra</span><span class="v">${kgFmt(total.quebra)}<small>kg</small></span><span class="s">${pctE(total.quebra)} da entrada</span></div>
+    <div class="kp ${total.naDeslintadora < -0.5 ? 'neg' : ''}"><span class="eb">Na deslintadora</span><span class="v">${kgFmt(total.naDeslintadora)}<small>kg</small></span><span class="s">${[parados > 0.5 ? kgFmt(parados) + ' parados' : '', aMais > 0.5 ? '−' + kgFmt(aMais) + ' a mais' : ''].filter(Boolean).join(' · ') || 'tudo voltou'}</span></div>
+    <div class="kp ${atencao ? 'w' : ''}"><span class="eb">Precisam de atenção</span><span class="v">${atencao}</span><span class="s">${atencao ? [negativos ? negativos + (negativos === 1 ? ' negativo' : ' negativos') : '', altas ? altas + ' quebra alta' + (altas === 1 ? '' : 's') : ''].filter(Boolean).join(' · ') : 'tudo certo'}</span></div>`;
+  const pe = (v) => (total.entrada ? ` <span class="mu">· ${pctFmt((v / total.entrada) * 100)}</span>` : '');
   const vtot = total.saida + total.semDeslintar + total.quebra;
-  $('#saldoGrafico').innerHTML = total.entrada || vtot ? `<h4>Para onde foi o que entrou</h4>${barraSaldo(total)}
+  const quemMais = lista.filter((g) => g.voltouMais).map((g) => g.licenciado.split(' ')[0]);
+  $('#saldoGrafico').innerHTML = total.entrada || vtot ? `<div class="sg-topo"><b>Para onde foi o que entrou</b><span class="mu">Linha pontilhada = o que entrou (${kgFmt(total.entrada)} kg). Passou dela = voltou a mais.</span></div>${barraSaldo(total, false, parados, aMais)}
     <div class="saldo-legenda">
       <span><i class="p v"></i>Voltou deslintado <b>${kgFmt(total.saida)} kg</b>${pe(total.saida)}</span>
       ${total.semDeslintar ? `<span><i class="p sd"></i>Sem deslintar <b>${kgFmt(total.semDeslintar)} kg</b>${pe(total.semDeslintar)}</span>` : ''}
       <span><i class="p q"></i>Quebra <b>${kgFmt(total.quebra)} kg</b>${pe(total.quebra)}</span>
-      ${total.entrada > vtot + 0.5 ? `<span><i class="p r"></i>Ainda na deslintadora <b>${kgFmt(total.entrada - vtot)} kg</b>${pe(total.entrada - vtot)}</span>` : ''}
-      ${vtot > total.entrada + 0.5 ? `<span><i class="p x"></i>Voltou a mais do que entrou <b>${kgFmt(vtot - total.entrada)} kg</b></span>` : ''}
+      ${parados > 0.5 ? `<span><i class="p r"></i>Ainda na deslintadora <b>${kgFmt(parados)} kg</b></span>` : ''}
+      ${aMais > 0.5 ? `<span><i class="p x"></i>Voltou a mais <b class="neg">${kgFmt(aMais)} kg</b>${quemMais.length ? ` <span class="mu">· ${esc(quemMais.slice(0, 2).join(', '))}${quemMais.length > 2 ? ' e mais ' + (quemMais.length - 2) : ''}</span>` : ''}</span>` : ''}
     </div>` : '';
+  $('#saldoGraficos2').innerHTML = graficoMeses(lista) + graficoQuebra(lista);
   if (!saldo.grupos.length) {
     $('#saldoTabela').innerHTML = '<div class="saldo-vazio">Nenhuma nota com volume na planilha ainda.</div>';
     return;
@@ -2275,33 +3435,37 @@ function desenharSaldo() {
     $('#saldoTabela').innerHTML = '<div class="saldo-vazio">Nada encontrado com esse filtro.</div>';
     return;
   }
+  // Situação em selos, como no design: vermelho, amarelo, cinza (ainda tem caroço lá) ou verde (fechado).
   const selos = (g) => [
-    g.voltouMais ? `<span class="selo-s ruim">${icone('alerta')}Voltou mais do que entrou</span>` : '',
-    quebraAlta(g) ? `<span class="selo-s alto">${icone('alerta')}Quebra alta</span>` : '',
-  ].filter(Boolean).join('') || '<span class="selo-s ok">OK</span>';
+    g.voltouMais ? '<span class="bdg b-b">Voltou mais do que entrou</span>' : '',
+    quebraAlta(g) ? '<span class="bdg b-w">Quebra alta</span>' : '',
+  ].filter(Boolean).join('') || (g.naDeslintadora > 0.5 ? '<span class="bdg b-n">Na deslintadora</span>' : '<span class="bdg b-ok">Fechado</span>');
   const tipo = (n) => (n.entrada ? 'Entrada' : n.saida ? 'Saída' : n.semDeslintar ? 'Sem deslintar' : 'Quebra');
   const linhas = lista.map((g) => {
     const aberto = saldo.abertos.has(g.chave);
-    const dicas = g.dicas && g.dicas.length ? `<div class="dicas"><b>${icone('alerta')} Por que o saldo ficou negativo?</b><ul>${g.dicas.map((d) => `<li>${esc(d)}</li>`).join('')}</ul></div>` : '';
-    const detalhe = aberto ? `<tr class="detalhe"><td colspan="9">${dicas}<table>
+    const dicas = g.dicas && g.dicas.length ? `<div class="al dica-saldo"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><div><b>Por que o saldo ficou negativo?</b>${g.dicas.length === 1 ? esc(g.dicas[0]) : `<ul>${g.dicas.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>`}</div></div>` : '';
+    const traco = '<span class="zero">–</span>';
+    const detalhe = aberto ? `<tr class="detalhe"><td colspan="10"><div class="det-flex">${dicas}<div class="det-notas"><table>
         <thead><tr><th>NF</th><th>Linha</th><th>Tipo</th><th class="n">Entrada</th><th class="n">Saída</th><th class="n">Sem deslintar</th><th class="n">Quebra</th></tr></thead>
-        <tbody>${g.notas.map((n) => `<tr class="${n.suspeita ? 'suspeita' : ''}"><td>${esc(n.nf || '—')}</td><td>${n.linha}</td><td>${tipo(n)}</td>
-          <td class="n">${n.entrada ? kgFmt(n.entrada) : ''}</td><td class="n">${n.saida ? kgFmt(n.saida) : ''}</td>
-          <td class="n">${n.semDeslintar ? kgFmt(n.semDeslintar) : ''}</td><td class="n">${n.quebra ? kgFmt(n.quebra) : ''}</td></tr>`).join('')}</tbody>
-      </table></td></tr>` : '';
+        <tbody>${g.notas.map((n) => `<tr class="${n.suspeita ? 'suspeita' : ''}"><td><b>${esc(n.nf || '—')}</b>${n.suspeita ? ' <span class="bdg b-b" style="height:20px;font-size:11px;padding:0 7px">suspeita</span>' : ''}</td><td>${n.linha}</td><td>${tipo(n)}</td>
+          <td class="n">${n.entrada ? kgFmt(n.entrada) : traco}</td><td class="n">${n.saida ? kgFmt(n.saida) : traco}</td>
+          <td class="n">${n.semDeslintar ? kgFmt(n.semDeslintar) : traco}</td><td class="n">${n.quebra ? kgFmt(n.quebra) : traco}</td></tr>`).join('')}</tbody>
+      </table></div></div></td></tr>` : '';
     const docs = [g.licencDoc && 'Licenciado: ' + docFmt(g.licencDoc), g.deslintDoc && 'Deslintadora: ' + docFmt(g.deslintDoc)].filter(Boolean).join(' · ');
-    return `<tr class="grupo ${aberto ? 'aberto' : ''} ${precisaAtencao(g) ? 'atencao' : ''}" data-grupo="${esc(g.chave)}" title="${esc((docs ? docs + ' · ' : '') + 'Clique para ver as notas')}">
+    const fundo = g.voltouMais ? 'linha-ruim' : quebraAlta(g) ? 'linha-alta' : '';
+    return `<tr class="grupo ${aberto ? 'aberto' : ''} ${precisaAtencao(g) ? 'atencao' : ''} ${fundo}" data-grupo="${esc(g.chave)}" title="${esc((docs ? docs + ' · ' : '') + 'Clique para ver as notas')}">
         <td><span class="emp">${esc(g.licenciado)}</span><span class="doc">em ${esc(g.deslintadora)}</span></td>
-        <td style="white-space:nowrap"><b>${esc(g.cultivar)}</b><span class="doc">${esc(g.safras.join(', '))}</span></td>
+        <td style="white-space:nowrap"><span class="cult">${esc(g.cultivar)}</span> <span class="doc" style="display:inline">${esc(g.safras.join(', '))}</span></td>
+        <td>${barraVoltou(g)}</td>
         <td class="n">${kgOuTraco(g.entrada)}</td><td class="n">${kgOuTraco(g.saida)}</td><td class="n">${kgOuTraco(g.semDeslintar)}</td>
-        <td class="n">${kgOuTraco(g.quebra)}</td><td class="n">${g.quebra ? pctFmt(g.quebraPct) : '<span class="zero">–</span>'}</td>
-        <td class="n ${g.naDeslintadora < -0.5 ? 'negativo' : ''}">${kgFmt(g.naDeslintadora)}${barraSaldo(g, true)}</td>
+        <td class="n">${kgOuTraco(g.quebra)}</td><td class="n ${quebraAlta(g) ? 'alto' : ''}">${g.quebra ? pctFmt(g.quebraPct) : '<span class="zero">–</span>'}</td>
+        <td class="n ${g.naDeslintadora < -0.5 ? 'negativo' : ''}">${kgFmt(g.naDeslintadora)}</td>
         <td><div class="situacao">${selos(g)}</div></td></tr>${detalhe}`;
   }).join('');
   $('#saldoTabela').innerHTML = `<table>
-    <thead><tr><th>Licenciado · deslintadora</th><th>Cultivar</th><th class="n">Entrada (kg)</th><th class="n">Saída (kg)</th><th class="n">Sem deslintar</th><th class="n">Quebra (kg)</th><th class="n">Quebra %</th><th class="n">Na deslintadora</th><th>Situação</th></tr></thead>
+    <thead><tr><th>Licenciado · deslintadora</th><th>Cultivar</th><th>Voltou / entrou</th><th class="n">Entrada (kg)</th><th class="n">Saída (kg)</th><th class="n">Sem deslintar</th><th class="n">Quebra (kg)</th><th class="n">Quebra %</th><th class="n">Na deslintadora</th><th>Situação</th></tr></thead>
     <tbody>${linhas}</tbody>
-    <tfoot><tr><td colspan="2">Total${lista.length < saldo.grupos.length ? ' (filtrado)' : ''}</td>
+    <tfoot><tr><td colspan="3">Total${lista.length < saldo.grupos.length ? ' (filtrado)' : ''}</td>
       <td class="n">${kgFmt(total.entrada)}</td><td class="n">${kgFmt(total.saida)}</td><td class="n">${kgFmt(total.semDeslintar)}</td>
       <td class="n">${kgFmt(total.quebra)}</td><td class="n">${total.entrada ? pctFmt((total.quebra / total.entrada) * 100) : '—'}</td>
       <td class="n">${kgFmt(total.naDeslintadora)}</td><td></td></tr></tfoot></table>`;
@@ -2516,8 +3680,11 @@ async function verVersaoNova() {
     : `Atualização obrigatória (${v.nova.versao})`;
   $('#atuNovidades').textContent = v.nova.novidades.join(' · ');
   $('#btAtualizar').hidden = v.nova.precisaZip;
-  $('#faixaAtualizacao').hidden = false;
+  // Selo discreto "Nova versão" no topo; a faixa com os detalhes abre ao clicar.
+  $('#chipVersao').hidden = false;
+  $('#chipVersao').title = `Versão ${v.nova.versao} disponível · clique para ver`;
 }
+$('#chipVersao').onclick = () => { $('#faixaAtualizacao').hidden = !$('#faixaAtualizacao').hidden; };
 // ---------- Melhorias ----------
 $('#btSugestao').onclick = () => {
   const dlg = $('#dlgSugestao');
@@ -2540,7 +3707,7 @@ $('#formSugestao').onsubmit = async (ev) => {
     toast(e.message, true);
   } finally {
     bt.disabled = false;
-    bt.innerHTML = icone('check') + 'Enviar melhoria';
+    bt.innerHTML = icone('enviar') + 'Enviar melhoria';
   }
 };
 
@@ -2580,6 +3747,10 @@ function desenharPrazo() {
   const caixa = $('#avisoPag');
   if (!prazoFim) { caixa.hidden = true; $('#avisoRodape').hidden = true; return; }
   const resta = prazoFim - Date.now();
+  // "É bom, né?" pode ser fechado até o dia seguinte (volta sozinho no último dia do prazo).
+  let escondidoAte = 0;
+  try { escondidoAte = Number(localStorage.getItem('pagEscondidoAte')) || 0; } catch {}
+  if (escondidoAte > Date.now() && resta >= 864e5) { caixa.hidden = true; $('#avisoRodape').hidden = true; return; }
   if (resta <= 0) { if (!window.recarregando) { window.recarregando = true; setTimeout(() => location.reload(), 1500); } return; }
   const d = Math.floor(resta / 864e5), h = Math.floor(resta / 36e5) % 24, m = Math.floor(resta / 6e4) % 60, s = Math.floor(resta / 1e3) % 60;
   const dois = (n) => String(n).padStart(2, '0');
@@ -2611,6 +3782,10 @@ async function verPrazo() {
   prazoFim = r && r.prazo ? Number(r.prazo) : null;
   desenharPrazo();
 }
+$('#btFecharPag').onclick = () => {
+  try { localStorage.setItem('pagEscondidoAte', String(Date.now() + 864e5)); } catch {}
+  desenharPrazo();
+};
 verPrazo();
 setInterval(verPrazo, 5 * 60 * 1000);
 setInterval(desenharPrazo, 1000);
@@ -2681,6 +3856,7 @@ async function atualizarCreditos() {
       chip.classList.add('pouco');
     } else mostrarSaldo(c.saldo);
   } catch { /* créditos fora do ar não podem travar o resto do programa */ }
+  mostrarGastaCredito();
 }
 
 // Recado que o Carlos escreve no painel (aba Configurações) e aparece para todos os clientes.
@@ -2692,28 +3868,78 @@ function mostrarRecado(aviso) {
   el.hidden = false;
 }
 
-function pararPix() { clearInterval(compra.timer); compra.timer = null; }
+function pararPix() { clearInterval(compra.timer); clearInterval(compra.relogio); compra.timer = compra.relogio = null; }
 
+// ---- Janela de créditos: 1 escolher, 2 Pix, 3 pago (antes abria a página /planos) ----
+function passoCompra(n) {
+  $('#compraPacotes').hidden = n !== 1;
+  $('#compraPix').hidden = n !== 2;
+  $('#compraPago').hidden = n !== 3;
+  $('#btCompraVoltar').hidden = n !== 2;
+  $('#btCompraFechar').hidden = n === 3;
+  document.querySelectorAll('#dlgCompra .passos li').forEach((li) => {
+    const p = Number(li.dataset.passo);
+    li.className = p < n ? 'feito' : p === n ? 'agora' : '';
+  });
+}
+const precoNota = (p) => brl(p.preco / p.creditos).replace(/\s/g, ' ');
 function mostrarPacotes() {
   pararPix();
-  $('#compraPix').hidden = true;
-  $('#compraPacotes').hidden = false;
-  $('#btCompraVoltar').hidden = true;
+  passoCompra(1);
   const c = creditosEstado;
-  $('#compraSaldo').textContent = typeof c.saldo === 'number' ? `Seu saldo: ${textoCreditos(c.saldo)}` : '';
-  $('#listaPacotes').innerHTML = (c.pacotes || []).map((p) => `
-    <button type="button" class="pacote${p.destaque ? ' destaque' : ''}" data-pacote="${esc(p.id)}">
-      <b>${esc(p.nome)}</b><span>${brl(p.preco)} · ${brl(p.preco / p.creditos)} por nota</span>
-    </button>`).join('') || '<p class="ajuda">Não consegui carregar os pacotes. Confira a internet e abra de novo.</p>';
+  const saldo = typeof c.saldo === 'number' ? c.saldo : 0;
+  $('#compraSaldo').innerHTML = c.mensalAte ? `Plano mensal ativo até <b>${dataCurta(c.mensalAte)}</b>. 1 crédito = 1 nota lançada.`
+    : `1 crédito = 1 nota lançada. Seu saldo agora: <b>${textoCreditos(saldo)}</b>`;
+  const pac = [...(c.pacotes || [])].sort((a, b) => a.creditos - b.creditos);
+  const base = pac[0] ? pac[0].preco / pac[0].creditos : 0;
+  const cards = pac.map((p) => {
+    const desc = base && p.preco / p.creditos < base - 0.004 ? Math.round((1 - p.preco / p.creditos / base) * 100) : 0;
+    return `<div class="pc${p.destaque ? ' mid' : ''}">${p.destaque ? '<span class="tag">Mais escolhido</span>' : ''}
+      <div><p class="eb">${esc(p.nome)}</p><p class="pc-t">${p.creditos} créditos <span class="mu">· lança ${p.creditos} notas</span></p></div>
+      <div><p class="pr"><small>R$</small>${esc(p.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2 }))}</p>
+        <p class="mu" style="font-size:12.5px;margin-top:6px">${desc ? `<s>${brl(base)}</s> <b style="color:var(--texto)">${precoNota(p)} por nota</b> <span class="bdg b-ok" style="height:20px">−${desc}%</span>` : `${precoNota(p)} por nota`}</p></div>
+      <ul><li>${icone('check')}<span><b>${p.creditos} créditos</b> no seu saldo</span></li><li>${icone('check')}<span>Você fica com <b>${textoCreditos(saldo + p.creditos)}</b></span></li><li>${icone('check')}<span>Pagamento único por Pix</span></li>${p.descricao ? `<li>${icone('check')}<span>${esc(p.descricao)}</span></li>` : ''}</ul>
+      <button type="button" class="${p.destaque ? 'primario' : ''}" data-pacote="${esc(p.id)}" style="margin-top:auto;width:100%">Comprar ${p.creditos} créditos</button></div>`;
+  });
+  const m = c.mensal;
+  if (m && m.ativo !== false && m.preco) {
+    cards.push(`<div class="pc best"><span class="tag" style="background:var(--limao);color:var(--sobre-limao)">Sem limite</span>
+      <div><p class="eb">${esc(m.nome || 'Plano mensal')}</p><p class="pc-t">Ilimitado <span class="mu">· ${m.dias || 30} dias</span></p></div>
+      <div><p class="pr" style="color:var(--limao)"><small style="color:#fff">R$</small>${esc(Number(m.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 }))}</p>
+        <p class="mu" style="font-size:12.5px;margin-top:6px">${m.descricao ? esc(m.descricao) : 'Ideal para quem lança muitas notas'}</p></div>
+      <ul><li>${icone('check')}<span><b>Notas ilimitadas</b> por ${m.dias || 30} dias</span></li><li>${icone('check')}<span>Não gasta seus créditos</span></li><li>${icone('check')}<span>Pagar de novo soma ao prazo</span></li></ul>
+      <button type="button" class="btn-limao" data-pacote="mensal" style="margin-top:auto;width:100%">Assinar por ${brl(m.preco)}</button></div>`);
+  }
+  $('#listaPacotes').innerHTML = cards.join('') || '<p class="ajuda">Não consegui carregar os pacotes. Confira a internet e abra de novo.</p>';
+  // Guia "Quantas notas você lança por mês?": aponta o pacote certo.
+  const guia = pac.map((p, i) => `<div data-guia="${esc(p.id)}"><p><b>${i === 0 ? 'Até ' + p.creditos : 'Umas ' + p.creditos}</b> <span class="mu">por mês</span></p><p style="color:var(--verde-texto);font-weight:600">${esc(p.nome)}</p></div>`);
+  if (m && m.ativo !== false && m.preco) guia.push(`<div data-guia="mensal"><p><b>Muitas, todo mês</b> <span class="mu">· sem limite</span></p><p style="color:var(--verde-texto);font-weight:600">Plano mensal</p></div>`);
+  $('#guiaMes').innerHTML = guia.join('');
+  $('#guiaMes').querySelectorAll('[data-guia]').forEach((d) => (d.onmouseenter = d.onclick = () => {
+    $('#guiaMes').querySelectorAll('[data-guia]').forEach((x) => x.classList.toggle('on', x === d));
+    $('#listaPacotes').querySelectorAll('.pc').forEach((pc) => pc.classList.toggle('apontado', !!pc.querySelector(`[data-pacote="${d.dataset.guia}"]`)));
+  }));
 }
 
 async function abrirCompra() {
   const dlg = $('#dlgCompra');
   if (dlg.open) return;
-  await atualizarCreditos();
-  if (creditosEstado.cobranca === false) { toast('Por enquanto o uso está liberado: nenhuma nota gasta crédito.'); return; }
-  // A compra agora é na tela de planos (pacotes, QR Code e confirmação automática).
-  location.href = '/planos';
+  // Já tem os pacotes: abre na hora e atualiza o saldo por trás. Senão, busca primeiro.
+  if ((creditosEstado.pacotes || []).length && creditosEstado.cobranca !== false) {
+    mostrarPacotes();
+    dlg.showModal();
+    atualizarCreditos().then(() => { if (dlg.open && !$('#compraPacotes').hidden) mostrarPacotes(); });
+  } else {
+    await atualizarCreditos();
+    if (creditosEstado.cobranca === false) { toast('Por enquanto o uso está liberado: nenhuma nota gasta crédito.'); return; }
+    if (!creditosEstado.ligado || creditosEstado.offline || !(creditosEstado.pacotes || []).length) { toast('Não consegui falar com o servidor de créditos. Confira a internet e tente de novo.', true); return; }
+    mostrarPacotes();
+    dlg.showModal();
+  }
+  api('/api/pix').then((p) => {
+    const fone = String((p && p.whatsapp) || '').replace(/\D/g, '');
+    $('#compraWhats').innerHTML = fone ? `Dúvida com um pagamento? <a href="https://wa.me/${fone}" target="_blank" rel="noopener">Fale com o Carlos no WhatsApp</a>` : '';
+  }).catch(() => {});
 }
 
 async function comprarPacote(id) {
@@ -2722,29 +3948,44 @@ async function comprarPacote(id) {
   try {
     const p = await api('/api/creditos/comprar', { pacoteId: id });
     if (!/^[A-Za-z0-9+/=]+$/.test(p.qrBase64 || '')) throw new Error('O QR Code não veio certo. Tente de novo.');
-    $('#pixValor').textContent = `${brl(p.valor)} · pague com Pix`;
-    $('#pixQr').src = 'data:image/png;base64,' + p.qrBase64;
+    const c = creditosEstado;
+    const pac = id === 'mensal' ? null : (c.pacotes || []).find((x) => x.id === id);
+    compra.pacote = pac ? { creditos: pac.creditos, nome: `${pac.creditos} créditos · ${precoNota(pac)} por nota` } : { creditos: 0, nome: `${(c.mensal && c.mensal.nome) || 'Plano mensal'} · notas ilimitadas por ${(c.mensal && c.mensal.dias) || 30} dias` };
+    compra.valor = p.valor;
+    $('#pixValor').innerHTML = `<small>R$</small>${Number(p.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    $('#pixPacote').textContent = compra.pacote.nome;
+    $('#pixQr').src = 'data:' + (p.qrBase64.indexOf('PHN2Zy') === 0 ? 'image/svg+xml' : 'image/png') + ';base64,' + p.qrBase64;
     $('#pixCopia').value = p.copiaECola || '';
     $('#pixStatus').textContent = 'Aguardando o pagamento...';
-    $('#compraPacotes').hidden = true;
-    $('#compraPix').hidden = false;
-    $('#btCompraVoltar').hidden = false;
+    passoCompra(2);
     compra.fim = Date.now() + (p.expiraMin || 30) * 60000;
     pararPix();
+    const relogio = () => {
+      const s = Math.max(0, Math.round((compra.fim - Date.now()) / 1000));
+      $('#pixExpira').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    };
+    relogio();
+    compra.relogio = setInterval(relogio, 1000);
     compra.timer = setInterval(async () => {
       if (Date.now() > compra.fim) { pararPix(); $('#pixStatus').textContent = 'O QR Code expirou. Volte e gere outro.'; return; }
+      let s;
+      try { s = await api('/api/creditos/pagamento?id=' + encodeURIComponent(p.id)); } catch { return; /* sem internet por um instante: tenta de novo */ }
       try {
-        const s = await api('/api/creditos/pagamento?id=' + encodeURIComponent(p.id));
         if (s.status === 'pago') {
           pararPix();
-          mostrarSaldo(s.saldo);
-          $('#dlgCompra').close();
-          toast(`Pagamento confirmado! Você tem ${textoCreditos(s.saldo)}.`);
+          const tinhaBloqueio = semCredito();
+          await atualizarCreditos();
+          if (typeof s.saldo === 'number') mostrarSaldo(s.saldo);
+          $('#pagoValor').textContent = brl(compra.valor);
+          $('#pagoTitulo').textContent = compra.pacote.creditos ? `${textoCreditos(compra.pacote.creditos)} liberados` : 'Plano mensal ativo';
+          $('#pagoTexto').innerHTML = creditosEstado.mensalAte ? `Notas sem limite até <b>${dataCurta(creditosEstado.mensalAte)}</b>.` : `Seu saldo agora é de <b>${textoCreditos(creditosEstado.saldo ?? s.saldo)}</b>.`;
+          passoCompra(3);
+          compra.liberar = tinhaBloqueio;
         } else if (s.status === 'cancelado') {
           pararPix();
           $('#pixStatus').textContent = 'Esse pagamento foi cancelado. Volte e gere outro.';
         }
-      } catch { /* sem internet por um instante: tenta de novo no próximo ciclo */ }
+      } catch (e) { console.error('Pix: não consegui mostrar o pagamento concluído', e); }
     }, 3000);
   } catch (e) {
     toast(e.message, true);
@@ -2756,8 +3997,37 @@ async function comprarPacote(id) {
 $('#listaPacotes').onclick = (e) => { const b = e.target.closest('[data-pacote]'); if (b) comprarPacote(b.dataset.pacote); };
 $('#btCompraVoltar').onclick = mostrarPacotes;
 $('#btCompraFechar').onclick = () => $('#dlgCompra').close();
+$('#btCompraX').onclick = () => $('#dlgCompra').close();
+// "Voltar e lançar a nota": fecha e libera a nota que estava bloqueada por falta de crédito.
+$('#btPagoVoltar').onclick = () => {
+  $('#dlgCompra').close();
+  if (compra.liberar || $('#visor').classList.contains('embacado')) liberarNotasBloqueadas();
+  compra.liberar = false;
+};
 $('#dlgCompra').addEventListener('close', pararPix);
+// Botão X das janelas.
+document.addEventListener('click', (e) => { const x = e.target.closest('[data-fechar]'); if (x) x.closest('dialog')?.close(); });
+// Configurações: menu à esquerda leva até cada parte e acende a parte que está à vista.
+(() => {
+  const corpo = $('#dlgConfig .corpo');
+  const links = [...document.querySelectorAll('#dlgConfig .cnav a')];
+  links.forEach((a) => (a.onclick = (e) => {
+    e.preventDefault();
+    const alvo = document.querySelector(a.getAttribute('href'));
+    corpo.scrollTo({ top: alvo.offsetTop - corpo.querySelector('.cfg-secoes').offsetTop, behavior: 'smooth' });
+    links.forEach((x) => x.classList.toggle('on', x === a));
+  }));
+  corpo.addEventListener('scroll', () => {
+    let atual = links[0];
+    for (const a of links) { const s = document.querySelector(a.getAttribute('href')); if (s.offsetTop - corpo.querySelector('.cfg-secoes').offsetTop <= corpo.scrollTop + 40) atual = a; }
+    if (corpo.scrollTop + corpo.clientHeight >= corpo.scrollHeight - 4) atual = links[links.length - 1];
+    links.forEach((x) => x.classList.toggle('on', x === atual));
+  });
+})();
 $('#chipCreditos').onclick = abrirCompra;
+$('#btPlanos').onclick = abrirCompra;
+$('#btPlanos').title = 'Adicionar créditos';
+document.addEventListener('click', (e) => { if (e.target.closest('#btSemCredComprar, [data-comprar]')) abrirCompra(); });
 $('#chipCreditos').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirCompra(); } };
 $('#btPixCopiar').onclick = async () => {
   try { await navigator.clipboard.writeText($('#pixCopia').value); toast('Código Pix copiado.'); }

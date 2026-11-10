@@ -5,7 +5,7 @@ const path = require('path');
 const { exec, execFile } = require('child_process');
 const crypto = require('crypto');
 const { extrairNota, extrairNotaGemini, lerChaveGemini, lerPesosGemini, lerPesosClaude, VERSAO_LEITURA } = require('./lib/extrair');
-const { analisar: exatoDoArquivo, textoParaIA, corrigirComExato, conferirPesos } = require('./lib/exato');
+const { analisar: exatoDoArquivo, textoRapido, textoParaIA, corrigirComExato, conferirPesos } = require('./lib/exato');
 const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require('./lib/referencia');
 const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar, pesoFecha } = require('./lib/montar');
@@ -160,6 +160,48 @@ function leituraGuardada(nome) {
   }
 }
 
+// ---- Carta de correção enviada como se fosse nota ----
+// A carta só entra pelo campo "Anexar carta de correção" da nota. Se chegar na fila, o programa
+// procura a nota dela (pela chave de acesso ou pelo nº da NF) e anexa sozinho; senão, explica.
+async function ehCartaDeCorrecao(caminho) {
+  const nome = path.basename(caminho);
+  let texto = '', chave = '';
+  if (path.extname(caminho).toLowerCase() === '.pdf') {
+    ({ texto, chave } = await textoRapido(caminho));
+  }
+  const semAcento = texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+  const pelotexto = /CARTA DE CORRECAO/.test(semAcento) && !/DOCUMENTO AUXILIAR DA NOTA|\bDANFE\b/.test(semAcento);
+  const pelonome = /^CC[\s_-]?\d|carta de corre/i.test(nome);
+  if (!pelotexto && !pelonome) return null;
+  const nf = chave ? String(Number(chave.slice(25, 34))) : (nome.match(/\d{3,}/) || [''])[0].replace(/^0+/, '');
+  return { chave, nf };
+}
+function notaDaCarta(config, carta, ignorar) {
+  for (const p of listarPendentes(config)) {
+    if (p.nome === ignorar) continue;
+    const lida = leituraGuardada(p.nome);
+    if (carta.chave && lida && soDigitos(lida.chave_acesso) === carta.chave) return p.nome;
+    if (carta.nf && ((lida && String(lida.numero_nf) === carta.nf) || new RegExp(`(^|\\D)0*${carta.nf}(\\D|$)`).test(p.nome))) return p.nome;
+  }
+  return null;
+}
+// Anexa o arquivo (que está na fila) como carta da nota; devolve o nome da nota, ou null.
+async function guardarCartaDaFila(config, nomeArquivo) {
+  const caminho = path.join(config.pastaNotas, path.basename(nomeArquivo));
+  const carta = await ehCartaDeCorrecao(caminho);
+  if (!carta) return undefined; // não é carta
+  const nota = notaDaCarta(config, carta, path.basename(nomeArquivo));
+  if (!nota) return null;
+  const pasta = pastaCartas(config);
+  fs.mkdirSync(pasta, { recursive: true });
+  const antiga = cartaDe(config, nota);
+  if (antiga) fs.rmSync(antiga, { force: true });
+  fs.renameSync(caminho, path.join(pasta, `${nota} - CC${path.extname(caminho).toLowerCase()}`));
+  fs.rmSync(caminhoCache(nota), { force: true }); // a nota precisa ser lida de novo, agora com a carta
+  return nota;
+}
+const MSG_CARTA_SOZINHA = 'Este arquivo é uma carta de correção, não uma nota. Abra a nota dela na fila e use "Anexar carta de correção" (fica no quadro da nota fiscal).';
+
 function arquivoPendente(config, nome) {
   const base = path.basename(String(nome || ''));
   const caminho = path.join(config.pastaNotas, base);
@@ -313,6 +355,7 @@ async function lerNota(config, nome, forcar) {
     }
     // Aplica o que é exato por cima do que a IA leu.
     const conferir = () => {
+      dados.lido_do_texto = Boolean(exato.texto); // a tela mostra "Lido do texto do PDF" ou "Lido da imagem"
       const corrigidos = corrigirComExato(dados, exato);
       if (exato.chave) dados.chave_fonte = exato.fonteChave;
       // Chaves de OUTRAS notas escritas no PDF (ex.: a remessa citada no retorno), para conferir na planilha.
@@ -396,6 +439,11 @@ async function lerNota(config, nome, forcar) {
     ...proposta,
     carta: carta ? path.basename(carta) : null,
     listas: { clientes: ref.clientes, safras: ref.safras, cultivares: ref.cultivares.map((c) => c.nome) },
+    // Para a tela: de onde vieram os dados e quem emitiu (o zoom mostra o quadro certo da DANFE).
+    origem: {
+      fonte: dados.lido_do_texto || dados.chave_fonte === 'texto' ? 'texto' : 'imagem',
+      emitente: soDigitos(dados.emitente && dados.emitente.cnpj),
+    },
   };
 }
 
@@ -411,7 +459,9 @@ function referencia(config) {
 }
 
 // proposta/contexto: o que o programa tinha proposto para esta nota (para aprender com as correções).
-async function inserirNota(config, nome, formulario, creditoRef = null, proposta = null, contexto = null) {
+// forcarRepetida: o auditor confirmou "Lançar mesmo assim" numa NF que parece já estar na planilha
+// (às vezes ela não entrou por um problema e precisa ser lançada de novo).
+async function inserirNota(config, nome, formulario, creditoRef = null, proposta = null, contexto = null, forcarRepetida = false) {
   const caminho = arquivoPendente(config, nome);
   if (!formulario || !Array.isArray(formulario.itens) || !formulario.itens.length) throw new Error('Nenhum item para inserir.');
   esquecerReferencia();
@@ -423,7 +473,7 @@ async function inserirNota(config, nome, formulario, creditoRef = null, proposta
     throw new Error(`Cultivar fora da BASE DE DADOS: ${[...new Set(semCadastro.map((c) => c || '(vazia)'))].join(', ')}. Só lançamos cultivares da base. Corrija ou remova o item.`);
   }
   const repetida = linhasJaLancadas(ref, formulario.nf, [formulario.deslint.cnpj, formulario.licenc.cnpj], [formulario.deslint.razao, formulario.licenc.razao]);
-  if (repetida.length) {
+  if (repetida.length && !forcarRepetida) {
     throw new Error(`A NF ${formulario.nf} já foi lançada (linha ${repetida.join(', ')}). Não inseri de novo.`);
   }
   const linhas = formularioParaLinhas(formulario, config.auditor, config.colunas);
@@ -474,6 +524,15 @@ async function inserirNota(config, nome, formulario, creditoRef = null, proposta
     creditoRef,
   });
   try {
+    registrarLancamento({
+      id: idInsercao, quando: new Date().toISOString(), nf: String(formulario.nf || ''), arquivo: path.basename(caminho),
+      deslint: formulario.deslint && formulario.deslint.razao, licenc: formulario.licenc && formulario.licenc.razao,
+      cultivares: [...new Set(formulario.itens.map((i) => String(i.cultivar || '').trim()).filter(Boolean))],
+      pesoKg: formulario.itens.reduce((t, i) => t + ['entrada', 'saida', 'semDeslintar', 'quebra'].reduce((s, k) => s + (Number(String(i[k] ?? '').replace(/\./g, '').replace(',', '.')) || 0), 0), 0),
+      linhas: numeros, auditor: config.auditor || '', situacao: 'lancada', repetida: Boolean(repetida.length),
+    });
+  } catch (e) { console.error('Não consegui anotar no histórico:', e.message); }
+  try {
     aprendizado.observar({ proposta, lancado: formulario, contexto, id: idInsercao, nf: formulario.nf });
   } catch (e) {
     console.error('Não consegui anotar as correções desta nota:', e.message);
@@ -507,6 +566,37 @@ function registrarInsercao(registro) {
   salvarHistorico([registro, ...lerHistorico()]);
 }
 
+// ---- Histórico de lançamentos (tela "Histórico") ----
+// Guarda TODOS os lançamentos (o arquivo acima guarda só os últimos 20, para o Desfazer).
+// Na primeira vez, traz o que já estava no arquivo do Desfazer.
+const ARQ_LANCAMENTOS = path.join(path.dirname(ARQ_CONFIG), '.lancamentos.json');
+function lerLancamentos() {
+  try { return JSON.parse(fs.readFileSync(ARQ_LANCAMENTOS, 'utf8')); } catch { /* ainda não existe */ }
+  const antigos = lerHistorico().map((r) => {
+    const f = r.formulario || {};
+    return {
+      id: r.id, quando: r.quando, nf: r.nf, arquivo: r.nome, deslint: f.deslint && f.deslint.razao, licenc: f.licenc && f.licenc.razao,
+      cultivares: [...new Set((f.itens || []).map((i) => String(i.cultivar || '').trim()).filter(Boolean))],
+      pesoKg: (f.itens || []).reduce((t, i) => t + ['entrada', 'saida', 'semDeslintar', 'quebra'].reduce((s, k) => s + (Number(String(i[k] ?? '').replace(/\./g, '').replace(',', '.')) || 0), 0), 0),
+      linhas: (r.conferencias || []).map((c) => c.linha), auditor: '', situacao: 'lancada',
+    };
+  });
+  return antigos;
+}
+function salvarLancamentos(lista) {
+  const temp = ARQ_LANCAMENTOS + '.tmp';
+  fs.writeFileSync(temp, JSON.stringify(lista));
+  fs.renameSync(temp, ARQ_LANCAMENTOS);
+}
+function registrarLancamento(l) {
+  salvarLancamentos([l, ...lerLancamentos().filter((x) => x.id !== l.id)]);
+}
+function marcarDesfeito(id) {
+  const lista = lerLancamentos();
+  const l = lista.find((x) => x.id === id);
+  if (l) { l.situacao = 'desfeita'; l.desfeitaEm = new Date().toISOString(); salvarLancamentos(lista); }
+}
+
 // O que a tela precisa saber para mostrar o botão "desfazer".
 function resumoDesfazer() {
   const r = lerHistorico()[0];
@@ -534,6 +624,7 @@ async function desfazerInsercao(config, id) {
   }
   esquecerReferencia();
   salvarHistorico(historico.slice(1));
+  try { marcarDesfeito(r.id); } catch (e) { console.error('Não consegui marcar no histórico:', e.message); }
   try { aprendizado.esquecerInsercao(r.id); } catch (e) { console.error('Não consegui esquecer as correções desta nota:', e.message); }
   if (r.creditoRef && creditos.ligado()) await creditos.devolver(r.creditoRef, config.auditor).catch((e) => console.error('Não devolvi o crédito:', e.message));
 
@@ -654,6 +745,11 @@ const servidor = http.createServer(async (req, res) => {
       setTimeout(() => process.exit(0), 300);
       return;
     }
+    // pdf.js para a tela desenhar a página da nota (zoom ligado a cada campo). Só estes dois arquivos.
+    if (req.method === 'GET' && (url.pathname === '/pdfjs/pdf.min.mjs' || url.pathname === '/pdfjs/pdf.worker.min.mjs')) {
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'max-age=86400' });
+      return fs.createReadStream(path.join(RAIZ, 'lib', 'terceiros', 'pdfjs', path.basename(url.pathname))).pipe(res);
+    }
     if (req.method === 'GET' && url.pathname === '/planos') {
       res.writeHead(200, { 'Content-Type': TIPOS['.html'], 'Cache-Control': 'no-store, max-age=0' });
       return fs.createReadStream(path.join(RAIZ, 'public', 'planos.html')).pipe(res);
@@ -721,6 +817,12 @@ const servidor = http.createServer(async (req, res) => {
     }
     if (req.method === 'POST' && url.pathname === '/api/enviar') {
       const nome = await receberArquivo(req, config, decodeURIComponent(req.headers['x-nome'] || ''));
+      const nota = await guardarCartaDaFila(config, nome);
+      if (nota) return json(res, 200, { ok: true, nome: nota, cartaDe: nota });
+      if (nota === null) {
+        moverSemSobrescrever(path.join(config.pastaNotas, nome), path.join(path.dirname(config.pastaLancadas), 'Removidas'));
+        return json(res, 400, { erro: MSG_CARTA_SOZINHA });
+      }
       return json(res, 200, { ok: true, nome });
     }
     if (req.method === 'POST' && url.pathname === '/api/remover') {
@@ -812,11 +914,17 @@ const servidor = http.createServer(async (req, res) => {
       const { nome, forcar } = await lerCorpo(req);
       const problema = problemaConfig(config);
       if (problema) return json(res, 400, { erro: problema });
+      // Carta de correção que já estava na fila: vai para a nota dela (não é lida como nota nem gasta nada).
+      if (!leituraGuardada(path.basename(String(nome || '')))) {
+        const nota = await guardarCartaDaFila(config, nome);
+        if (nota) return json(res, 409, { erro: `Era a carta de correção da nota ${nota}. Anexei na nota.`, codigo: 'VIROU_CARTA', nota });
+        if (nota === null) return json(res, 409, { erro: MSG_CARTA_SOZINHA, codigo: 'CARTA_SOZINHA' });
+      }
       await creditos.exigirSaldo(config.auditor); // sem crédito não lê nota
       return json(res, 200, await lerNota(config, nome, forcar));
     }
     if (req.method === 'POST' && url.pathname === '/api/inserir') {
-      const { nome, formulario, proposta, contexto } = await lerCorpo(req);
+      const { nome, formulario, proposta, contexto, forcarRepetida } = await lerCorpo(req);
       const problema = problemaConfig(config);
       if (problema) return json(res, 400, { erro: problema });
       // 1 crédito por nota: gasta antes de gravar e devolve se a inserção falhar.
@@ -825,7 +933,7 @@ const servidor = http.createServer(async (req, res) => {
       if (creditoRef) saldo = (await creditos.consumir(creditoRef, config.auditor)).saldo;
       let linhas;
       try {
-        linhas = await emFila(() => inserirNota(config, nome, formulario, creditoRef, proposta, contexto));
+        linhas = await emFila(() => inserirNota(config, nome, formulario, creditoRef, proposta, contexto, forcarRepetida === true));
       } catch (e) {
         if (creditoRef) await creditos.devolver(creditoRef, config.auditor).then((d) => { saldo = d.saldo; }).catch(() => {});
         throw e;
@@ -838,6 +946,34 @@ const servidor = http.createServer(async (req, res) => {
       if (problema) return json(res, 400, { erro: problema });
       const r = await emFila(() => desfazerInsercao(config, id));
       return json(res, 200, { ok: true, ...r, desfazer: resumoDesfazer() });
+    }
+    if (req.method === 'GET' && url.pathname === '/api/historico') {
+      return json(res, 200, { lancamentos: lerLancamentos(), desfazer: resumoDesfazer() });
+    }
+    if (req.method === 'GET' && url.pathname === '/api/historico.xlsx') {
+      const ExcelJS = require('exceljs');
+      const ids = new Set(String(url.searchParams.get('ids') || '').split(',').filter(Boolean));
+      const lista = lerLancamentos().filter((l) => !ids.size || ids.has(l.id));
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Histórico');
+      ws.columns = [
+        { header: 'Data e hora', key: 'quando', width: 18 }, { header: 'NF', key: 'nf', width: 10 },
+        { header: 'Deslintamento', key: 'deslint', width: 34 }, { header: 'Licenciado', key: 'licenc', width: 34 },
+        { header: 'Cultivar', key: 'cultivares', width: 18 }, { header: 'Peso (kg)', key: 'pesoKg', width: 12 },
+        { header: 'Linha', key: 'linhas', width: 10 }, { header: 'Auditor', key: 'auditor', width: 16 }, { header: 'Situação', key: 'situacao', width: 16 },
+      ];
+      ws.getRow(1).font = { bold: true };
+      for (const l of lista) {
+        ws.addRow({
+          quando: new Date(l.quando).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }), nf: l.nf, deslint: l.deslint, licenc: l.licenc,
+          cultivares: (l.cultivares || []).join(', '), pesoKg: l.pesoKg, linhas: (l.linhas || []).join(', '), auditor: l.auditor,
+          situacao: l.situacao === 'desfeita' ? 'Desfeita' : l.repetida ? 'Lançada (repetida)' : 'Lançada',
+        });
+      }
+      ws.getColumn('pesoKg').numFmt = '#,##0';
+      const buffer = await wb.xlsx.writeBuffer();
+      res.writeHead(200, { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'Content-Disposition': `attachment; filename="Historico de lancamentos.xlsx"` });
+      return res.end(Buffer.from(buffer));
     }
     if (req.method === 'GET' && url.pathname === '/api/saldo') {
       const problema = problemaConfig(config);
