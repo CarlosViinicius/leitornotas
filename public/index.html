@@ -1039,6 +1039,33 @@
   #visor .hl { position: absolute; border: 2px solid var(--verde); background: rgba(24,133,90,.12); border-radius: 4px; box-shadow: 0 0 0 9999px rgba(20,32,26,.18); transition: all .25s; pointer-events: none; }
   #visor .hl[hidden] { display: none; }
   #visor .pg { overflow: hidden; }
+  /* Botão "Adicionar notas" branco, como no design */
+  .soltar-mini { background: var(--painel); color: var(--texto); border: 1px solid var(--borda-forte); }
+  .soltar-mini:hover { background: var(--sutil); border-color: var(--borda-forte); filter: none; }
+  #visor .mais-paginas { flex: none; padding: 10px 12px; border-radius: 8px; background: var(--amarelo); color: var(--amarelo-texto); font-size: 12.5px; }
+  #visor .mais-paginas a { color: inherit; font-weight: 600; }
+  .no-pdf label { position: relative; }
+  .no-pdf label::after { content: "✓ PDF"; margin-left: 6px; font-size: 10.5px; font-weight: 600; color: var(--verde); }
+  /* Arrastar sobre a nota para marcar a área que vai para a lupa */
+  #visor .pg img { -webkit-user-drag: none; user-select: none; }
+  #visor.marcando .pg img { cursor: crosshair; }
+  #visor.marcando .pg { touch-action: none; }
+  #visor .pg { width: calc(var(--zp, 100) * 1%); max-width: none; margin-inline: auto; }
+  #visor .vz { flex: none; display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-bottom: 1px solid var(--borda); background: var(--painel); font-size: 12.5px; }
+  #visor .vz button { height: 28px; min-width: 30px; padding: 0 9px; border-radius: 8px; border: 1px solid var(--borda); background: var(--painel); color: var(--texto); font: inherit; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+  .chip.clicavel { cursor: pointer; transition: background .15s, border-color .15s; }
+  .chip.clicavel:hover, .chip.clicavel:focus-visible { background: var(--hover); border-color: var(--borda-forte); outline: none; }
+  #visor .vz { flex-wrap: wrap; row-gap: 4px; }
+  #visor .vz button { white-space: nowrap; flex: none; }
+  #visor .vz button:hover { background: var(--hover); }
+  #visor .vz button svg { width: 14px; height: 14px; }
+  #visor .vz .pct { min-width: 42px; text-align: center; color: var(--suave); font-variant-numeric: tabular-nums; }
+  #visor .vz .sp { flex: 1; }
+  #visor .vz .marca-area.ativo { background: var(--verde); border-color: var(--verde); color: var(--sobre-verde); }
+  #visor.embacado .vz, #visor.lendo .vz { display: none; }
+  #visor .pg .sel { position: absolute; border: 2px dashed var(--verde); background: rgba(24,133,90,.18); border-radius: 3px; pointer-events: none; }
+  #visor .lupa-auto { margin-left: auto; border: 1px solid var(--borda-forte); background: var(--painel); color: var(--verde-texto); border-radius: 6px; padding: 2px 8px; font: inherit; font-size: 11.5px; cursor: pointer; }
+  #visor .lupa-auto[hidden] { display: none; }
   #visor.embacado .vb, #visor.embacado .lupa { filter: blur(10px); pointer-events: none; user-select: none; }
   #visor.embacado .lupa { display: none; }
   #visor .selo { z-index: 4; }
@@ -1505,7 +1532,7 @@
     <div><h1>Leitor de Notas</h1><small>DANFE → planilha</small></div>
   </div>
   <div class="chips">
-    <span class="chip" id="chipPlanilha" title="Para onde as notas vão"><svg class="i"><use href="#i-tabela"/></svg><span></span></span>
+    <span class="chip clicavel" id="chipPlanilha" role="button" tabindex="0" title="Abrir a planilha"><svg class="i"><use href="#i-tabela"/></svg><span></span></span>
     <span class="chip" id="chipIA" title="IA que lê as notas"><svg class="i"><use href="#i-ia"/></svg><span></span></span>
   </div>
   <div id="avisoPag" hidden role="timer">
@@ -1887,6 +1914,7 @@ const estado = {
   vistos: {}, // nome -> Set(texto dos avisos que a pessoa já conferiu, um por um)
   nfAberta: new Set(), // notas em que a pessoa abriu "Ver e editar" da nota fiscal
   zonaAtual: null, paginaNota: null, // zoom ligado ao campo
+  campoAtual: null, areaLivre: null, areas: {}, marcando: false, zoomNota: 100, // área marcada arrastando na nota (areas: "nota|campo" -> [x, y, w, h] em %)
   aprender: { fila: [], mostrando: null }, // sugestões "posso aprender isso?" e avisos esperando na tela
 };
 const MAX_TENTATIVAS = 5;
@@ -1918,11 +1946,11 @@ function semCredito() {
 }
 const MSG_SEM_CREDITO = 'Você está sem créditos. Compre um pacote para continuar lançando notas.';
 
-function toast(msg, erro) {
+function toast(msg, erro, detalhe) {
   const t = $('#toast');
   // Falta de crédito: aviso com botão para comprar (não some sozinho tão rápido).
   if (erro && /sem créditos/i.test(String(msg))) {
-    t.innerHTML = '<span class="ic">' + icone('cartao') + '</span><span class="txt"><b>Você está sem créditos</b><small>Quer adicionar mais para continuar?</small></span><button type="button" id="btToastComprar">Adicionar créditos</button>';
+    t.innerHTML = '<span class="ic">' + icone('cartao') + '</span><span class="txt"><b>Você está sem créditos</b><small>' + esc(detalhe || 'Quer adicionar mais para continuar?') + '</small></span><button type="button" id="btToastComprar">Adicionar créditos</button>';
     t.className = 'visivel acao';
     $('#btToastComprar').onclick = () => { t.className = ''; abrirCompra(); };
     clearTimeout(t._h);
@@ -1973,7 +2001,7 @@ async function atualizar() {
   $('#chipIA span').textContent = (c.ia === 'claude' ? 'Claude' : 'Gemini') + (temIA ? '' : ' · sem chave');
   $('#chipIA').classList.toggle('ok', temIA);
   // Bolinha verde = conectado; amarela = falta configurar.
-  $('#chipPlanilha').title = e.problema ? 'Planilha: ' + e.problema : 'Planilha conectada · para onde as notas vão';
+  $('#chipPlanilha').title = e.problema ? 'Planilha: ' + e.problema : (c.destino === 'google' ? 'Google Planilhas conectado · para onde as notas vão' : 'Clique para abrir a planilha no Excel');
   $('#chipIA').title = temIA ? 'IA conectada · lê as notas' : 'Falta a chave da IA (Configurações)';
   desenharLista();
   atualizarCreditos();
@@ -2350,6 +2378,8 @@ async function enviarArquivos(lista) {
   estado.enviando.push(...validos.map((f) => f.name));
   desenharLista();
   const enviados = [];
+  const cartas = []; // notas que receberam carta de correção
+  const naoEntraram = []; // { nome, motivo } — um resumo só no fim (antes cada aviso apagava o anterior)
   for (const f of validos) {
     try {
       const r = await fetch('/api/enviar', { method: 'POST', headers: { 'X-Nome': encodeURIComponent(f.name) }, body: f });
@@ -2357,15 +2387,30 @@ async function enviarArquivos(lista) {
       if (!r.ok) throw new Error(j.erro);
       if (j.cartaDe) {
         // Carta de correção: foi para a nota dela, que vai ser lida de novo com a carta.
-        toast(`Carta de correção anexada na nota ${j.cartaDe}`);
+        cartas.push(j.cartaDe);
         delete estado.leituras[j.cartaDe]; delete estado.forms[j.cartaDe];
       } else enviados.push(j.nome);
     } catch (e) {
-      toast(e.message, true);
+      const m = String(e.message || 'erro');
+      naoEntraram.push({ nome: f.name, motivo: /já está na fila/.test(m) ? 'fila' : /já foi lançado antes/.test(m) ? 'lancada' : 'outro', texto: m });
     }
     estado.enviando.splice(estado.enviando.indexOf(f.name), 1);
   }
-  if (enviados.length) toast(enviados.length === 1 ? 'Nota adicionada' : `${enviados.length} notas adicionadas`);
+  if (naoEntraram.length) {
+    const lista = (ns) => ns.length > 5 ? ns.slice(0, 5).join(', ') + ` e mais ${ns.length - 5}` : ns.join(', ');
+    const grupo = (m) => naoEntraram.filter((x) => x.motivo === m).map((x) => x.nome);
+    const partes = [];
+    if (grupo('lancada').length) partes.push(`${grupo('lancada').length} já foram lançadas antes (estão em "Lançadas"): ${lista(grupo('lancada'))}`);
+    if (grupo('fila').length) partes.push(`${grupo('fila').length} já estão na fila: ${lista(grupo('fila'))}`);
+    for (const x of naoEntraram.filter((y) => y.motivo === 'outro')) partes.push(x.texto);
+    const inicio = (enviados.length ? `${enviados.length} adicionada(s). ` : '') + (cartas.length ? `${cartas.length} carta(s) de correção anexada(s). ` : '');
+    toast(`${inicio}${naoEntraram.length} não entraram: ${partes.join(' · ')}`, true);
+    clearTimeout($('#toast')._h);
+    $('#toast')._h = setTimeout(() => ($('#toast').className = ''), 15000); // dá tempo de ler
+  } else if (enviados.length || cartas.length) {
+    const txt = [enviados.length ? (enviados.length === 1 ? 'Nota adicionada' : `${enviados.length} notas adicionadas`) : '', cartas.length ? `${cartas.length} carta(s) de correção anexada(s) (${cartas.join(', ')})` : ''].filter(Boolean).join('. ');
+    toast(txt);
+  }
   const tinhaAtual = estado.atual;
   await atualizar();
   if (!tinhaAtual && enviados[0]) selecionar(enviados[0]);
@@ -2437,11 +2482,12 @@ function mostrarArquivoReal(nome, qual = 'nota') {
       <a class="bvh verde" href="${url}" target="_blank" title="Abrir em outra aba, em tela cheia">${icone('fora')}<span>Outra aba</span></a>
       <button type="button" class="bvh vermelho" id="btRemover" title="Tira esta nota da fila (vai para a pasta Removidas)">${icone('lixo')}<span>Remover</span></button>
     </div>
-    <div class="lupa" id="lupa" hidden><div class="hd">${icone('lupa')}<span>De onde veio: <b id="lupaNome"></b></span></div><div class="crop" id="lupaCrop"></div></div>
+    <div class="lupa" id="lupa" hidden><div class="hd">${icone('lupa')}<span>De onde veio: <b id="lupaNome"></b></span><button type="button" class="lupa-auto" id="lupaAuto" hidden>Voltar ao automático</button></div><div class="crop" id="lupaCrop"></div></div>
+    <div class="vz" id="vz"><button type="button" data-vz="-" title="Diminuir a nota" aria-label="Diminuir a nota">−</button><span class="pct" id="vzPct">${estado.zoomNota}%</span><button type="button" data-vz="+" title="Aumentar a nota" aria-label="Aumentar a nota">+</button><button type="button" data-vz="0" title="Ajustar à largura">Ajustar</button>${qual === 'nota' ? `<span class="sp"></span><button type="button" id="btMarcar" class="marca-area${estado.marcando ? ' ativo' : ''}" title="Arraste sobre a nota para mandar aquela área para a lupa">${icone('lupa')}<span>${estado.marcando ? 'Arraste sobre a nota…' : 'Marcar área'}</span></button>` : ''}</div>
     <div class="vb" id="vb"><div class="pg" id="pagina">${pdf
       ? '<div class="carregando"><div class="girando"></div>Abrindo a nota...</div>'
       : `<img src="${url}" alt="${titulo}">`}<div class="hl" id="realce" hidden></div></div></div>
-    <div class="vf">Clique num campo à direita para ver de onde ele veio.</div>`;
+    <div class="vf">Clique num campo à direita para ver de onde ele veio. Ou use "Marcar área" e arraste sobre a nota.</div>`;
   $('#btRemover').onclick = removerAtual;
   $('#btRemover').disabled = !estado.atual;
   $('#visor').querySelectorAll('[data-ver]').forEach((b) => (b.onclick = () => mostrarArquivo(nome, b.dataset.ver)));
@@ -2487,6 +2533,8 @@ async function desenharPdf(url, nome, qual) {
   if ($('#vhPaginas')) $('#vhPaginas').textContent = ` · ${tot} ${tot === 1 ? 'página' : 'páginas'}`;
   $('#pagina').innerHTML = `<img src="${paginas[0]}" alt="${qual === 'carta' ? 'Carta de correção' : 'Nota'}"><div class="hl" id="realce" hidden></div>`;
   for (const p of paginas.slice(1)) $('#vb').insertAdjacentHTML('beforeend', `<div class="pg"><img src="${p}" alt="Página seguinte"></div>`);
+  // O visor desenha só as 4 primeiras páginas: avisa quando a nota tem mais.
+  if (tot > paginas.length) $('#vb').insertAdjacentHTML('beforeend', `<div class="mais-paginas">Mostrando as ${paginas.length} primeiras de ${tot} páginas. <a href="${url}" target="_blank">Abrir o PDF inteiro em outra aba</a></div>`);
   return paginas[0];
 }
 
@@ -2514,16 +2562,18 @@ function zonaDoCampo(c) {
   }
   return null;
 }
-function mostrarZona(z) {
+function mostrarZona(z, semRolar) {
   estado.zonaAtual = z;
   const p = estado.paginaNota;
   const lupa = $('#lupa'), hl = $('#realce');
   if (!lupa || !hl || !p || p.nome !== estado.atual || $('#visor').classList.contains('embacado')) return;
-  const [x, y, w, h] = ZONAS[z].r;
+  const livre = estado.areaLivre;
+  const [x, y, w, h] = livre || ZONAS[z].r;
+  if ($('#lupaAuto')) $('#lupaAuto').hidden = !livre;
   hl.hidden = false;
   Object.assign(hl.style, { left: x + '%', top: y + '%', width: w + '%', height: h + '%' });
   lupa.hidden = false;
-  $('#lupaNome').textContent = ZONAS[z].nome;
+  $('#lupaNome').textContent = livre ? 'área que você marcou' : ZONAS[z].nome;
   const crop = $('#lupaCrop');
   const pgImg = $('#pagina img');
   // Imagem da página ainda carregando: espera e desenha de novo (antes o zoom saía com a proporção errada).
@@ -2532,20 +2582,97 @@ function mostrarZona(z) {
   }
   const asp = pgImg && pgImg.naturalWidth ? pgImg.naturalHeight / pgImg.naturalWidth : 1.414; // altura / largura da página
   const larg = crop.clientWidth || 300;
-  const escala = larg / (w / 100); // largura da página inteira para o trecho ocupar a caixa
+  let escala = larg / (w / 100); // largura da página inteira para o trecho ocupar a caixa
+  if (livre) {
+    // Área marcada à mão: cabe inteira na altura da lupa e não estica a imagem além de ~1,5x (ficava borrada).
+    escala = Math.min(escala, (innerHeight * 0.3) / (asp * h / 100));
+    if (pgImg && pgImg.naturalWidth) escala = Math.min(escala, pgImg.naturalWidth * 1.5);
+    escala = Math.max(escala, larg);
+  }
   crop.style.height = Math.min(Math.round(escala * asp * (h / 100)), Math.round(innerHeight * 0.3)) + 'px';
   crop.innerHTML = `<img src="${p.src}" alt="" style="width:${escala}px;margin-left:${-escala * x / 100}px;margin-top:${-escala * asp * y / 100}px">`;
   // Rola a página até o trecho destacado.
   const vb = $('#vb'), pg = $('#pagina');
-  if (vb && pg) vb.scrollTo({ top: Math.max(0, pg.offsetTop + pg.clientHeight * y / 100 - 40), behavior: 'smooth' });
+  if (vb && pg && !semRolar) vb.scrollTo({ top: Math.max(0, pg.offsetTop + pg.clientHeight * y / 100 - 40), behavior: 'smooth' });
 }
 function zonaDoEvento(e) {
   const c = e.target.closest('[data-c]')?.dataset.c || (e.target.id === 'novaChave' ? 'chave' : null);
   return zonaDoCampo(c);
 }
-$('#campos').addEventListener('focusin', (e) => { const z = zonaDoEvento(e); if (z) mostrarZona(z); });
+// Campo clicado: se o usuário já marcou uma área para ele nesta nota, usa essa; senão, a zona padrão.
+function aoTocarCampo(e) {
+  const c = e.target.closest('[data-c]')?.dataset.c || (e.target.id === 'novaChave' ? 'chave' : null);
+  const z = zonaDoCampo(c);
+  if (!z) return;
+  estado.campoAtual = c;
+  estado.areaLivre = estado.areas[estado.atual + '|' + c] || null;
+  mostrarZona(z);
+}
+$('#campos').addEventListener('focusin', aoTocarCampo);
 // Clicar num campo que já está com o cursor não dispara focusin: o clique também atualiza o zoom.
-$('#campos').addEventListener('click', (e) => { const z = zonaDoEvento(e); if (z) mostrarZona(z); });
+$('#campos').addEventListener('click', aoTocarCampo);
+
+// Arrastar sobre a página da nota: a área marcada vai para a lupa (e fica lembrada para o campo em foco, nesta nota).
+let _arr = null;
+$('#visor').addEventListener('pointerdown', (e) => {
+  const pg = e.target.closest('#pagina');
+  if (!pg || !estado.marcando || e.button !== 0 || $('#visor').classList.contains('embacado') || !estado.paginaNota || !pg.querySelector('img')) return;
+  e.preventDefault();
+  _arr = { pg, b: pg.getBoundingClientRect(), x0: e.clientX, y0: e.clientY, r: null, el: null };
+});
+document.addEventListener('pointermove', (e) => {
+  if (!_arr) return;
+  const { b, x0, y0 } = _arr;
+  const cl = (v, a, z) => Math.max(a, Math.min(z, v));
+  const x1 = cl(e.clientX, b.left, b.right), y1 = cl(e.clientY, b.top, b.bottom), xa = cl(x0, b.left, b.right), ya = cl(y0, b.top, b.bottom);
+  if (!_arr.el && Math.hypot(e.clientX - x0, e.clientY - y0) < 6) return; // ainda é só um clique
+  if (!_arr.el) { _arr.el = document.createElement('div'); _arr.el.className = 'sel'; _arr.pg.appendChild(_arr.el); }
+  const l = Math.min(xa, x1), t = Math.min(ya, y1), w = Math.abs(x1 - xa), h = Math.abs(y1 - ya);
+  Object.assign(_arr.el.style, { left: (l - b.left) + 'px', top: (t - b.top) + 'px', width: w + 'px', height: h + 'px' });
+  _arr.r = [(l - b.left) / b.width * 100, (t - b.top) / b.height * 100, w / b.width * 100, h / b.height * 100];
+});
+function marcarArea(ligar) {
+  estado.marcando = Boolean(ligar);
+  $('#visor').classList.toggle('marcando', estado.marcando);
+  const b = $('#btMarcar');
+  if (b) { b.classList.toggle('ativo', estado.marcando); b.querySelector('span').textContent = estado.marcando ? 'Arraste sobre a nota…' : 'Marcar área'; }
+}
+// Zoom da nota (no lugar da barra do leitor de PDF do Chrome): − / + / Ajustar e Ctrl + roda do mouse.
+function zoomNota(delta) {
+  const z = delta === 0 ? 100 : Math.max(50, Math.min(300, (estado.zoomNota || 100) + delta));
+  estado.zoomNota = z;
+  $('#visor').style.setProperty('--zp', z);
+  if ($('#vzPct')) $('#vzPct').textContent = z + '%';
+}
+$('#visor').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-vz]');
+  if (b) { zoomNota(b.dataset.vz === '0' ? 0 : b.dataset.vz === '+' ? 25 : -25); return; }
+  if (e.target.closest('#btMarcar')) marcarArea(!estado.marcando);
+});
+$('#visor').addEventListener('wheel', (e) => {
+  if (!e.ctrlKey || !e.target.closest('#vb')) return;
+  e.preventDefault();
+  zoomNota(e.deltaY < 0 ? 10 : -10);
+}, { passive: false });
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && estado.marcando) marcarArea(false); });
+function terminarArrasto() {
+  const a = _arr; _arr = null;
+  if (!a) return;
+  marcarArea(false); // depois de marcar, o modo desliga sozinho
+  if (a.el) a.el.remove();
+  if (!a.r || a.r[2] < 1.5 || a.r[3] < 1) return; // muito pequeno: ignora
+  estado.areaLivre = a.r.map((n) => Math.round(n * 100) / 100);
+  if (estado.campoAtual) estado.areas[estado.atual + '|' + estado.campoAtual] = estado.areaLivre;
+  mostrarZona(estado.zonaAtual || 'adicionais', true);
+}
+document.addEventListener('pointerup', terminarArrasto);
+document.addEventListener('pointercancel', () => { if (_arr && _arr.el) _arr.el.remove(); _arr = null; });
+$('#visor').addEventListener('click', (e) => {
+  if (!e.target.closest('#lupaAuto')) return;
+  if (estado.campoAtual) delete estado.areas[estado.atual + '|' + estado.campoAtual];
+  estado.areaLivre = null;
+  mostrarZona(estado.zonaAtual || 'adicionais');
+});
 // Mudou o tamanho da janela/colunas: o zoom é recalculado para a largura nova (antes ficava torto até clicar de novo).
 let _recalcZoom = null;
 function recalcularZoom() {
@@ -2655,7 +2782,7 @@ function ler(nome, forcar, atualizar) {
 }
 
 async function selecionar(nome, forcar) {
-  if (estado.atual !== nome) estado.zonaAtual = null;
+  if (estado.atual !== nome) { estado.zonaAtual = null; estado.areaLivre = null; estado.campoAtual = null; }
   estado.atual = nome;
   desenharLista();
   mostrarArquivo(nome);
@@ -2716,8 +2843,17 @@ function skeletonFormulario(titulo, sub) {
   </div>`;
 }
 
+// "✓ PDF": o valor veio exato do texto do PDF (chave/nº da NF e CNPJs que estão escritos no arquivo).
+function veioDoPdf(chave, valor) {
+  const r = leitura(estado.atual);
+  const x = r && r.origem && r.origem.exatos;
+  if (!x) return false;
+  if (chave === 'nf') return Boolean(x.chave);
+  if (/\.cnpj$/.test(chave)) return x.cnpjs.includes(String(valor || '').replace(/\D/g, ''));
+  return false;
+}
 function campo(rotulo, chave, valor, classe, incerto, extra = '') {
-  return `<div class="${classe} ${incerto ? 'incerto' : ''}"><label>${rotulo}<input data-c="${chave}" value="${esc(valor)}" ${extra}></label></div>`;
+  return `<div class="${classe} ${incerto ? 'incerto' : veioDoPdf(chave, valor) ? 'no-pdf' : ''}"><label>${rotulo}<input data-c="${chave}" value="${esc(valor)}" ${extra}></label></div>`;
 }
 
 // Avisos e campos em dúvida que ainda valem: se a pessoa corrigiu a chave e ela confere,
@@ -3267,10 +3403,16 @@ $('#btHistorico').onclick = () => abrirHistorico();
 $('#btInserirLote').onclick = async () => {
   const nomes = estado.pendentes.map((p) => p.nome).filter((n) => estado.selecionadas.has(n));
   if (!nomes.length) return;
+  // Mais notas selecionadas do que créditos: lança só até o saldo (na ordem da fila); as outras ficam esperando na fila.
+  const ce = creditosEstado;
+  const contaCredito = ce.ligado && ce.cobranca !== false && !ce.offline && !ce.mensalAte && typeof ce.saldo === 'number';
+  const lista = contaCredito && nomes.length > ce.saldo ? nomes.slice(0, Math.max(0, ce.saldo)) : nomes;
+  const semSaldo = nomes.length - lista.length;
+  if (!lista.length) { toast(MSG_SEM_CREDITO, true); return; }
   $('#btInserirLote').disabled = true;
   let ok = 0;
   const falhas = [];
-  for (const nome of nomes) {
+  for (const nome of lista) {
     try {
       await inserirUma(nome);
       ok++;
@@ -3282,7 +3424,9 @@ $('#btInserirLote').onclick = async () => {
   $('#btInserirLote').disabled = false;
   estado.selecionadas.clear();
   revalidarFila();
-  if (falhas.length) toast(`${ok} inserida(s). Não inseridas: ${falhas.join(' | ')}`, true);
+  const unicas = [...new Set(falhas)]; // a mesma mensagem não se repete 20 vezes
+  if (semSaldo) toast(MSG_SEM_CREDITO, true, `${ok} nota(s) inserida(s). ${semSaldo} ficaram na fila esperando créditos.${unicas.length ? ' Outras não entraram: ' + unicas.join(' | ') : ''}`);
+  else if (unicas.length) toast(`${ok} inserida(s). Não inseridas: ${unicas.join(' | ')}`, true);
   else toast(`${ok} nota(s) inserida(s) na planilha`);
   await atualizar();
   if (ok) setTimeout(verAvaliacao, 1500);
@@ -3294,7 +3438,10 @@ $('#btSelTodas').onclick = () => {
 };
 
 $('#btReler').onclick = () => selecionar(estado.atual, true);
-$('#btAbrirPasta').onclick = () => api('/api/abrir-pasta', {}).catch((e) => toast(e.message, true));
+// Clicar no nome da planilha (topo) abre o arquivo no Excel.
+$('#chipPlanilha').onclick = () => api('/api/abrir-planilha', {}).catch((e) => toast(e.message, true));
+$('#chipPlanilha').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#chipPlanilha').click(); } };
+$('#btAbrirPasta').onclick =() => api('/api/abrir-pasta', {}).catch((e) => toast(e.message, true));
 $('#btConfig').onclick = () => abrirConfig();
 
 // Atalho: Ctrl+Enter confirma e insere

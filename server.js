@@ -359,6 +359,8 @@ async function lerNota(config, nome, forcar) {
       dados.lido_do_texto = Boolean(exato.texto); // a tela mostra "Lido do texto do PDF" ou "Lido da imagem"
       const corrigidos = corrigirComExato(dados, exato);
       if (exato.chave) dados.chave_fonte = exato.fonteChave;
+      // Para a tela marcar "✓ PDF" só no que veio exato do texto do arquivo (chave e CNPJs que estão escritos no PDF).
+      dados.exatos_pdf = { chave: Boolean(exato.chave && exato.fonteChave === 'texto'), cnpjs: exato.texto ? (exato.cnpjs || []) : [] };
       // Chaves de OUTRAS notas escritas no PDF (ex.: a remessa citada no retorno), para conferir na planilha.
       const citadas = (exato.chavesCandidatas || []).filter((c) => c !== soDigitos(dados.chave_acesso));
       if (citadas.length) dados.chaves_citadas = citadas;
@@ -444,6 +446,7 @@ async function lerNota(config, nome, forcar) {
     origem: {
       fonte: dados.lido_do_texto || dados.chave_fonte === 'texto' ? 'texto' : 'imagem',
       emitente: soDigitos(dados.emitente && dados.emitente.cnpj),
+      exatos: dados.exatos_pdf || null,
     },
   };
 }
@@ -913,6 +916,15 @@ const servidor = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/abrir-pasta') {
       fs.mkdirSync(config.pastaNotas, { recursive: true });
       exec(`explorer "${config.pastaNotas}"`);
+      return json(res, 200, { ok: true });
+    }
+    // Abre a planilha no Excel (clique no chip do topo). Só abre o arquivo que está em Configurações.
+    if (req.method === 'POST' && url.pathname === '/api/abrir-planilha') {
+      if (config.destino === 'google') return json(res, 400, { erro: 'O destino é o Google Planilhas: abra a planilha pelo navegador (o programa só guarda o link do Apps Script).' });
+      if (!config.planilha) return json(res, 400, { erro: 'Nenhuma planilha escolhida. Escolha em Configurações.' });
+      const arquivo = path.resolve(config.planilha);
+      if (!fs.existsSync(arquivo)) return json(res, 404, { erro: 'Não achei o arquivo da planilha: ' + path.basename(arquivo) });
+      if (process.platform === 'win32' && !process.env.LEITOR_SEM_NAVEGADOR) exec(`start "" "${arquivo.replace(/"/g, '')}"`);
       return json(res, 200, { ok: true });
     }
     if (req.method === 'POST' && url.pathname === '/api/ler') {

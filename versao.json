@@ -1,15 +1,19 @@
 {
-  "versao": "1.1.35",
+  "versao": "1.1.36",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Loading mais suave: anel girando devagar, sem piscar quando a lista atualiza",
-    "Zoom da nota mais firme: acompanha o clique no campo e o tamanho da janela"
+    "Barra em cima da nota: aumentar, diminuir e ajustar. O botão \"Marcar área\" deixa arrastar sobre a nota para ver aquele trecho ampliado na lupa (a área fica lembrada por campo)",
+    "Clicar no nome da planilha, no topo, abre a planilha no Excel",
+    "Ao enviar várias notas de uma vez, um aviso mostra quantas entraram e por que cada uma que não entrou foi recusada (repetida, já lançada, carta sem nota)",
+    "Envio e leitura de muitas notas bem mais rápidos quando a internet está ruim ou o GitHub demora",
+    "Ao inserir várias notas com poucos créditos, lança até o saldo e avisa quantas ficaram esperando",
+    "Marca \"✓ PDF\" nos campos que vieram exatos do texto do PDF e aviso quando a nota tem mais de 4 páginas"
   ],
   "precisaZip": false,
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "b8c6808177bed968b99c1208c41fe2739e78e176102423a08dfaa750dc9ea09e"
+      "sha256": "2b7d446b7bc7b43122658ca254746101c18ab3190c7c33284b65f24618269d27"
     },
     {
       "arquivo": "package.json",
@@ -21,7 +25,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "f3eae0a321f33de1bb5a4ccc292cf74e145bbdf5fb368ae521512ce05c8bbf4d"
+      "sha256": "16034aa8ffee6f24e27431aaa773976f990b34be086edf4ae484549bda48d630"
     },
     {
       "arquivo": "lib/bloqueio.js",
@@ -65,7 +69,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "32d793d7a65939c6aaaa579040932374c86609647a2fc2937c7274a9e9374ff4"
+      "sha256": "1bcaad8938ed08ea92a2a75af25d31bee3fc099db3e3146f38d2ec9fc8996b59"
     },
     {
       "arquivo": "public/planos.html",
