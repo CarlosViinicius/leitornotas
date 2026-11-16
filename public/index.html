@@ -3006,7 +3006,7 @@ function desenharFormulario(nome, r) {
     for (const a of avCultivar) {
       quadros.push(`<div class="al" role="alert">${icone('alerta')}<div><b>Cultivar não está na base</b>Lida: <span class="mono">${esc(a.lida || '—')}</span>. Nenhuma cultivar da base é parecida. Se for de outra empresa (ex.: BASF), não precisa lançar.
         ${a.sugestao ? `<div class="sgb"><span>Na planilha, ${esc(a.licenciado || 'este licenciado')} lança a cultivar <b class="mono">${esc(a.sugestao)}</b>. É ela?</span><button type="button" class="btn pri sm" id="btUsarCult" data-cult="${esc(a.sugestao)}">Usar ${esc(a.sugestao)}</button></div>` : ''}
-        <div class="acts"><button type="button" class="btn sm f" id="btIrCultivar">Escolher a cultivar</button><button type="button" class="btn sm" data-add-base="${esc(a.lida || '')}">Adicionar à base</button><button type="button" class="btn sm" id="btOutraEmpresa">É de outra empresa: remover</button></div></div></div>`);
+        <div class="acts"><button type="button" class="btn sm f" id="btIrCultivar">Escolher a cultivar</button><button type="button" class="btn sm" data-add-base="${esc(a.lida || '')}">Cadastrar cultivar</button><button type="button" class="btn sm" id="btOutraEmpresa">É de outra empresa: remover</button></div></div></div>`);
     }
     if (avGerais.length) {
       quadros.push(`<div class="al" role="alert">${icone('alerta')}<div><b>Confira antes de inserir</b>${avGerais.length === 1 ? esc(avGerais[0].texto) : `<ul>${avGerais.map((a) => `<li>${esc(a.texto)}</li>`).join('')}</ul>`}
@@ -3086,26 +3086,36 @@ function desenharFormulario(nome, r) {
     const sugerida = String((f.itens.find((it) => String(it.cultivar || '').trim() && !naBase(it.cultivar)) || {}).cultivar || b.dataset.addBase || '').trim().toUpperCase();
     const acts = b.closest('.acts');
     acts.innerHTML = `<div class="sgb" style="flex-wrap:wrap;gap:8px;align-items:flex-end">
-      <label class="campo" style="margin:0">Nome da cultivar<input type="text" id="addBaseNome" maxlength="60" value="${esc(sugerida)}" autocomplete="off"></label>
+      <label class="campo" style="margin:0">Nome, como está escrito na planilha<input type="text" id="addBaseNome" maxlength="60" value="${esc(sugerida)}" autocomplete="off"></label>
       <label class="campo" style="margin:0">RNC <small>(opcional)</small><input type="text" id="addBaseRnc" maxlength="40" autocomplete="off"></label>
-      <button type="button" class="btn pri sm" id="addBaseSalvar">Adicionar à base</button>
+      <button type="button" class="btn pri sm" id="addBaseSalvar">Continuar</button>
       <button type="button" class="btn sm" id="addBaseCancelar">Cancelar</button></div>
-      <div class="explica" style="margin-top:6px">Isso escreve a cultivar na aba BASE DE DADOS da planilha.</div>`;
+      <div class="explica" style="margin-top:6px">Vai entrar na lista de cultivares da planilha e valer para todas as próximas notas.</div>`;
     $('#addBaseNome').focus();
     $('#addBaseCancelar').onclick = () => desenharFormulario(nome, r);
-    $('#addBaseSalvar').onclick = async () => {
+    $('#addBaseSalvar').onclick = () => {
       const nomeNovo = $('#addBaseNome').value.trim().toUpperCase().replace(/\s+/g, ' ');
       if (!nomeNovo) { toast('Digite o nome da cultivar.', true); return; }
-      $('#addBaseSalvar').disabled = true;
+      const rncNovo = $('#addBaseRnc').value;
+      // Segundo passo: confirmar o nome em destaque antes de escrever na planilha.
+      acts.innerHTML = `<div class="sgb" style="flex-wrap:wrap;gap:8px;align-items:center">
+        <span>Cadastrar <b class="mono">${esc(nomeNovo)}</b>${rncNovo.trim() ? ` (RNC <span class="mono">${esc(rncNovo.trim().toUpperCase())}</span>)` : ''} na planilha? Confira se o nome está certo: depois de cadastrada, essa cultivar deixa de gerar aviso.</span>
+        <button type="button" class="btn pri sm" id="addBaseConfirmar">Sim, cadastrar</button>
+        <button type="button" class="btn sm" id="addBaseVoltar">Voltar</button></div>`;
+      $('#addBaseVoltar').onclick = () => desenharFormulario(nome, r);
+      $('#addBaseConfirmar').onclick = () => gravarCultivar(nomeNovo, rncNovo);
+    };
+    const gravarCultivar = async (nomeNovo, rncNovo) => {
+      $('#addBaseConfirmar').disabled = true;
       try {
-        const resp = await api('/api/cultivar-base', { nome: nomeNovo, rnc: $('#addBaseRnc').value });
+        const resp = await api('/api/cultivar-base', { nome: nomeNovo, rnc: rncNovo });
         const chave = (s) => String(s || '').toUpperCase().replace(/\s+/g, '');
         if (!(r.listas.cultivares || []).some((x) => chave(x) === chave(resp.nome))) r.listas.cultivares.push(resp.nome);
         for (const it of f.itens) if (chave(it.cultivar) === chave(resp.nome)) it.cultivar = resp.nome;
         desenharFormulario(nome, r);
         desenharLista();
-        toast(resp.jaExistia ? `${resp.nome} já estava na base` : `${resp.nome} adicionada à base de dados`);
-      } catch (e) { toast(e.message, true); $('#addBaseSalvar').disabled = false; }
+        toast(resp.jaExistia ? `${resp.nome} já estava na planilha` : `${resp.nome} cadastrada na planilha`);
+      } catch (e) { toast(e.message, true); $('#addBaseConfirmar').disabled = false; }
     };
   }));
   $('#campos').querySelectorAll('[data-ver-saldo]').forEach((b) => (b.onclick = () => $('#btSaldo').click()));

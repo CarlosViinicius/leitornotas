@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.40",
+  "versao": "1.1.41",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Melhorias visuais",
@@ -65,7 +65,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "b047190e7a33dbf6d7962e3a63e0292e0b1647e588db9fd368230169f01b3d42"
+      "sha256": "1d8bb4de411a3b508e9c3de6d2f2133bc2acd4c284cfaeb7292f3f8ba1bd378d"
     },
     {
       "arquivo": "public/planos.html",
