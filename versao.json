@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.38",
+  "versao": "1.1.39",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Melhorias visuais",
@@ -9,7 +9,7 @@
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "1e19d9cff90b6a744eddd1fb488e7d957035cea4372df759dc7eb3e5db20dc19"
+      "sha256": "45c35049c65acae0cd54a2a40056dbf7b239ff08a529862178206b35d0ae353b"
     },
     {
       "arquivo": "package.json",
@@ -21,7 +21,7 @@
     },
     {
       "arquivo": "lib/atualizar.js",
-      "sha256": "16034aa8ffee6f24e27431aaa773976f990b34be086edf4ae484549bda48d630"
+      "sha256": "7e6a3a6930fb7221ad95a1b382242eaab560ef1b126aa7fc44fc3ce7d43d15be"
     },
     {
       "arquivo": "lib/bloqueio.js",

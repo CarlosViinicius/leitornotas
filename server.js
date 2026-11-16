@@ -16,7 +16,7 @@ const { conferirNota, saldoPorGrupo, LIMITE_QUEBRA_PADRAO } = require('./lib/con
 const { gerarRelatorio } = require('./lib/relatorio');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
 const { verificarBloqueio, paginaBloqueio, PIX, FLASH_LOGO } = require('./lib/bloqueio');
-const { verificar: verificarAtualizacao, aplicar: aplicarAtualizacao, andamento: andamentoAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
+const { verificar: verificarAtualizacao, vigiarAtualizacao, aplicar: aplicarAtualizacao, andamento: andamentoAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
 const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
 
 const { usarCodigo } = require('./lib/liberar');
@@ -729,7 +729,8 @@ const servidor = http.createServer(async (req, res) => {
   }
   // Atualização obrigatória: com versão nova no ar, nada abre até atualizar (garante que o bloqueio sempre funcione).
   if (!['/api/versao', '/api/atualizar', '/api/atualizar/andamento', '/api/estado', '/api/aviso', '/api/liberar'].includes(url.pathname)) {
-    const v = await verificarAtualizacao(RAIZ);
+    // Ao abrir a tela principal, confere de verdade no GitHub (não confia no resultado guardado por até 1 hora).
+    const v = await verificarAtualizacao(RAIZ, { forcar: req.method === 'GET' && url.pathname === '/' });
     if (v.nova) {
       if (url.pathname.startsWith('/api/')) return json(res, 426, { erro: 'Atualização obrigatória: atualize o programa para continuar.' });
       res.writeHead(426, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -1181,6 +1182,7 @@ servidor.listen(PORTA, '127.0.0.1', () => {
   console.log('Deixe esta janela aberta enquanto estiver usando. Para sair, feche a janela.');
   if (!process.env.LEITOR_SEM_NAVEGADOR) abrirNavegador(endereco);
   atalhosNaPrimeiraVez();
+  vigiarAtualizacao(RAIZ);
   setTimeout(enviarTelemetria, 45 * 1000);
   setInterval(enviarTelemetria, 3 * 3600 * 1000);
 });
