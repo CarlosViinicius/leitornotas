@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.41",
+  "versao": "1.1.42",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Melhorias visuais",
@@ -9,7 +9,7 @@
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "feff7f47e6aec885f44d5ac9eb4862c980643e008bf511bf3b2709c16f6a6cd4"
+      "sha256": "3bc91a2f60dab2f2168c893e31f7cb8ebaeff4369e49229ffe5380abdeed1b18"
     },
     {
       "arquivo": "package.json",
@@ -53,11 +53,11 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "fa2cc3e2c022dff70fcf7644ef57ec82e16dd922943a7d5296d9c0c6a9cf0255"
+      "sha256": "f6e1e5d7ceca9762db72e5a31613ba9d01fb7ec60d32eff8090b158a859889a4"
     },
     {
       "arquivo": "lib/planilha.js",
-      "sha256": "5607f700ba1ba89531b1d5f5ec7026a3a71e852ee37aac7aadbe8ac5037a58ea"
+      "sha256": "5410c5044f95c451487952d3f210bb5763fcf4140a7218447bf67a025338d1c9"
     },
     {
       "arquivo": "lib/referencia.js",
@@ -65,7 +65,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "1d8bb4de411a3b508e9c3de6d2f2133bc2acd4c284cfaeb7292f3f8ba1bd378d"
+      "sha256": "e9ce0775a7d0780cabce6167bb2980eb94dbde6f4c305aee5767dd17aa161ecf"
     },
     {
       "arquivo": "public/planos.html",

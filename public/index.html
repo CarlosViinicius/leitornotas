@@ -3225,6 +3225,8 @@ function ligarCampos(raiz) {
 // ---------- Inserir ----------
 function problemaDoFormulario(f) {
   if (!String(f.nf ?? '').trim()) return 'falta o nº da NF';
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(String(f.data || '').trim())) return 'a data de emissão precisa estar no formato dd/mm/aaaa';
+  if (!String(f.deslint?.razao || '').trim() || !String(f.licenc?.razao || '').trim()) return 'falta o nome da deslintadora ou do licenciado';
   if (!f.itens.some((i) => [i.entrada, i.saida, i.semDeslintar, i.quebra].some((v) => String(v ?? '').trim()))) return 'falta o volume (entrada, saída...)';
   return null;
 }

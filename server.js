@@ -395,7 +395,9 @@ async function lerNota(config, nome, forcar) {
       if (!chaveValida(dados.chave_acesso)) {
         const leituras = [dados.chave_acesso];
         let certa = consertarChave(leituras, dados);
+        const inicioChave = Date.now();
         for (let tentativa = 0; !certa && tentativa < 2; tentativa++) {
+          if (tentativa > 0 && Date.now() - inicioChave > 45000) break; // a releitura da chave não prende a fila por minutos
           try {
             const outra = config.ia === 'claude'
               ? (await lerComIA()).chave_acesso
@@ -414,6 +416,20 @@ async function lerNota(config, nome, forcar) {
           dados.chave_lida = dados.chave_acesso;
           dados.chave_acesso = certa;
         }
+      } else if (!dados.chave_fonte && config.ia !== 'claude' && config.geminiKey) {
+        // Foto sem código de barras nem texto: a chave lida junto com a nota inteira pode estar errada e ainda passar no
+        // dígito verificador (acontece 1 vez em 11). Uma segunda leitura SÓ da chave é bem mais precisa: se divergir, usa ela e avisa.
+        try {
+          const conf = soDigitos(await Promise.race([
+            lerChaveGemini(caminho, { apiKey: config.geminiKey, pular: 1 }),
+            new Promise((_, falha) => setTimeout(() => falha(new Error('prazo')), 25000)),
+          ]));
+          if (conf && conf !== soDigitos(dados.chave_acesso) && chaveValida(conf)) {
+            console.log(`[leitura] ${path.basename(caminho)}: a segunda leitura da chave divergiu da primeira; usei a segunda (${seg()})`);
+            dados.chave_lida = dados.chave_acesso;
+            dados.chave_acesso = conf;
+          }
+        } catch { /* sem a segunda leitura fica a primeira, que já passou no dígito verificador */ }
       }
     }
     await conferirPesosDaNota(dados, exato, caminho, config, seg);
@@ -501,6 +517,12 @@ async function inserirNota(config, nome, formulario, creditoRef = null, proposta
     .filter((c) => !ref.cultivares.some((x) => x.nome.replace(/\s+/g, '') === c));
   if (semCadastro.length) {
     throw new Error(`Cultivar fora da BASE DE DADOS: ${[...new Set(semCadastro.map((c) => c || '(vazia)'))].join(', ')}. Só lançamos cultivares da base. Corrija ou remova o item.`);
+  }
+  // Dados que estragariam a planilha se entrassem como texto: data que não é data e empresa sem nome.
+  const dataReal = (s) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(s || '').trim()); if (!m) return false; const d = new Date(+m[3], +m[2] - 1, +m[1]); return d.getFullYear() === +m[3] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[1]; };
+  if (!dataReal(formulario.data)) throw new Error(`NF ${formulario.nf || '?'}: a data de emissão precisa estar no formato dd/mm/aaaa (ex.: 30/09/2026).`);
+  if (!String(formulario.deslint && formulario.deslint.razao || '').trim() || !String(formulario.licenc && formulario.licenc.razao || '').trim()) {
+    throw new Error(`NF ${formulario.nf || '?'}: falta o nome da deslintadora ou do licenciado.`);
   }
   const repetida = linhasJaLancadas(ref, formulario.nf, [formulario.deslint.cnpj, formulario.licenc.cnpj], [formulario.deslint.razao, formulario.licenc.razao]);
   if (repetida.length && !forcarRepetida) {
