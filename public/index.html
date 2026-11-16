@@ -4062,7 +4062,7 @@ function mostrarSaldo(saldo) {
     chip.classList.add('ok');
     return;
   }
-  chip.querySelector('span').textContent = textoCreditos(saldo);
+  chip.querySelector('span').textContent = saldo < 0 ? 'Negativo: ' + textoCreditos(saldo) : textoCreditos(saldo);
   chip.classList.toggle('pouco', saldo <= 3);
   chip.classList.toggle('ok', saldo > 3);
 }
@@ -4075,6 +4075,13 @@ function liberarNotasBloqueadas() {
   lerEmSegundoPlano();
   toast('Créditos adicionados! Pode lançar suas notas.');
 }
+// Confere o saldo de tempos em tempos: se o Carlos mexer na conta, a tela atualiza sozinha, sem fechar e abrir.
+setInterval(async () => {
+  if (document.visibilityState !== 'visible' || !creditosEstado.ligado) return;
+  const tinha = semCredito();
+  await atualizarCreditos();
+  if (tinha && !semCredito()) liberarNotasBloqueadas();
+}, 20000);
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible' || !creditosEstado.ligado) return;
   const tinha = semCredito();
@@ -4089,7 +4096,9 @@ async function atualizarCreditos() {
     if (semCredito() && estado.atual && $('#visor iframe, #visor .imagem')) visorBloqueado();
     const chip = $('#chipCreditos');
     if (!c.ligado) { chip.style.display = 'none'; mostrarRecado(null); return; }
-    mostrarRecado(c.aviso);
+    // Saldo negativo (conta em aberto): aviso vermelho no lugar do recado geral, some sozinho quando o Carlos zera.
+    const negativo = c.cobranca !== false && !c.mensalAte && typeof c.saldo === 'number' && c.saldo < 0;
+    mostrarRecado(negativo ? { texto: `Você está negativo (${textoCreditos(c.saldo)}). Fique em dia com a sua conta e entre em contato com o Carlos para voltar a lançar notas.`, tipo: 'alerta' } : c.aviso);
     if (c.cobranca === false) {
       chip.style.display = '';
       chip.querySelector('span').textContent = 'Uso liberado: sem gastar créditos';

@@ -1,13 +1,9 @@
 {
-  "versao": "1.1.36",
+  "versao": "1.1.37",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
-    "Barra em cima da nota: aumentar, diminuir e ajustar. O botão \"Marcar área\" deixa arrastar sobre a nota para ver aquele trecho ampliado na lupa (a área fica lembrada por campo)",
-    "Clicar no nome da planilha, no topo, abre a planilha no Excel",
-    "Ao enviar várias notas de uma vez, um aviso mostra quantas entraram e por que cada uma que não entrou foi recusada (repetida, já lançada, carta sem nota)",
-    "Envio e leitura de muitas notas bem mais rápidos quando a internet está ruim ou o GitHub demora",
-    "Ao inserir várias notas com poucos créditos, lança até o saldo e avisa quantas ficaram esperando",
-    "Marca \"✓ PDF\" nos campos que vieram exatos do texto do PDF e aviso quando a nota tem mais de 4 páginas"
+    "Melhorias visuais",
+    "Correções de erros e mais estabilidade"
   ],
   "precisaZip": false,
   "arquivos": [
@@ -37,7 +33,7 @@
     },
     {
       "arquivo": "lib/creditos.js",
-      "sha256": "f25fbb346edc7b13e61d37d333e01eaefdd7149b210c52cf85a80c8b40d19c99"
+      "sha256": "d63584a57fe23c1dbc37fee1efc8c4f947b20b7538c4309b2ea7b4e434182568"
     },
     {
       "arquivo": "lib/excel-aberto.ps1",
@@ -69,7 +65,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "1bcaad8938ed08ea92a2a75af25d31bee3fc099db3e3146f38d2ec9fc8996b59"
+      "sha256": "251c6a43bb3907b5355e24f427a6ecdcbc8996f0fea1737772abb3c7128bef4b"
     },
     {
       "arquivo": "public/planos.html",
