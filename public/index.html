@@ -2161,7 +2161,7 @@ function desenharLote() {
   $('#selTxt').textContent = !n ? 'Nenhuma selecionada' : n === 1 ? '1 selecionada' : `${n} selecionadas`;
   $('#btLimparSel').hidden = !n;
   $('#btInserirLote').disabled = !n;
-  $('#btSelTodas').disabled = !estado.pendentes.some((p) => pronta(p.nome));
+  $('#btSelTodas').disabled = !estado.pendentes.some((p) => pronta(p.nome) || (estado.leituras[p.nome] === 'em-disco' && !estado.erros[p.nome] && !estado.inserindo.has(p.nome)));
 }
 
 function registrarLancada(nf, linhas, nome) {
@@ -3006,7 +3006,7 @@ function desenharFormulario(nome, r) {
     for (const a of avCultivar) {
       quadros.push(`<div class="al" role="alert">${icone('alerta')}<div><b>Cultivar não está na base</b>Lida: <span class="mono">${esc(a.lida || '—')}</span>. Nenhuma cultivar da base é parecida. Se for de outra empresa (ex.: BASF), não precisa lançar.
         ${a.sugestao ? `<div class="sgb"><span>Na planilha, ${esc(a.licenciado || 'este licenciado')} lança a cultivar <b class="mono">${esc(a.sugestao)}</b>. É ela?</span><button type="button" class="btn pri sm" id="btUsarCult" data-cult="${esc(a.sugestao)}">Usar ${esc(a.sugestao)}</button></div>` : ''}
-        <div class="acts"><button type="button" class="btn sm f" id="btIrCultivar">Escolher a cultivar</button><button type="button" class="btn sm" id="btOutraEmpresa">É de outra empresa: remover</button></div></div></div>`);
+        <div class="acts"><button type="button" class="btn sm f" id="btIrCultivar">Escolher a cultivar</button><button type="button" class="btn sm" data-add-base="${esc(a.lida || '')}">Adicionar à base</button><button type="button" class="btn sm" id="btOutraEmpresa">É de outra empresa: remover</button></div></div></div>`);
     }
     if (avGerais.length) {
       quadros.push(`<div class="al" role="alert">${icone('alerta')}<div><b>Confira antes de inserir</b>${avGerais.length === 1 ? esc(avGerais[0].texto) : `<ul>${avGerais.map((a) => `<li>${esc(a.texto)}</li>`).join('')}</ul>`}
@@ -3081,6 +3081,33 @@ function desenharFormulario(nome, r) {
   };
   if ($('#btIrCultivar')) $('#btIrCultivar').onclick = () => ir('[data-c="itens.0.cultivar"]');
   if ($('#btOutraEmpresa')) $('#btOutraEmpresa').onclick = removerAtual;
+  // "Adicionar à base": grava a cultivar na aba BASE DE DADOS da planilha, para valer nesta nota e nas próximas.
+  $('#campos').querySelectorAll('[data-add-base]').forEach((b) => (b.onclick = () => {
+    const sugerida = String((f.itens.find((it) => String(it.cultivar || '').trim() && !naBase(it.cultivar)) || {}).cultivar || b.dataset.addBase || '').trim().toUpperCase();
+    const acts = b.closest('.acts');
+    acts.innerHTML = `<div class="sgb" style="flex-wrap:wrap;gap:8px;align-items:flex-end">
+      <label class="campo" style="margin:0">Nome da cultivar<input type="text" id="addBaseNome" maxlength="60" value="${esc(sugerida)}" autocomplete="off"></label>
+      <label class="campo" style="margin:0">RNC <small>(opcional)</small><input type="text" id="addBaseRnc" maxlength="40" autocomplete="off"></label>
+      <button type="button" class="btn pri sm" id="addBaseSalvar">Adicionar à base</button>
+      <button type="button" class="btn sm" id="addBaseCancelar">Cancelar</button></div>
+      <div class="explica" style="margin-top:6px">Isso escreve a cultivar na aba BASE DE DADOS da planilha.</div>`;
+    $('#addBaseNome').focus();
+    $('#addBaseCancelar').onclick = () => desenharFormulario(nome, r);
+    $('#addBaseSalvar').onclick = async () => {
+      const nomeNovo = $('#addBaseNome').value.trim().toUpperCase().replace(/\s+/g, ' ');
+      if (!nomeNovo) { toast('Digite o nome da cultivar.', true); return; }
+      $('#addBaseSalvar').disabled = true;
+      try {
+        const resp = await api('/api/cultivar-base', { nome: nomeNovo, rnc: $('#addBaseRnc').value });
+        const chave = (s) => String(s || '').toUpperCase().replace(/\s+/g, '');
+        if (!(r.listas.cultivares || []).some((x) => chave(x) === chave(resp.nome))) r.listas.cultivares.push(resp.nome);
+        for (const it of f.itens) if (chave(it.cultivar) === chave(resp.nome)) it.cultivar = resp.nome;
+        desenharFormulario(nome, r);
+        desenharLista();
+        toast(resp.jaExistia ? `${resp.nome} já estava na base` : `${resp.nome} adicionada à base de dados`);
+      } catch (e) { toast(e.message, true); $('#addBaseSalvar').disabled = false; }
+    };
+  }));
   $('#campos').querySelectorAll('[data-ver-saldo]').forEach((b) => (b.onclick = () => $('#btSaldo').click()));
   $('#campos').querySelectorAll('[data-visto]').forEach((b) => (b.onclick = () => {
     contarAviso('saldo');
@@ -3193,7 +3220,7 @@ function problemaDoFormulario(f) {
 }
 
 async function inserirUma(nome, opcoes = {}) {
-  const r = leitura(nome);
+  const r = leitura(nome) || await ler(nome); // nota só marcada 'em-disco': reconfere antes de lançar
   const f = estado.forms[nome] || JSON.parse(JSON.stringify(r.formulario));
   const problema = problemaDoFormulario(f);
   if (problema) throw new Error(`NF ${f.nf || '?'}: ${problema}.`);
@@ -3444,6 +3471,13 @@ $('#btLimparSel').onclick = () => { estado.selecionadas.clear(); desenharLista()
 $('#btSelTodas').onclick = () => {
   for (const p of estado.pendentes) if (pronta(p.nome)) estado.selecionadas.add(p.nome);
   desenharLista();
+  // Notas que a lista já mostra como "Pronta" mas que estão só marcadas 'em-disco' (depois de um lançamento):
+  // reconfere cada uma (rápido, sem IA) e seleciona assim que ficar pronta.
+  for (const p of estado.pendentes) {
+    const nome = p.nome;
+    if (estado.leituras[nome] !== 'em-disco' || estado.erros[nome] || estado.inserindo.has(nome)) continue;
+    ler(nome).then(() => { if (pronta(nome)) { estado.selecionadas.add(nome); desenharLista(); } }).catch(() => {});
+  }
 };
 
 $('#btReler').onclick = () => selecionar(estado.atual, true);

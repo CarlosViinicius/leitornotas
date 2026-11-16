@@ -67,6 +67,16 @@ try {
 
   $ws = Tentar { $wb.Worksheets.Item($Aba) }
 
+  if ($Acao -eq 'cultivar') {
+    # $Aba aqui é a BASE DE DADOS. Cultivar na coluna E (5), RNC na F (6), primeira linha vazia a partir da 2.
+    $ultima = [int](Tentar { $ws.Cells.Item($ws.Rows.Count, 5).End(-4162).Row })
+    $r = [Math]::Max(1, $ultima) + 1
+    $null = Tentar { $ws.Cells.Item($r, 5).Value2 = "'" + [string]$linhas.nome }
+    if ([string]$linhas.rnc -ne '') { $null = Tentar { $ws.Cells.Item($r, 6).Value2 = "'" + [string]$linhas.rnc } }
+    $null = Tentar { $wb.Save() }
+    Responder @{ linha = $r }
+  }
+
   if ($Acao -eq 'limpar') {
     $soDigitos = { param($s) ([string]$s) -replace '\D', '' }
     # Confere todas antes de apagar qualquer uma.

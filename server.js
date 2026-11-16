@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { extrairNota, extrairNotaGemini, lerChaveGemini, lerPesosGemini, lerPesosClaude, VERSAO_LEITURA } = require('./lib/extrair');
 const { analisar: exatoDoArquivo, textoRapido, textoParaIA, corrigirComExato, conferirPesos } = require('./lib/exato');
 const { carregarReferencia, esquecerReferencia, referenciaComoTexto } = require('./lib/referencia');
-const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle } = require('./lib/google');
+const { codigoAppsScript, lerAbasGoogle, inserirLinhasGoogle, limparLinhasGoogle, adicionarCultivarGoogle } = require('./lib/google');
 const { proporFormulario, formularioParaLinhas, linhasJaLancadas, normalizarCultivar, pesoFecha } = require('./lib/montar');
 const { criarAprendizado } = require('./lib/aprender');
 const { criarTelemetria } = require('./lib/telemetria');
@@ -17,7 +17,7 @@ const { gerarRelatorio } = require('./lib/relatorio');
 const { chaveValida, consertarChave, soDigitos } = require('./lib/chave');
 const { verificarBloqueio, paginaBloqueio, PIX, FLASH_LOGO } = require('./lib/bloqueio');
 const { verificar: verificarAtualizacao, vigiarAtualizacao, aplicar: aplicarAtualizacao, andamento: andamentoAtualizacao, paginaAtualizacao, lerVersaoLocal } = require('./lib/atualizar');
-const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso } = require('./lib/planilha');
+const { inserirLinhas, inserirComExcelAberto, limparLinhas, limparComExcelAberto, fazerBackup, arquivoEmUso, adicionarCultivarBase, adicionarCultivarBaseExcelAberto } = require('./lib/planilha');
 
 const { usarCodigo } = require('./lib/liberar');
 const creditos = require('./lib/creditos').criarCreditos(__dirname);
@@ -460,6 +460,32 @@ function emFila(tarefa) {
 
 function referencia(config) {
   return carregarReferencia(config, (nomes) => lerAbasGoogle(config, nomes));
+}
+
+// Cultivar que não está na base: grava na aba BASE DE DADOS (coluna E, RNC na F) para valer daqui para frente.
+async function adicionarCultivar(config, nomeBruto, rncBruto) {
+  const nome = String(nomeBruto || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  const rnc = String(rncBruto || '').trim().toUpperCase();
+  if (!nome) throw new Error('Digite o nome da cultivar.');
+  if (nome.length > 60 || rnc.length > 40) throw new Error('Nome ou RNC grande demais. Confira o que foi digitado.');
+  if (/^[=+\-@]/.test(nome) || /^[=+\-@]/.test(rnc)) throw new Error('O nome da cultivar não pode começar com = + - ou @.');
+  esquecerReferencia();
+  const ref = await referencia(config);
+  const semEspaco = (s) => s.replace(/\s+/g, '');
+  if (ref.cultivares.some((x) => semEspaco(x.nome) === semEspaco(nome))) return { nome, rnc, jaExistia: true };
+  if (config.destino === 'google') {
+    await adicionarCultivarGoogle(config, nome, rnc);
+  } else {
+    fazerBackup(config.planilha, config.pastaBackups);
+    if (arquivoEmUso(config.planilha)) {
+      const linha = await adicionarCultivarBaseExcelAberto(config.planilha, nome, rnc);
+      if (!linha) throw new Error('A planilha está sendo usada por outro programa (talvez o OneDrive sincronizando). Espere um pouco e tente de novo.');
+    } else {
+      await adicionarCultivarBase(config.planilha, nome, rnc);
+    }
+  }
+  esquecerReferencia();
+  return { nome, rnc, jaExistia: false };
 }
 
 // proposta/contexto: o que o programa tinha proposto para esta nota (para aprender com as correções).
@@ -963,6 +989,13 @@ const servidor = http.createServer(async (req, res) => {
       }
       return json(res, 200, { ok: true, linhas, saldo, desfazer: resumoDesfazer(), aprendizado: resumoAprendizado() });
     }
+    if (req.method === 'POST' && url.pathname === '/api/cultivar-base') {
+      const { nome, rnc } = await lerCorpo(req);
+      const problema = problemaConfig(config);
+      if (problema) return json(res, 400, { erro: problema });
+      const r = await emFila(() => adicionarCultivar(config, nome, rnc));
+      return json(res, 200, { ok: true, ...r });
+    }
     if (req.method === 'POST' && url.pathname === '/api/desfazer') {
       const { id } = await lerCorpo(req);
       const problema = problemaConfig(config);
@@ -973,6 +1006,12 @@ const servidor = http.createServer(async (req, res) => {
     // ---- Avaliação rápida (janela no meio da tela a cada 10 notas) ----
     if (req.method === 'GET' && url.pathname === '/api/avaliacao') {
       avaliacaoAberta = avaliacao.perguntas();
+      // Sem pergunta para fazer, mas com correções nas últimas notas: manda só o resumo (contagens), sem abrir janela.
+      if (!avaliacaoAberta && avaliacao.resumoSemPergunta && creditos.ligado()) {
+        creditos.sugestao(`Resumo automático (sem perguntas)
+${avaliacao.resumoSemPergunta}`, String(config.auditor || '').slice(0, 80), lerVersaoLocal(RAIZ).versao).catch(() => {});
+        avaliacao.resumoSemPergunta = null;
+      }
       return json(res, 200, avaliacaoAberta || {});
     }
     if (req.method === 'POST' && url.pathname === '/api/avaliacao/aviso') {

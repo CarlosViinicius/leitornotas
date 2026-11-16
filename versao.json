@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.39",
+  "versao": "1.1.40",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Melhorias visuais",
@@ -9,7 +9,7 @@
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "45c35049c65acae0cd54a2a40056dbf7b239ff08a529862178206b35d0ae353b"
+      "sha256": "feff7f47e6aec885f44d5ac9eb4862c980643e008bf511bf3b2709c16f6a6cd4"
     },
     {
       "arquivo": "package.json",
@@ -37,7 +37,7 @@
     },
     {
       "arquivo": "lib/excel-aberto.ps1",
-      "sha256": "1c62f0e0c423917f718a641c6d4dd6bd9b5e94389a5653ddbdcb0d1768d0163e"
+      "sha256": "6446f22e2fac71d214e9905882daba50b8e3cf16c8c157edfeb17829fdd71ed7"
     },
     {
       "arquivo": "lib/extrair.js",
@@ -45,7 +45,7 @@
     },
     {
       "arquivo": "lib/google.js",
-      "sha256": "93333e44bf4d86fefdba0b06fc04e570f368969479ff3077d3c338bc6d645274"
+      "sha256": "cabdcd0ce90c4dbafa96da1bbf21b960f0bf874deb5fa0d4ca475d4e95115a65"
     },
     {
       "arquivo": "lib/liberar.js",
@@ -57,7 +57,7 @@
     },
     {
       "arquivo": "lib/planilha.js",
-      "sha256": "4ab01a2bff534d9019301775df09f8ad32250483b6ded446f628da93ff896e8d"
+      "sha256": "5607f700ba1ba89531b1d5f5ec7026a3a71e852ee37aac7aadbe8ac5037a58ea"
     },
     {
       "arquivo": "lib/referencia.js",
@@ -65,7 +65,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "6f49e52ed056fc345ff5b154d2546e812677f1310bd43b5b8ca3ffdd85e52765"
+      "sha256": "b047190e7a33dbf6d7962e3a63e0292e0b1647e588db9fd368230169f01b3d42"
     },
     {
       "arquivo": "public/planos.html",
@@ -129,7 +129,7 @@
     },
     {
       "arquivo": "lib/avaliacao.js",
-      "sha256": "a7abc3ff24f324343a43307c14fe487e06c250b708af26032b30fe114da68403"
+      "sha256": "f049a172a45277403461f1e6f998463670236a20e439fdf28fcd904dac133dba"
     }
   ],
   "servidorCreditos": "https://leitor-notas-servidor.vercel.app"
