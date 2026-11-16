@@ -1869,7 +1869,7 @@
 const $ = (s) => document.querySelector(s);
 const icone = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
 const EXT_OK = /\.(pdf|jpe?g|png|webp)$/i;
-const LEITURAS_AO_MESMO_TEMPO = 2;
+const LEITURAS_AO_MESMO_TEMPO = 3;
 // As lançadas ficam na lista até fechar o navegador (sessionStorage guarda se recarregar a página).
 const lerLancadas = () => {
   try {
@@ -2020,7 +2020,9 @@ async function atualizar() {
 // Vai lendo as notas da fila sozinho, duas de cada vez, para estarem prontas quando forem abertas.
 function lerEmSegundoPlano() {
   let vagas = LEITURAS_AO_MESMO_TEMPO - Object.keys(estado.lendo).length;
-  for (const p of estado.pendentes) {
+  // A nota que está aberta na tela passa na frente das outras da fila.
+  const ordem = [...estado.pendentes].sort((a, b) => (b.nome === estado.atual) - (a.nome === estado.atual));
+  for (const p of ordem) {
     if (vagas <= 0) break;
     if (leitura(p.nome) || estado.lendo[p.nome] || estado.erros[p.nome]) continue;
     vagas--;
@@ -2195,7 +2197,7 @@ async function desfazerUltima(bt) {
     estado.desfazer = r.desfazer;
     if (r.nome && r.formulario) estado.forms[r.nome] = r.formulario;
     revalidarFila();
-    toast(`Desfeito: NF ${r.nf} apagada da planilha (${r.linhas.length > 1 ? 'linhas ' + r.linhas.join(', ') : 'linha ' + r.linhas[0]}). A nota voltou para a fila.`);
+    toast(`Desfeito: NF ${r.nf} apagada da planilha (${r.linhas.length > 1 ? 'linhas ' + r.linhas.join(', ') : 'linha ' + r.linhas[0]}). A nota voltou para a fila.${textoSemDevolucao(r.semDevolucao)}`);
     await atualizar();
     if (r.nome) selecionar(r.nome);
   } catch (e) {
@@ -3294,6 +3296,13 @@ $('#insDesfazer').onclick = async () => {
   $('#avisoInserida').hidden = true;
   await desfazerPorId(estado.desfazer);
 };
+// O servidor só devolve o crédito de um lançamento desfeito dentro do prazo e até um máximo por dia.
+function textoSemDevolucao(d) {
+  if (!d) return '';
+  if (d.motivo === 'prazo') return ` O crédito não foi devolvido: só voltam créditos de lançamentos desfeitos em até ${d.janelaMin >= 60 ? Math.round(d.janelaMin / 60) + ' h' : d.janelaMin + ' min'}.`;
+  return ` O crédito não foi devolvido: o limite de ${d.maxDia} devoluções por dia foi atingido.`;
+}
+
 async function desfazerPorId(alvo) {
   try {
     const r = await api('/api/desfazer', { id: alvo.id });
@@ -3302,7 +3311,7 @@ async function desfazerPorId(alvo) {
     estado.desfazer = r.desfazer;
     if (r.nome && r.formulario) estado.forms[r.nome] = r.formulario;
     revalidarFila();
-    toast(`Desfeito: NF ${r.nf} apagada da planilha (${r.linhas.length > 1 ? 'linhas ' + r.linhas.join(', ') : 'linha ' + r.linhas[0]}). A nota voltou para a fila.`);
+    toast(`Desfeito: NF ${r.nf} apagada da planilha (${r.linhas.length > 1 ? 'linhas ' + r.linhas.join(', ') : 'linha ' + r.linhas[0]}). A nota voltou para a fila.${textoSemDevolucao(r.semDevolucao)}`);
     await atualizar();
     if (r.nome) selecionar(r.nome);
     return true;

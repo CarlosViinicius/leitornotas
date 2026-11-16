@@ -634,7 +634,12 @@ async function desfazerInsercao(config, id) {
   salvarHistorico(historico.slice(1));
   try { marcarDesfeito(r.id); } catch (e) { console.error('Não consegui marcar no histórico:', e.message); }
   try { aprendizado.esquecerInsercao(r.id); } catch (e) { console.error('Não consegui esquecer as correções desta nota:', e.message); }
-  if (r.creditoRef && creditos.ligado()) await creditos.devolver(r.creditoRef, config.auditor).catch((e) => console.error('Não devolvi o crédito:', e.message));
+  // O servidor limita as devoluções (prazo e máximo por dia). Se negar, a nota é desfeita do mesmo jeito, mas o crédito fica gasto.
+  let semDevolucao = null;
+  if (r.creditoRef && creditos.ligado()) {
+    const dev = await creditos.devolver(r.creditoRef, config.auditor).catch((e) => { console.error('Não devolvi o crédito:', e.message); return null; });
+    if (dev && dev.devolvido === false && (dev.motivo === 'prazo' || dev.motivo === 'limite')) semDevolucao = dev;
+  }
 
   // A nota volta para a fila já lida (sem gastar IA de novo) e com as correções feitas na tela.
   let nome = null;
@@ -652,7 +657,7 @@ async function desfazerInsercao(config, id) {
       fs.writeFileSync(caminhoCache(nome), JSON.stringify(r.leituraIA, null, 2));
     }
   }
-  return { nome, nf: r.nf, linhas: r.conferencias.map((c) => c.linha), formulario: r.formulario };
+  return { nome, nf: r.nf, linhas: r.conferencias.map((c) => c.linha), formulario: r.formulario, semDevolucao };
 }
 
 function resumoAprendizado() {

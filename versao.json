@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.37",
+  "versao": "1.1.38",
   "repo": "CarlosViinicius/leitornotas",
   "novidades": [
     "Melhorias visuais",
@@ -9,7 +9,7 @@
   "arquivos": [
     {
       "arquivo": "server.js",
-      "sha256": "2b7d446b7bc7b43122658ca254746101c18ab3190c7c33284b65f24618269d27"
+      "sha256": "1e19d9cff90b6a744eddd1fb488e7d957035cea4372df759dc7eb3e5db20dc19"
     },
     {
       "arquivo": "package.json",
@@ -29,7 +29,7 @@
     },
     {
       "arquivo": "lib/chave.js",
-      "sha256": "4a40b2cbda8fed09c358d2f8baeb112a17fed00c702ad3f22b8ed74dd26863e2"
+      "sha256": "21dfa8c3f4ab2eaaddef75a25006d022e0bc579c22a2b3c211348bf842f3d264"
     },
     {
       "arquivo": "lib/creditos.js",
@@ -41,7 +41,7 @@
     },
     {
       "arquivo": "lib/extrair.js",
-      "sha256": "ba295ff7fe273e9f16b137cf003540ba0826e673cf092b5bb436d7c9c78d9d4e"
+      "sha256": "f102a4bf84d1cb8f8a44a0a3fb3f8b55a5095500406cef6889743000b1e5f84a"
     },
     {
       "arquivo": "lib/google.js",
@@ -53,7 +53,7 @@
     },
     {
       "arquivo": "lib/montar.js",
-      "sha256": "62a92a76f2de06c948eaed0a5ad7dc446f44e7b24a6e1b993754b9fa1f075119"
+      "sha256": "fa2cc3e2c022dff70fcf7644ef57ec82e16dd922943a7d5296d9c0c6a9cf0255"
     },
     {
       "arquivo": "lib/planilha.js",
@@ -65,7 +65,7 @@
     },
     {
       "arquivo": "public/index.html",
-      "sha256": "251c6a43bb3907b5355e24f427a6ecdcbc8996f0fea1737772abb3c7128bef4b"
+      "sha256": "6f49e52ed056fc345ff5b154d2546e812677f1310bd43b5b8ca3ffdd85e52765"
     },
     {
       "arquivo": "public/planos.html",
@@ -73,15 +73,15 @@
     },
     {
       "arquivo": "lib/exato.js",
-      "sha256": "d32332942f8c31c0454e2954f59a4fbf52e48268059a14d7e185edb8c8acdc16"
+      "sha256": "b8137ecf320857b9b58f1e013b7ff104913f37369e4f0bf11115425f6a126033"
     },
     {
       "arquivo": "lib/aprender.js",
-      "sha256": "1a66880887c3b56bec8ab44efe2b99fec9a10b03c7b8e61fdc60c9de63b20a4b"
+      "sha256": "dfbf3dd826fa48a58ca2a1827f3f2b96ddf4239ce037db4aa520d368bf29c1c9"
     },
     {
       "arquivo": "lib/conferencias.js",
-      "sha256": "69a3b9e0e853845896338f3758d389296a8967830cdc04d15031755766d89594"
+      "sha256": "bf35863ad30f0c29d0849f835479566f9e7eafa7ce78524a59366ebdc7c6a229"
     },
     {
       "arquivo": "lib/relatorio.js",
